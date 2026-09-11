@@ -85,7 +85,20 @@ export function normalizeRoom(room) {
   r.generalArea = r.generalArea || null;
   r.details = Array.isArray(r.details) ? r.details : [];
   r.encounter = r.encounter || null;
-  r.hidden = Array.isArray(r.hidden) ? r.hidden : [];
+  r.hidden = (Array.isArray(r.hidden) ? r.hidden : []).map(h => ({
+    question: h.question || "Is something hidden found?",
+    answer: h.answer || "",
+    answerName: h.answerName || h.answer || "",
+    answerBlurb: h.answerBlurb || null,
+    odds: h.odds || null, oddsName: h.oddsName || null, roll: h.roll || null,
+    event: h.event || null, note: h.note || "", ts: h.ts || 0
+  }));
+  if (r.encounter) {
+    r.encounter = {
+      odds: null, oddsName: null, roll: null, answerBlurb: null, event: null,
+      note: "", ...r.encounter
+    };
+  }
   r.description = r.description || "";
   r.notes = r.notes || "";
   // Derived-but-stored, for list rendering. Always recomputed, never trusted.

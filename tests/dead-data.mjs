@@ -5,7 +5,7 @@ import { readdirSync, readFileSync } from "node:fs";
 
 const files = [
   ...readdirSync("src").filter(f => f.endsWith(".js")).map(f => "src/" + f),
-  "data.js", "data-house-roomtypes.js"
+  "data.js", "data-house-roomtypes.js", "data-mythic.js"
 ];
 const src = Object.fromEntries(files.map(f => [f, readFileSync(f, "utf8")]));
 
@@ -94,7 +94,7 @@ for (const [f, names] of Object.entries(importsOf)) {
 }
 
 // Every data table must have a consumer somewhere in src/.
-const dataExports = [...exports["data.js"], ...exports["data-house-roomtypes.js"]];
+const dataExports = [...exports["data.js"], ...exports["data-house-roomtypes.js"], ...exports["data-mythic.js"]];
 const srcText = files.filter(f => f.startsWith("src/")).map(f => src[f]).join("\n");
 const unreadData = dataExports.filter(n => !word(n).test(srcText));
 

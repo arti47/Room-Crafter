@@ -43,9 +43,9 @@ for (const seed of ["mid-crawl"]) {
 
       await page.evaluate(() => {
         window.__before = {
-          html: document.querySelector("#screen").innerHTML.length,
+          html: document.querySelector("#screen").innerHTML,
           hash: location.hash,
-          store: JSON.stringify([localStorage.getItem("rc.rooms"), localStorage.getItem("rc.crawls"), localStorage.getItem("rc.rollLog"), localStorage.getItem("rc.settings")]).length,
+          store: JSON.stringify([localStorage.getItem("rc.rooms"), localStorage.getItem("rc.crawls"), localStorage.getItem("rc.rollLog"), localStorage.getItem("rc.settings")]),
           modal: !!document.querySelector(".modal-backdrop"),
           toast: !!document.querySelector(".toast"),
           scroll: Math.round(window.scrollY)
@@ -65,9 +65,9 @@ for (const seed of ["mid-crawl"]) {
       // Poll for a change; never a fixed wait (defect D-15).
       const changed = await until(page, () => {
         const b = window.__before;
-        return document.querySelector("#screen").innerHTML.length !== b.html ||
+        return document.querySelector("#screen").innerHTML !== b.html ||
           location.hash !== b.hash ||
-          JSON.stringify([localStorage.getItem("rc.rooms"), localStorage.getItem("rc.crawls"), localStorage.getItem("rc.rollLog"), localStorage.getItem("rc.settings")]).length !== b.store ||
+          JSON.stringify([localStorage.getItem("rc.rooms"), localStorage.getItem("rc.crawls"), localStorage.getItem("rc.rollLog"), localStorage.getItem("rc.settings")]) !== b.store ||
           !!document.querySelector(".modal-backdrop") !== b.modal ||
           !!document.querySelector(".toast") !== b.toast ||
           Math.round(window.scrollY) !== b.scroll;

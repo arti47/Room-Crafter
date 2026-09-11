@@ -5,6 +5,8 @@ import { EXPLAIN, MEANING_TABLES, ENCOUNTER_ANSWERS, ROOM_ELEMENTS } from "../da
 import * as store from "./store.js";
 import * as roller from "./roller.js";
 import * as lifecycle from "./lifecycle.js";
+import * as mythic from "./mythic.js";
+import { Settings } from "./settings.js";
 import {
   areaCount, searchedAreas, searchedTotal, totalExplorable, generalDone,
   isComplete, searchState, STATE_LABEL, canSearchArea, canSearchGeneral
@@ -137,42 +139,108 @@ function encounterBlock(room) {
   const box = el("section", { class: "block", id: "sec-encounter" });
   add(box, el("h2", { class: "block-title", text: "Is there an encounter?" }));
   if (room.encounter) {
-    add(box,
-      el("p", { class: "result-line" },
-        el("b", { text: room.encounter.answerName }),
-        room.encounter.note ? el("span", { class: "list-sub", text: " — " + room.encounter.note }) : null),
-      el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
-        confirmModal({
-          title: "Clear the encounter answer?",
-          message: "This removes the recorded answer for this room. The roll it came from stays in your own notes, not here.",
-          confirmLabel: "Clear it",
-          onConfirm: () => { lifecycle.clearEncounter(room); rerender(); }
-        });
-      } }, "Clear")
-    );
+    add(box, answerCard(room.encounter));
+    add(box, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
+      confirmModal({
+        title: "Clear the encounter answer?",
+        message: "This removes the recorded answer for this room, and the Random Event with it if one fired. The roll stays in the log.",
+        confirmLabel: "Clear it",
+        onConfirm: () => { lifecycle.clearEncounter(room); rerender(); }
+      });
+    } }, "Clear"));
     return box;
   }
-  add(box,
-    el("p", { class: "prose" },
-      "Ask it once, after describing the room and before searching — see ", ruleLink("encounter", "the rule"),
-      ". This build has no Fate Chart, so roll the question on your own Mythic tables and record what you got."),
-    el("span", { class: "badge badge-guidance", text: "not automated" })
-  );
+
+  add(box, el("p", { class: "prose" },
+    "Ask it once, after describing the room and before searching — see ", ruleLink("encounter", "the rule"), "."));
   if (!room.description) {
     add(box, el("p", { class: "hint", text: "The article asks you to describe the room before you ask. You can answer now anyway — this is guidance, not a gate." }));
   }
-  const row = el("div", { class: "choice-row choice-wrap" });
-  for (const a of ENCOUNTER_ANSWERS) {
-    add(row, el("button", { class: "choice", type: "button", onclick: () => {
-      promptModal({
-        title: a.name, label: "Anything to note?", value: "",
-        hint: a.blurb, confirmLabel: "Record",
-        onConfirm: note => { lifecycle.recordEncounter(room, a.id, note); showToast("Recorded: " + a.name); rerender(); }
-      });
-    } }, el("span", { class: "choice-main", text: a.name })));
+
+  if (Settings.useMythic()) {
+    add(box, oddsAsker(room, "Is there an encounter?", res => {
+      lifecycle.recordEncounter(room, res.answer, "", res);
+      rerender();
+    }));
+  } else {
+    add(box, el("p", { class: "prose", text: "Mythic is switched off, so roll the question on your own tables and record what you got." }),
+      el("span", { class: "badge badge-guidance", text: "not automated" }));
+    const row = el("div", { class: "choice-row choice-wrap" });
+    for (const a of ENCOUNTER_ANSWERS) {
+      add(row, el("button", { class: "choice", type: "button", onclick: () => {
+        promptModal({
+          title: a.name, label: "Anything to note?", value: "",
+          hint: a.blurb, confirmLabel: "Record",
+          onConfirm: note => { lifecycle.recordEncounter(room, a.id, note); showToast("Recorded: " + a.name); rerender(); }
+        });
+      } }, el("span", { class: "choice-main", text: a.name })));
+    }
+    add(box, row);
   }
-  add(box, row);
   return box;
+}
+
+// The odds picker and the Ask button, shared by the encounter check and the
+// hidden-search question — one control for one kind of thing.
+function oddsAsker(room, question, onAnswer) {
+  let odds = mythic.DEFAULT_ODDS;
+  const wrap = el("div", {});
+  const row = el("div", { class: "choice-row choice-wrap", role: "radiogroup", "aria-label": "How likely is a Yes?" });
+  const buttons = mythic.ODDS.map(o => {
+    const btn = el("button", {
+      class: "choice choice-sm" + (o.id === odds ? " choice-on" : ""),
+      type: "button", role: "radio", "aria-checked": o.id === odds ? "true" : "false",
+      onclick: () => {
+        odds = o.id;
+        buttons.forEach((b, i) => {
+          const on = mythic.ODDS[i].id === odds;
+          b.className = "choice choice-sm" + (on ? " choice-on" : "");
+          b.setAttribute("aria-checked", on ? "true" : "false");
+        });
+      }
+    }, el("span", { class: "choice-main", text: o.name }));
+    add(row, btn);
+    return btn;
+  });
+  add(wrap,
+    el("p", { class: "field-label", text: "How likely is a Yes?" }),
+    row,
+    el("p", { class: "hint", text: mythic.MYTHIC_EXPLAIN.ask }),
+    el("button", { class: "btn btn-secondary btn-wide", type: "button", onclick: () => {
+      const res = mythic.ask(room, odds, question);
+      onAnswer(res);
+      showAnswer(res, question);
+    } }, "Ask")
+  );
+  return wrap;
+}
+
+// One renderer for a Mythic answer, wherever it is shown.
+function answerCard(rec) {
+  const box = el("div", { class: "find" });
+  add(box, el("p", { class: "find-head" },
+    rec.roll ? el("span", { class: "die", text: String(rec.roll) }) : null,
+    el("b", { text: rec.answerName }),
+    rec.oddsName ? el("span", { class: "list-sub", text: " at " + rec.oddsName }) : null));
+  if (rec.answerBlurb) add(box, el("p", { class: "prose", text: rec.answerBlurb }));
+  if (rec.note) add(box, el("p", { class: "prose prose-read", text: rec.note }));
+  if (rec.event) {
+    add(box, el("p", { class: "find-head" },
+      el("span", { class: "die", text: rec.event.rolls.join(" · ") }),
+      el("b", { text: "Random Event: " + rec.event.words.join(" / ") })));
+    add(box, el("p", { class: "hint" },
+      "A double fired an event as well as the answer — read it against what is going on now. ",
+      ruleLink("mythic-event", "The rule"), "."));
+  }
+  return box;
+}
+
+function showAnswer(res, question) {
+  modal({
+    title: question || "Ask The Game Master",
+    body: answerCard(res),
+    actions: [{ label: "Good", onClick: () => rerender() }]
+  });
 }
 
 function areasBlock(room) {
@@ -234,35 +302,43 @@ function hiddenBlock(room) {
   const d = el("details", { class: "fold" });
   add(d, el("summary", { text: "Hidden things" + ((room.hidden || []).length ? " (" + room.hidden.length + ")" : "") }));
   add(d, el("p", { class: "prose" },
-    "Room Crafter reports what is apparent. For a secret door or a stash, use your own game's search mechanic, then ask 'Is something hidden found?' at odds you set — ",
-    ruleLink("hidden", "the rule"), "."),
-    el("span", { class: "badge badge-guidance", text: "not automated" }));
+    "Room Crafter reports what is apparent. For a secret door or a stash, use your own game's search mechanic first, then ask — ",
+    ruleLink("hidden", "the rule"), "."));
   for (const h of room.hidden || []) {
-    add(d, el("p", { class: "result-line" },
-      el("b", { text: h.answer }),
-      el("span", { class: "list-sub", text: " " + h.question + (h.note ? " — " + h.note : "") })));
+    add(d, el("div", { class: "card" },
+      el("p", { class: "meta", text: h.question }),
+      answerCard(h)));
   }
-  add(d, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
-    const q = el("input", { class: "field", type: "text", id: "hid-q", value: "Is something hidden found?" });
-    const ansSel = el("select", { class: "field", id: "hid-a" });
-    for (const o of ["Yes", "Exceptional Yes", "No", "Exceptional No"]) add(ansSel, el("option", { value: o }, o));
-    const note = el("input", { class: "field", type: "text", id: "hid-n", placeholder: "What was found?" });
-    const body = el("div", {});
-    add(body,
-      el("label", { class: "field-label", for: "hid-q", text: "The question you asked" }), q,
-      el("label", { class: "field-label", for: "hid-a", text: "Your answer" }), ansSel,
-      el("label", { class: "field-label", for: "hid-n", text: "Note" }), note);
-    modal({
-      title: "Record a hidden search", body,
-      actions: [
-        { label: "Record", onClick: () => {
-          lifecycle.recordHidden(room, q.value.trim(), ansSel.value, note.value.trim());
-          showToast("Recorded."); rerender();
-        } },
-        { label: "Cancel" }
-      ]
-    });
-  } }, "Record a hidden search"));
+
+  if (Settings.useMythic()) {
+    add(d, oddsAsker(room, "Is something hidden found?", res => {
+      lifecycle.recordHidden(room, "Is something hidden found?", res.answer, "", res);
+      rerender();
+    }));
+  } else {
+    add(d, el("span", { class: "badge badge-guidance", text: "not automated" }));
+    add(d, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
+      const q = el("input", { class: "field", type: "text", id: "hid-q", value: "Is something hidden found?" });
+      const ansSel = el("select", { class: "field", id: "hid-a" });
+      for (const o of ["Yes", "Exceptional Yes", "No", "Exceptional No"]) add(ansSel, el("option", { value: o }, o));
+      const note = el("input", { class: "field", type: "text", id: "hid-n", placeholder: "What was found?" });
+      const body = el("div", {});
+      add(body,
+        el("label", { class: "field-label", for: "hid-q", text: "The question you asked" }), q,
+        el("label", { class: "field-label", for: "hid-a", text: "Your answer" }), ansSel,
+        el("label", { class: "field-label", for: "hid-n", text: "Note" }), note);
+      modal({
+        title: "Record a hidden search", body,
+        actions: [
+          { label: "Record", onClick: () => {
+            lifecycle.recordHidden(room, q.value.trim(), ansSel.value, note.value.trim());
+            showToast("Recorded."); rerender();
+          } },
+          { label: "Cancel" }
+        ]
+      });
+    } }, "Record a hidden search"));
+  }
   return d;
 }
 
@@ -327,20 +403,18 @@ function findBlock(room, find, { areaId }) {
   }
 
   if (find.meaning) {
-    add(box, el("p", { class: "find-head" },
-      el("span", { class: "die", text: find.meaning.rolls.join(" · ") }),
-      el("b", { text: find.meaning.words.join(" / ") }),
-      el("span", { class: "list-sub", text: " " + find.meaning.tableName })));
-    if (find.meaning.doubled) {
-      add(box, el("p", { class: "hint", text: "The same word twice — on a meaning table that amplifies rather than repeats." }));
-    }
-    add(box, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
-      roller.rerollMeaning(room, find, find.meaning.tableId, areaId);
-      showToast("Rolled again."); rerender();
-    } }, "Roll that pair again"));
+    add(box, meaningBlock(room, find, areaId));
   } else if (roller.needsMeaning(find)) {
     add(box, el("p", { class: "prose" }, "Random: choose a Meaning table and roll a pair — ", ruleLink("random", "the rule"), "."));
     const row = el("div", { class: "choice-row choice-wrap" });
+    if (Settings.useMythic()) {
+      add(row, el("button", { class: "choice", type: "button", onclick: () => {
+        find.meaning = mythic.discoverMeaning(room, ["action", "description"], "Random element");
+        store.saveRoom(room);
+        rerender();
+      } }, el("span", { class: "choice-main", text: "Discover Meaning" }),
+         el("span", { class: "choice-sub", text: "Action + Description" })));
+    }
     for (const t of MEANING_TABLES) {
       add(row, el("button", { class: "choice", type: "button", onclick: () => {
         roller.attachMeaning(room, { find, areaId }, t.id);
@@ -348,12 +422,21 @@ function findBlock(room, find, { areaId }) {
       } }, el("span", { class: "choice-main", text: t.name })));
     }
     add(box, row);
-    add(box, el("p", { class: "hint", text: "Mythic's own Actions and Descriptions tables are not in this build." }));
   }
 
-  if (find.elementId === "fortunate" || find.elementId === "unfortunate" ||
-      (find.sub || []).some(s => s.elementId === "fortunate" || s.elementId === "unfortunate")) {
-    add(box, el("p", { class: "hint", text: "Use the obvious idea if you have one; otherwise ask a Fate Question or Discover Meaning on your own tables." }));
+  const swingy = find.elementId === "fortunate" || find.elementId === "unfortunate" ||
+    (find.sub || []).some(x => x.elementId === "fortunate" || x.elementId === "unfortunate");
+  if (swingy) {
+    add(box, el("p", { class: "hint", text: "Use the obvious idea if you have one." }));
+    if (Settings.useMythic() && !find.meaning) {
+      add(box, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
+        find.meaning = mythic.discoverMeaning(room, ["action", "description"], "Fortunate/Unfortunate");
+        store.saveRoom(room);
+        rerender();
+      } }, "No idea — Discover Meaning"));
+    } else if (!Settings.useMythic()) {
+      add(box, el("p", { class: "hint", text: "Otherwise ask a Fate Question or Discover Meaning on your own tables." }));
+    }
   }
   return box;
 }
@@ -361,6 +444,39 @@ function findBlock(room, find, { areaId }) {
 function elementBlurb(id) {
   const band = ROOM_ELEMENTS.find(x => x.id === id);
   return band ? band.blurb : "";
+}
+
+// One renderer for a rolled meaning, whichever table produced it.
+function meaningBlock(room, find, areaId) {
+  const m = find.meaning;
+  const box = el("div", {});
+  add(box, el("p", { class: "find-head" },
+    el("span", { class: "die", text: m.rolls.join(" · ") }),
+    el("b", { text: m.words.join(" / ") }),
+    el("span", { class: "list-sub", text: " " + m.tableName +
+      (m.columns ? " (" + m.columns.join(" + ") + ")" : "") })));
+  if (m.doubled) {
+    add(box, el("p", { class: "hint", text: "The same word twice — on a meaning table that amplifies rather than repeats." }));
+  }
+  const row = el("div", { class: "choice-row choice-wrap" });
+  if (m.tableId === "mythic") {
+    // "Get more words": keep rolling until an interpretation comes clear.
+    for (const c of mythic.MEANING_COLUMNS) {
+      add(row, el("button", { class: "choice choice-sm", type: "button", onclick: () => {
+        mythic.anotherWord(room, m, c.id);
+        store.saveRoom(room);
+        rerender();
+      } }, el("span", { class: "choice-main", text: "+ " + c.name })));
+    }
+    add(box, el("p", { class: "hint" }, "Not clear yet? Roll another word — ", ruleLink("mythic-meaning", "the rule"), "."));
+  } else {
+    add(row, el("button", { class: "choice choice-sm", type: "button", onclick: () => {
+      roller.rerollMeaning(room, find, m.tableId, areaId);
+      showToast("Rolled again."); rerender();
+    } }, el("span", { class: "choice-main", text: "Roll that pair again" })));
+  }
+  add(box, row);
+  return box;
 }
 
 // One renderer for details, wherever they hang (§10.11: one record, not two).

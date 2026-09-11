@@ -1,6 +1,6 @@
 // service-worker.js — app shell cached and versioned; navigation network-first so
 // a stale shell never outlives a deploy. Bump CACHE_VERSION on any shipped file.
-const CACHE_VERSION = "rc-v1";
+const CACHE_VERSION = "rc-v2";
 const SHELL = [
   "./",
   "./index.html",
@@ -9,6 +9,7 @@ const SHELL = [
   "./icon.svg",
   "./data.js",
   "./data-house-roomtypes.js",
+  "./data-mythic.js",
   "./src/core.js",
   "./src/ui.js",
   "./src/rules.js",
@@ -16,6 +17,7 @@ const SHELL = [
   "./src/settings.js",
   "./src/store.js",
   "./src/roller.js",
+  "./src/mythic.js",
   "./src/wizard.js",
   "./src/sheet.js",
   "./src/lifecycle.js",

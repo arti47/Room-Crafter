@@ -33,21 +33,33 @@ It installs as a PWA and works offline. Everything is stored in your browser's
   **read-aloud export** that writes the room as plain text for the table.
 - **Rules library** and a **tutorial**, in the app's own words.
 
+## Asking Mythic
+
+The Room Crafter defers three things to a Game Master emulator, and this build
+carries **One-Page Mythic** for them:
+
+- **"Is there an encounter?"** and **"Is something hidden found?"** — pick how
+  likely a Yes is and the app rolls it on the Ask The Game Master chart.
+- **Random Events** — a double digit on that same roll fires one, and the app
+  rolls its meaning without being asked.
+- **Discover Meaning** — Action and Description columns, wired into the Random
+  element (81–95) and offered when a Fortunate or Unfortunate result leaves you
+  with no obvious idea. Roll more words until it comes clear.
+
+Note this is the one-page emulator, **not Mythic GME 2e**: there is no Chaos
+Factor, and the odds row is the only input to the chart.
+
+**Settings → Use One-Page Mythic** turns all of it off. With it off those
+surfaces go back to recording an answer you rolled yourself, each marked
+*not automated*, and Mythic's entries leave the rules library with it.
+
 ## What it does not do
 
-The Room Crafter sits on top of Mythic GME 2e, and this build does not carry
-that book. So three things are **recorded, not automated**:
-
-- **"Is there an encounter?"** — needs the Fate Chart. Ask it on your own
-  tables; the app holds the answer.
-- **"Is something hidden found?"** — same.
-- **A Random element (81–95)** — needs a Meaning table. The app offers the two
-  the article publishes; Mythic's Actions and Descriptions tables are not here.
-
-Each of those surfaces says so where it appears.
-
-It also does not generate interpretations. Rolling the keyword is the app's job;
+It does not generate interpretations. Rolling the keyword is the app's job;
 deciding that "Crammed" is a bed with barely room to walk around it is yours.
+
+It does not carry Mythic GME 2e's larger Meaning tables, its Chaos Factor, or
+the Location Crafter's region-scale machinery.
 
 ## The dice
 
@@ -84,9 +96,9 @@ proves it. `docs/AUDIT.md` is the findings log.
 
 ## Licensing
 
-This is a personal play aid, built from the owner's own copy of the magazine.
-Rules text is paraphrased; the keyword tables are the publisher's and are
-reproduced here for personal use. **This repository should stay private.** If
+This is a personal play aid, built from the owner's own copies of the magazine
+and the One-Page Mythic sheet. Rules text is paraphrased; the tables are the
+publisher's and are reproduced here for personal use. **This repository should stay private.** If
 you want to publish something like it, build it on openly licensed material
 (an SRD, or ORC/CC content) instead — that choice, and its consequences, are
 yours.

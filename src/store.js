@@ -233,7 +233,10 @@ export function roomAsText(rm) {
   L.push("");
   if (rm.description) { L.push(rm.description, ""); }
   if (rm.encounter) {
-    L.push("Encounter: " + rm.encounter.answerName + (rm.encounter.note ? " — " + rm.encounter.note : ""));
+    const e = rm.encounter;
+    L.push("Encounter: " + e.answerName + (e.oddsName ? " (" + e.oddsName + ", rolled " + e.roll + ")" : "") +
+      (e.note ? " — " + e.note : ""));
+    if (e.event) L.push("  Random Event: " + e.event.words.join(" / "));
     L.push("");
   }
   L.push("Areas:");
@@ -257,7 +260,12 @@ export function roomAsText(rm) {
   }
   if ((rm.hidden || []).length) {
     L.push("", "Hidden searches:");
-    for (const h of rm.hidden) L.push("  - " + h.question + " -> " + h.answer + (h.note ? " — " + h.note : ""));
+    for (const h of rm.hidden) {
+      L.push("  - " + h.question + " -> " + (h.answerName || h.answer) +
+        (h.oddsName ? " (" + h.oddsName + ", rolled " + h.roll + ")" : "") +
+        (h.note ? " — " + h.note : ""));
+      if (h.event) L.push("      Random Event: " + h.event.words.join(" / "));
+    }
   }
   if (rm.notes) L.push("", "Notes:", rm.notes);
   return L.join("\n");

@@ -174,9 +174,89 @@ Each was reintroduced as a defect and watched go red before the fix was restored
   refused.
 - **Old-shape records** normalize without crashing.
 
-## Cycle 2 — still owed
+---
 
-The stopping rule is one complete cycle of all seven passes with no finding.
-Cycle 1 produced twelve. Cycle 2 has not been run, and by the template's own
-evidence it should be expected to find things — change the seed, the width, and
+## Cycle 2 — the One-Page Mythic source
+
+Run while integrating the second supplied source, so this cycle covers new
+ground rather than re-reading the old.
+
+### Pass 1 — Dead-data scan
+
+**A-13 · A rules value hardcoded in a `src/` module.**
+*Rule:* 50/50 is the default odds (One-Page Mythic).
+*Target:* `src/mythic.js` → `oddsById`; `src/sheet.js` → `oddsAsker`.
+*Fix:* both now read `DEFAULT_ODDS` from `data-mythic.js`.
+*Why it mattered:* §10.2 — the data layer is the only part a human can proofread
+against the page. Two modules had the string `"fifty"` baked in.
+
+**A-14 · Extracted copy and a provenance flag with no reader.**
+*Target:* `MYTHIC_EXPLAIN` and `MYTHIC` in `data-mythic.js`.
+*Fix:* the explain line now appears under the odds picker; the `MYTHIC` flag
+drives a provenance badge on every Mythic row in the roll log, matching the
+house-aid badge.
+*Why it mattered:* two sources are mixed in one log now. Without the badge a
+player cannot tell which book a roll came from — and the badge existed as a
+concept with nothing rendering it.
+
+### Pass 2 — Rules read-through (`docs/rules/mythic.md` against the engine)
+
+**A-15 · Fortunate/Unfortunate still said "on your own tables" with Mythic on.**
+*Rule:* use the obvious idea, else Discover Meaning (R16).
+*Target:* `src/sheet.js` → `findBlock`.
+*Fix:* with the toggle on, the card offers "No idea — Discover Meaning" and
+rolls it. With the toggle off, the original guidance line returns.
+*Why it mattered:* the copy would have been actively wrong — telling you to go
+elsewhere for something the app had just gained the ability to do.
+
+**A-16 · Mythic's rules stayed in the library with the toggle off.**
+*Target:* `src/screens.js` → `rules`.
+*Fix:* the library merges `MYTHIC_RULES` only while the toggle is on.
+*Why it mattered:* §10.13 in its mirror image — describing a rule the app is not
+applying is the same defect as applying one it does not describe.
+
+### Passes 4–5 — Interaction audit and measured layout
+
+No app findings. The room sheet grows to ~5.7 viewports at stress with the odds
+picker present; the jump row added in cycle 1 (A-12) covers it.
+
+### Harness faults
+
+- **H-8** The smoke assertion for the recorded encounter used `\bYes\b`, but the
+  die renders flush against the answer ("38Yes"), so the word boundary never
+  matched. It now asserts the recorded state itself.
+- **H-9** `page.goto` to the same URL and hash did not reliably reload, so the
+  toggle-off tests were measuring the toggle-on app. They reload explicitly.
+- **H-10** The interaction audit compared `innerHTML.length`. A radiogroup moving
+  its selection from one chip to another is a **net-zero length change**, so nine
+  live odds controls read as dead. It compares the markup itself now — which is
+  the stronger check it should always have been, and the same fault would have
+  hidden any swap-shaped change anywhere in the app.
+
+### Guards proven to bite
+
+| Guard | Break | Result |
+|---|---|---|
+| `T11` / `R31` / `R35` chart coverage | one band narrowed by a single number (`yes: [11,50]` → `[11,49]`) | red, three checks, naming roll 50 |
+| `R32` Random Event trigger | `isRandomEvent` narrowed to `roll === 11` | red, naming roll 22 |
+| `mythic off` smoke checks | the toggle condition forced true | red, three checks |
+
+### Verified clean in this cycle
+
+- **Every Odds row** covers 1–100 exactly once, starts at 1 and ends at 100.
+- **Monotonicity:** Yes-or-better shrinks strictly from Certain to Impossible —
+  the cheapest check that the nine rows were not transposed in transcription.
+- **Discover Meaning:** 50 bands of two covering 1–100, 50 unique Actions and 50
+  unique Descriptions, both columns alphabetical (case-insensitively — `NPC`
+  sorts by letter, not by ASCII).
+- **Random Events:** 400 sampled asks in the browser, zero mismatches between a
+  double and an event; the event never costs a second question.
+- **Both toggle states** render, neither claims the other's copy, and the rules
+  library follows the toggle.
+
+## Cycle 3 — still owed
+
+Two cycles, twelve findings and then four. The stopping rule is a full
+seven-pass cycle with none, so a third is owed — and by the template's own
+evidence it should be expected to find something. Change the seed, the width and
 the order of reading before running it.

@@ -120,12 +120,21 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   r.check("e2e: description saved",
     await until(page, () => document.body.textContent.includes("Smoke and old paper.")));
 
-  // Encounter check (the stub).
-  await page.click("#screen .choice-row .choice:nth-child(3)");         // "No"
-  await until(page, () => !!document.querySelector("#prompt-field"));
+  // Encounter check — asked on the Mythic chart, which is on by default.
+  await page.click("#sec-encounter .choice:nth-child(4)");              // odds: Likely
+  await page.click("#sec-encounter .btn-secondary");                    // Ask
+  r.check("e2e: Ask The GM produced an answer",
+    await until(page, () => !!document.querySelector(".modal-backdrop")));
+  const answerText = await page.$eval(".modal-card", n => n.textContent);
+  r.check("e2e: the answer names the odds it was asked at", /Likely/.test(answerText), answerText.slice(0, 80));
+  r.check("e2e: the answer shows its die", /\d/.test(answerText));
   await page.click(".modal-actions .btn-primary");
-  r.check("e2e: encounter answer recorded",
-    await until(page, () => document.body.textContent.includes("No")));
+  await until(page, () => !document.querySelector(".modal-backdrop"));
+  r.check("e2e: encounter answer recorded on the sheet",
+    await until(page, () => {
+      const t = document.querySelector("#sec-encounter").textContent;
+      return /at Likely/.test(t) && /Clear/.test(t) && !/How likely is a Yes/.test(t);
+    }));
 
   // Search everything through the pinned primary action.
   for (let i = 0; i < 4; i++) {
@@ -158,6 +167,56 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   })();
   r.check("e2e: every roll reached the log", logRows >= 7, "rows: " + logRows);
   r.check("e2e: no console errors across the whole walk", page.__errors.length === 0, page.__errors[0]);
+  await page.context().close();
+}
+
+// The Mythic toggle: on, the questions are asked; off, they go back to being
+// recorded. Both states have to work, and neither may claim the other's copy.
+{
+  const page = await newPage(browser, site, { seed: "mid-crawl" });
+  await goto(page, site, "#/room");
+  const onText = await page.$eval("#sec-encounter", n => n.textContent);
+  r.check("mythic on: the odds picker is offered", /How likely is a Yes/.test(onText));
+  r.check("mythic on: nothing claims to be un-automated", !/not automated/.test(onText), onText.slice(0, 90));
+
+  await page.evaluate(() => {
+    const s = JSON.parse(localStorage.getItem("rc.settings") || "{}");
+    s.useMythic = false;
+    localStorage.setItem("rc.settings", JSON.stringify(s));
+  });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await until(page, () => !!document.querySelector("#screen h1"));
+  const offText = await page.$eval("#sec-encounter", n => n.textContent);
+  r.check("mythic off: the four answers are offered to record", /Exceptional Yes/.test(offText));
+  r.check("mythic off: the surface says it is not automated", /not automated/.test(offText));
+  r.check("mythic off: the odds picker is gone", !/How likely is a Yes/.test(offText));
+
+  await goto(page, site, "#/rules");
+  const rulesOff = await page.$eval("#screen", n => n.textContent);
+  r.check("mythic off: its rules leave the library too", !/Ask The Game Master/.test(rulesOff));
+  r.check("mythic off: no console errors", page.__errors.length === 0, page.__errors[0]);
+  await page.context().close();
+}
+
+// A Random Event is the same roll read twice, never a second question.
+{
+  const page = await newPage(browser, site, { seed: "mid-crawl" });
+  await goto(page, site, "#/room");
+  const sample = await page.evaluate(async () => {
+    const mythic = await import("./src/mythic.js");
+    const store = await import("./src/store.js");
+    const room = store.rooms()[0];
+    const out = { events: 0, mismatched: 0, n: 400 };
+    for (let i = 0; i < out.n; i++) {
+      const res = mythic.ask(room, "fifty", "probe");
+      const isDouble = [11,22,33,44,55,66,77,88,99].includes(res.roll);
+      if (isDouble !== !!res.event) out.mismatched++;
+      if (res.event) out.events++;
+    }
+    return out;
+  });
+  r.check("every double fired an event and nothing else did", sample.mismatched === 0, JSON.stringify(sample));
+  r.check("events actually occurred in the sample", sample.events > 0, JSON.stringify(sample));
   await page.context().close();
 }
 

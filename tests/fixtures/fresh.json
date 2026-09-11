@@ -1,11 +1,12 @@
 {
   "app": "room-crafter",
   "version": 1,
-  "exportedAt": "2026-09-11T09:02:15.923Z",
+  "exportedAt": "2026-09-11T11:24:18.380Z",
   "settings": {
     "theme": "system",
     "textScale": 1,
     "showHouseAids": true,
+    "useMythic": true,
     "confirmDestructive": true
   },
   "crawls": [],

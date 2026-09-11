@@ -5,6 +5,10 @@ const DEFAULTS = {
   theme: "system",      // system | light | dark   (P10)
   textScale: 1,         // pays back the zoom lock (§6.2)
   showHouseAids: true,  // house-aid room-type list in the wizard
+  // Defaults follow the fiction: the owner supplied One-Page Mythic, and the
+  // Room Crafter assumes an emulator underneath it. Off means the blocked
+  // surfaces go back to prompt-and-record.
+  useMythic: true,
   confirmDestructive: true
 };
 
@@ -57,5 +61,6 @@ export const Settings = {
   theme: () => get("theme"),
   textScale: () => get("textScale"),
   showHouseAids: () => !!get("showHouseAids"),
+  useMythic: () => !!get("useMythic"),
   confirmDestructive: () => !!get("confirmDestructive")
 };

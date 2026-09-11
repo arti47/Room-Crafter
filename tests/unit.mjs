@@ -21,7 +21,7 @@ function ok(v, msg) { if (!v) throw new Error(msg || "expected truthy"); }
 // renders and a test run that hangs. One second, every time, by filename.
 const sources = [
   ...readdirSync("src").filter(f => f.endsWith(".js")).map(f => "src/" + f),
-  "data.js", "data-house-roomtypes.js", "service-worker.js"
+  "data.js", "data-house-roomtypes.js", "data-mythic.js", "service-worker.js"
 ];
 for (const f of sources) {
   check("parses: " + f, () => { execFileSync("node", ["--check", f], { stdio: "pipe" }); });
@@ -35,6 +35,8 @@ const roller = await import("../src/roller.js");
 const wizard = await import("../src/wizard.js");
 const lifecycle = await import("../src/lifecycle.js");
 const house = await import("../data-house-roomtypes.js");
+const mythic = await import("../src/mythic.js");
+const mdata = await import("../data-mythic.js");
 
 // ── Tables (T1–T5) ───────────────────────────────────────────────────────────
 check("T1 Room Descriptors has 100 unique rows", () => {
@@ -76,6 +78,134 @@ check("T5 budgets carry the Area ranges the article states", () => {
 });
 check("T6 every rules-library entry has a body and a citation", () => {
   for (const r of data.RULES_LIBRARY) { ok(r.body.length > 40, r.id); ok(r.cite, r.id); }
+});
+
+// ── One-Page Mythic (R31–R36) ────────────────────────────────────────────────
+check("T11 every Odds row covers 1–100 exactly once", () => {
+  eq(mdata.ODDS.length, 9);
+  for (const row of mdata.ODDS) {
+    const bands = [row.exYes, row.yes, row.no, row.exNo];
+    eq(bands[0][0], 1, row.id + " does not start at 1:");
+    eq(bands[3][1], 100, row.id + " does not end at 100:");
+    for (let i = 1; i <= 100; i++) {
+      const hits = bands.filter(b => i >= b[0] && i <= b[1]);
+      eq(hits.length, 1, row.id + " at " + i + ":");
+    }
+  }
+});
+check("R31 the chart resolves at every band boundary", () => {
+  // Spot the edges the transcription is most likely to have got wrong.
+  eq(mythic.answerFor("fifty", 10).id, "exYes");
+  eq(mythic.answerFor("fifty", 11).id, "yes");
+  eq(mythic.answerFor("fifty", 50).id, "yes");
+  eq(mythic.answerFor("fifty", 51).id, "no");
+  eq(mythic.answerFor("fifty", 90).id, "no");
+  eq(mythic.answerFor("fifty", 91).id, "exNo");
+  eq(mythic.answerFor("certain", 90).id, "yes");
+  eq(mythic.answerFor("certain", 91).id, "no");
+  eq(mythic.answerFor("impossible", 2).id, "exYes");
+  eq(mythic.answerFor("impossible", 3).id, "yes");
+  eq(mythic.answerFor("impossible", 11).id, "no");
+  for (const row of mdata.ODDS) for (let i = 1; i <= 100; i++) ok(mythic.answerFor(row.id, i));
+});
+check("R31 better odds never make a Yes less likely", () => {
+  // The chart is ordered Certain → Impossible; Yes-or-better must shrink
+  // monotonically down the rows, which is the cheapest check that the nine
+  // rows were not transposed during transcription.
+  const yesOrBetter = mdata.ODDS.map(r => r.yes[1]);
+  for (let i = 1; i < yesOrBetter.length; i++) {
+    ok(yesOrBetter[i] < yesOrBetter[i - 1],
+      mdata.ODDS[i].name + " is not worse than " + mdata.ODDS[i - 1].name);
+  }
+});
+check("R32 a double fires a Random Event, and nothing else does", () => {
+  const doubles = [11, 22, 33, 44, 55, 66, 77, 88, 99];
+  for (let i = 1; i <= 100; i++) eq(mythic.isRandomEvent(i), doubles.includes(i), "roll " + i + ":");
+  eq(mythic.isRandomEvent(100), false);   // 100 is not a double
+});
+check("T12 Discover Meaning covers 1–100 in fifty bands of two", () => {
+  eq(mdata.DISCOVER_MEANING.length, 50);
+  for (let i = 1; i <= 100; i++) {
+    const hits = mdata.DISCOVER_MEANING.filter(r => i >= r.min && i <= r.max);
+    eq(hits.length, 1, "roll " + i + ":");
+    ok(mythic.meaningRowFor(i).action && mythic.meaningRowFor(i).description);
+  }
+  for (const col of ["action", "description"]) {
+    const v = mdata.DISCOVER_MEANING.map(r => r[col]);
+    eq(new Set(v).size, 50, col + " has duplicates:");
+    const sorted = [...v].sort((a, b) => a.toLowerCase() < b.toLowerCase() ? -1 : a.toLowerCase() > b.toLowerCase() ? 1 : 0);
+    eq(v, sorted, col + " is not alphabetical — the recovery check:");
+  }
+});
+check("R33 Discover Meaning returns one word per column asked for", () => {
+  const room = walk(freshRoom(3), () => "area");
+  const m = mythic.discoverMeaning(room);
+  eq(m.words.length, 2);
+  eq(m.columns, ["action", "description"]);
+  eq(m.tableName, "Discover Meaning");
+  ok(mdata.DISCOVER_MEANING.some(r => r.action === m.words[0]));
+  ok(mdata.DISCOVER_MEANING.some(r => r.description === m.words[1]));
+});
+check("R34 another word appends rather than replacing", () => {
+  const room = walk(freshRoom(3), () => "area");
+  const m = mythic.discoverMeaning(room);
+  const first = [...m.words];
+  mythic.anotherWord(room, m, "action");
+  eq(m.words.length, 3);
+  eq(m.words.slice(0, 2), first);
+  eq(m.columns.length, 3);
+  eq(m.rolls.length, 3);
+});
+check("R35 Ask The GM records the odds, the roll and the answer", () => {
+  const room = walk(freshRoom(3), () => "area");
+  for (let i = 0; i < 300; i++) {
+    const res = mythic.ask(room, "fifty", "Is there an encounter?");
+    ok(res.roll >= 1 && res.roll <= 100);
+    eq(res.answer, mythic.answerFor("fifty", res.roll).id, "roll " + res.roll + ":");
+    eq(res.oddsName, "50/50 or Unknown");
+    // The event is the same roll read twice, never a second question.
+    eq(!!res.event, mythic.isRandomEvent(res.roll), "roll " + res.roll + ":");
+    if (res.event) eq(res.event.words.length, 2);
+  }
+});
+check("R35 asking writes one Ask The GM roll, plus two only when an event fires", () => {
+  const room = walk(freshRoom(3), () => "area");
+  for (let i = 0; i < 60; i++) {
+    const before = store.rollLog().length;
+    const res = mythic.ask(room, "likely", "test");
+    eq(store.rollLog().length - before, res.event ? 3 : 1, "roll " + res.roll + ":");
+  }
+});
+check("R36 a Mythic answer reaches the encounter record and the read-aloud text", () => {
+  const room = walk(freshRoom(3), () => "area");
+  const res = mythic.ask(room, "veryLikely", "Is there an encounter?");
+  lifecycle.recordEncounter(room, res.answer, "", res);
+  const saved = store.room(room.id);
+  eq(saved.encounter.answerName, res.answerName);
+  eq(saved.encounter.roll, res.roll);
+  eq(saved.encounter.oddsName, "Very Likely");
+  const text = store.roomAsText(saved);
+  ok(text.includes("Very Likely"), "the odds did not reach the read-aloud text");
+  ok(text.includes(String(res.roll)));
+});
+check("R36 a hidden search keeps its Mythic answer through normalization", () => {
+  const room = walk(freshRoom(3), () => "area");
+  const res = mythic.ask(room, "unlikely", "Is something hidden found?");
+  lifecycle.recordHidden(room, "Is something hidden found?", res.answer, "a loose board", res);
+  const saved = store.room(room.id);
+  eq(saved.hidden.length, 1);
+  eq(saved.hidden[0].oddsName, "Unlikely");
+  eq(saved.hidden[0].roll, res.roll);
+  eq(saved.hidden[0].note, "a loose board");
+});
+check("recording an answer without Mythic leaves the roll fields empty", () => {
+  const room = walk(freshRoom(3), () => "area");
+  lifecycle.recordEncounter(room, "yes", "rolled it myself");
+  const e = store.room(room.id).encounter;
+  eq(e.roll, null);
+  eq(e.oddsName, null);
+  eq(e.event, null);
+  eq(e.answerName, "Yes");
 });
 
 // ── Dice (R29) ───────────────────────────────────────────────────────────────

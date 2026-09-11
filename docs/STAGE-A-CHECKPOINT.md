@@ -207,6 +207,7 @@ named combatants, wake lock (a room takes two minutes), GM hand-off privacy.
 | A13 | Ship the article's three worked examples as tutorial content? | **No** — they are setting/adventure fiction (§12). Ship neutral demo rooms, labelled house content |
 | A14 | Is "room complete" reachable if the player skips searches? | Only Areas actually rolled count. A room with unsearched Areas shows as *described, not searched* — a distinct, legitimate state, not an incomplete one |
 | A15 | Build a GM screen? | No. The tool is GM-less by construction; there is no second seat to serve. If you play with a GM who uses it, the whole app is already their screen |
+| A16 | *(added after Stage B, when the owner supplied the source)* Which emulator resolves the Fate Questions the article defers? | **One-Page Mythic**, not Mythic GME 2e. It answers all three blocked surfaces, and it has **no Chaos Factor** — the odds row is the only input to the chart. That is a real difference from the engine the article assumes, taken deliberately: a chaos track is a campaign-pacing device and a room takes two minutes. Behind `Settings.useMythic`, on by default |
 
 ---
 

@@ -2,6 +2,7 @@
 import { el, add, when, plural } from "./core.js";
 import { explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast, emptyState, sectionNav, houseAidBadge } from "./ui.js";
 import { EXPLAIN, RULES_LIBRARY, ROLL_LOG_CAP } from "../data.js";
+import { MYTHIC_RULES, MYTHIC } from "../data-mythic.js";
 import * as store from "./store.js";
 import * as settings from "./settings.js";
 import { newRoomForm } from "./wizard.js";
@@ -159,7 +160,8 @@ export function log() {
     add(ul, el("li", { class: "list-row" },
       el("span", { class: "die die-sm", text: String(r.roll) }),
       el("span", { class: "list-main", text: r.result },
-        r.houseAid ? houseAidBadge() : null),
+        r.houseAid ? houseAidBadge() : null,
+        r.mythic && MYTHIC ? el("span", { class: "badge", title: "From One-Page Mythic, not the Room Crafter article", text: "Mythic" }) : null),
       el("span", { class: "list-sub", text: r.table + (r.roomName ? " · " + r.roomName : "") + (r.context ? " · " + r.context : "") + " · " + when(r.ts) })
     ));
   }
@@ -238,8 +240,11 @@ export function rules(params) {
   const search = el("input", { class: "field", type: "search", id: "rules-search", placeholder: "Search the rules" });
   add(content, el("label", { class: "sr-only", for: "rules-search", text: "Search the rules" }), search);
 
+  // Mythic's own entries join the library only while its toggle is on: a rule
+  // the app does not apply has no business being described as one that it does.
+  const entries = settings.get("useMythic") ? [...RULES_LIBRARY, ...MYTHIC_RULES] : RULES_LIBRARY;
   const groups = [];
-  for (const r of RULES_LIBRARY) {
+  for (const r of entries) {
     let g = groups.find(x => x.name === r.group);
     if (!g) { g = { name: r.group, items: [] }; groups.push(g); }
     g.items.push(r);
@@ -297,7 +302,9 @@ export function settingsScreen() {
   add(content, el("section", { class: "block" },
     el("h2", { class: "block-title", text: "Content" }),
     toggleRow("Show house-aid suggestions", "The room-type list is invented for this app — the article has no such table. Turn it off to type your own only.",
-      settings.get("showHouseAids"), v => { settings.set("showHouseAids", v); rerender(); })
+      settings.get("showHouseAids"), v => { settings.set("showHouseAids", v); rerender(); }),
+    toggleRow("Use One-Page Mythic", "Answers the encounter and hidden-search questions on the Ask The Game Master chart, rolls Random Events on a double, and adds Discover Meaning to the Random element. Turn it off and those go back to recording an answer you rolled yourself.",
+      settings.get("useMythic"), v => { settings.set("useMythic", v); rerender(); })
   ));
 
   add(content, el("section", { class: "block" },
@@ -346,7 +353,7 @@ export function settingsScreen() {
 
   add(content, el("section", { class: "block block-end" },
     el("h2", { class: "block-title", text: "About" }),
-    el("p", { class: "prose", text: "A personal play aid for The Room Crafter, the room-exploration variation from Mythic Magazine Vol. 69. Rules paraphrased; keyword tables belong to their publisher. Built for one person's own use from their own copy." }),
+    el("p", { class: "prose", text: "A personal play aid for The Room Crafter, the room-exploration variation from Mythic Magazine Vol. 69, with One-Page Mythic underneath it for the questions the article defers to an emulator. Rules paraphrased; the tables belong to their publisher. Built for one person's own use from their own copies." }),
     el("p", { class: "hint" }, "The room-type list is an invented convenience ", houseAidBadge(), ", not part of the article.")
   ));
 

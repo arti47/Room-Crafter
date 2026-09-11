@@ -8,13 +8,19 @@ import { searchedAreas, areaCount, generalDone, isComplete, searchState, STATE_L
 // ── The encounter check (R9, ruling A9) ──────────────────────────────────────
 // Blocked B1: this build has no Fate Chart, so the app asks the question, you
 // answer it from your own Mythic tables, and it holds the answer. Guidance only.
-export function recordEncounter(room, answerId, note) {
+export function recordEncounter(room, answerId, note, mythicResult = null) {
   const ans = encounterAnswer(answerId);
   if (!ans) return null;
   store.snapshot("Record encounter");
   room.encounter = {
     asked: true, answer: ans.id, answerName: ans.name,
-    note: note || "", ts: Date.now()
+    note: note || "", ts: Date.now(),
+    // Present only when Mythic answered it; absent when you rolled it yourself.
+    odds: mythicResult ? mythicResult.odds : null,
+    oddsName: mythicResult ? mythicResult.oddsName : null,
+    roll: mythicResult ? mythicResult.roll : null,
+    answerBlurb: mythicResult ? mythicResult.answerBlurb : ans.blurb,
+    event: mythicResult ? mythicResult.event : null
   };
   store.saveRoom(room);
   return room.encounter;
@@ -29,11 +35,18 @@ export function clearEncounter(room) {
 // ── Hidden searches (R24, §7) ────────────────────────────────────────────────
 // Also blocked B1 — your game's task mechanic, then a Fate Question at whatever
 // odds you set. Recorded, not automated.
-export function recordHidden(room, question, answer, note) {
+export function recordHidden(room, question, answer, note, mythicResult = null) {
   store.snapshot("Record hidden search");
   room.hidden = [...(room.hidden || []), {
     question: question || "Is something hidden found?",
-    answer, note: note || "", ts: Date.now()
+    answer,
+    answerName: mythicResult ? mythicResult.answerName : answer,
+    answerBlurb: mythicResult ? mythicResult.answerBlurb : null,
+    odds: mythicResult ? mythicResult.odds : null,
+    oddsName: mythicResult ? mythicResult.oddsName : null,
+    roll: mythicResult ? mythicResult.roll : null,
+    event: mythicResult ? mythicResult.event : null,
+    note: note || "", ts: Date.now()
   }];
   store.saveRoom(room);
   return room.hidden[room.hidden.length - 1];

@@ -18,6 +18,7 @@ Companion documents:
 | | |
 |---|---|
 | **Source** | *Mythic Magazine* Vol. 69, "Variations: Single Room Explorations" (The Room Crafter) |
+| **Second source** | **One-Page Mythic** (Word Mill Games), behind `Settings.useMythic` — the emulator the article defers its Fate Questions to. Ruling A16: it is *not* GME 2e, and has no Chaos Factor |
 | **What it is** | A solo/GM-less room oracle: generate a room from keywords, then resolve what searching it turns up |
 | **Audience** | One person at a table, GM-less by construction — there is no second seat (ruling A15) |
 | **Platforms** | Phone-first, tablet layout, installable PWA |
@@ -53,7 +54,8 @@ the **Room** as the tracked entity. Signed off at Stage B.
 
 | # | Decision | Answer |
 |---|---|---|
-| P1 | Source scope | **Room Crafter article only.** Mythic GME 2e machinery is not supplied; blocked surfaces (B1–B3) ship as prompt-and-record stubs, marked `guidance only` in the traceability ledger |
+| P1 | Source scope | ~~Room Crafter article only~~ — **superseded.** One-Page Mythic was supplied after Stage B and unblocks B1–B3 (ruling A16) |
+| P12 | Mythic scope | **All of it, behind a toggle** (`Settings.useMythic`, default on): Ask The GM, Discover Meaning, and Random Events. Off, the three surfaces revert to prompt-and-record and Mythic's rules leave the library |
 | P2 | Scope re-point + rulings | **Approved as written** — §1.0 above, rulings A1–A15 binding |
 | P3 | Repository | **Private** (owner to set). Verbatim tables stay committed; README carries the personal-use licensing note |
 | P4 | Usage mode | Single-device, local-only. No sync phase |
@@ -94,15 +96,21 @@ two defects most likely to ship here. Watch them by name.
 
 ### 2.2 Blocked data
 
-| # | Missing | Blocks | Status |
+| # | Was missing | Blocked | Status |
 |---|---|---|---|
-| B1 | Fate Chart (Odds × Chaos Factor), Exceptional Yes/No | Automating "Is there an encounter?" and "Is something hidden found?" | Stub: app asks, you answer, it logs |
-| B2 | Meaning tables (Actions 1/2, Descriptions 1/2) | The **Random** element (81–95, 15% of every search) and every Discover Meaning path | Stub; Random offers the two loaded tables (ruling A11) |
-| B3 | Chaos Factor / Random Events | Solo pacing framing | Out of scope |
-| B4 | Location Crafter Area Elements, Progress Points | Region-scale interop | Not needed |
+| B1 | A Fate Question resolver | "Is there an encounter?", "Is something hidden found?" | **Unblocked** by One-Page Mythic's Ask The Game Master chart (T11) |
+| B2 | A Meaning table | The **Random** element (81–95) and every Discover Meaning path | **Unblocked** by One-Page Mythic's Discover Meaning (T12) |
+| B3 | Random Events | Solo pacing | **Unblocked** — the one-pager's double-digit trigger (T13) |
+| B4 | Location Crafter Area Elements, Progress Points | Region-scale interop | Still absent; not needed |
 
-**No UI is built against a blocked table.** Stubs are surfaces that ask and
-record; they are not automation and are marked `guidance only` in §5.
+**Still absent, deliberately:** GME 2e's larger Actions/Descriptions tables and
+its themed Elements tables (this build has 50 Actions + 50 Descriptions), and
+the **Chaos Factor** — the one-pager does not have one, and ruling A16 accepts
+that rather than importing it from another edition.
+
+**With `useMythic` off**, B1–B3 revert to prompt-and-record surfaces marked
+`guidance only`. Both states are built, and the smoke harness asserts neither
+claims the other's copy.
 
 ---
 
@@ -114,6 +122,7 @@ record; they are not automation and are marked `guidance only` in §5.
 | `styles.css` | Theme (light + dark) + component styles + tablet layout | ☑ |
 | `data.js` | Room Descriptors · Sock Drawer · Room Elements · encounter bands · budgets · rules-library entries | ☑ |
 | `data-house-roomtypes.js` | Room-type starter list, `HOUSE_AID = true` | ☑ |
+| `data-mythic.js` | One-Page Mythic: Ask The GM chart, Discover Meaning, Random Event triggers, its own rules-library entries | ☑ |
 | `manifest.json`, `service-worker.js`, `icon.svg` | PWA; `CACHE_VERSION` bumped on any shipped-file change | ☑ |
 | `tests/` + `package.json` | Harnesses A–D, fixtures, probes; dev-only, gitignored `node_modules`, not in the SW app shell | ☑ |
 | `README.md` | Setup + personal-use licensing note | ☑ |
@@ -139,7 +148,8 @@ rules; `gm.js` — no second seat (A15); `power-automation.js` — no powers.
 | `settings.js` | Theme, text size, house-aid visibility, advanced toggles |
 | `store.js` | Crawl + room persistence, roll log (attributed at write time), JSON export/import, read-aloud export, undo stack |
 | `wizard.js` | Room generation — the sequential keyword walk with interpret / combine / drop |
-| `roller.js` | The d100 engine: keyword rolls, Element resolution, Multi-Element cascade, Sock Drawer pairs, Random stub, roll-log writes |
+| `roller.js` | The d100 engine: keyword rolls, Element resolution, Multi-Element cascade, Sock Drawer pairs, roll-log writes |
+| `mythic.js` | The One-Page Mythic engine, behind its toggle: Ask The GM, the Random Event trigger, Discover Meaning and "another word" |
 | `sheet.js` | Room sheet, Area cards, persistent room header, General Area, notes |
 | `lifecycle.js` | Room boundaries (the once-per flag clearer), crawl boundaries, encounter check, confirmation summaries + undo |
 | `screens.js` | Home/crawl list, rules library, settings, roll log + distribution view |
@@ -164,6 +174,7 @@ real counts — record them. **An unticked box means the data is not extracted;
 never build UI against an unticked table.**
 
 `Verified` = confirmed against the source. `Written` = present in the data file.
+T1–T10 come from the Room Crafter article; T11–T14 from One-Page Mythic.
 
 | T | Table | Rows | Target file | Consuming module | Verified | Written |
 |---|---|---|---|---|---|---|
@@ -177,9 +188,10 @@ never build UI against an unticked table.**
 | T8 | Tutorial steps | 10 | `data.js` | `tutorial.js` | ☑ | ☑ |
 | T9 | Room-type starter list (**house aid**) | 38 (real count) | `data-house-roomtypes.js` | `wizard.newRoomForm` · `roller.rollRoomType` | n/a | ☑ |
 | T10 | Neutral demo rooms (**house content**, A13) | 2 | `data-house-roomtypes.js` | `tutorial.loadDemos` | n/a | ☑ |
-| T11 | Fate Chart | — | — | — | **BLOCKED B1** | ✗ |
-| T12 | Mythic Meaning tables | — | — | — | **BLOCKED B2** | ✗ |
-| T13 | Chaos Factor / Random Events | — | — | — | **BLOCKED B3** | ✗ |
+| T11 | Ask The Game Master chart | 9 odds × 4 answers | `data-mythic.js` | `mythic.answerFor` · `sheet.oddsAsker` | ☑ | ☑ |
+| T12 | Discover Meaning (Action + Description) | 50 bands / d100, 100 words | `data-mythic.js` | `mythic.discoverMeaning` · `mythic.anotherWord` | ☑ | ☑ |
+| T13 | Random Event triggers | 9 doubles | `data-mythic.js` | `mythic.isRandomEvent` | ☑ | ☑ |
+| T14 | Mythic rules-library entries | 4 | `data-mythic.js` | `screens.rules` (merged while the toggle is on) | ☑ | ☑ |
 
 ---
 
@@ -228,7 +240,20 @@ Targets below are **planned**; tick them off as they become real.
 | R29 | Cryptographic dice, shown, logged once, never silently re-rolled | — | — | `core.d100` · `store.logRoll` | Every result card · roll log · distribution | `R29 d100 stays in range and reaches both ends` · `R29 one search writes exactly one Element roll` |
 | R30 | House aids identify themselves wherever rolled | — | `HOUSE_AID`, `ROOM_TYPES` | `roller.rollRoomType` · `ui.houseAidBadge` | Badge on the rolled room type, in the log, in Settings and the tutorial | `R30 a house-aid roll is logged as a house aid` |
 
-**Rows with a `guidance only` engine** (R10, R15, R16, R24) are the blocked
+### One-Page Mythic (R31–R36) — live only while `Settings.useMythic` is on
+
+| # | Rule | Shape | Data | Engine | Surface | Test |
+|---|---|---|---|---|---|---|
+| R31 | Assign odds, roll d100, read the chart | Lookup | `ODDS`, `DEFAULT_ODDS` | `mythic.answerFor` | `sheet.oddsAsker` — the odds radiogroup and Ask, shared by both questions | `T11 every Odds row covers 1–100 exactly once` · `R31 the chart resolves at every band boundary` · `R31 better odds never make a Yes less likely` |
+| R32 | A double digit also fires a Random Event | Cascade | `RANDOM_EVENT_ROLLS` | `mythic.isRandomEvent` inside `mythic.ask` | Event printed on the answer card, with its rule linked | `R32 a double fires a Random Event, and nothing else does` · smoke samples 400 asks |
+| R33 | Discover Meaning: Action and Description columns | Lookup | `DISCOVER_MEANING`, `MEANING_COLUMNS` | `mythic.discoverMeaning` | Random element picker · Fortunate/Unfortunate card | `T12 Discover Meaning covers 1–100 in fifty bands of two` · `R33` |
+| R34 | Keep rolling words until it comes clear | Permission | `MEANING_COLUMNS` | `mythic.anotherWord` | "+ Action" / "+ Description" on any Mythic meaning | `R34 another word appends rather than replacing` |
+| R35 | One question is one roll, read once for the answer and once for the event | Compulsion | — | `mythic.ask` | Answer card shows the single die | `R35 Ask The GM records the odds, the roll and the answer` · `R35 asking writes one roll, plus two only when an event fires` |
+| R36 | The answer belongs to the room, not the moment | — | — | `lifecycle.recordEncounter` · `lifecycle.recordHidden` | Room sheet · read-aloud export | `R36 a Mythic answer reaches the encounter record and the read-aloud text` · `R36 a hidden search keeps its Mythic answer through normalization` |
+| R37 | The toggle gates every Mythic surface, and its rules with it | Gate | — | `Settings.useMythic` | Settings row; five call sites in `sheet.js`, one in `screens.js` | smoke asserts both states and that neither claims the other's copy |
+
+**Rows with a `guidance only` engine** (R10, R15, R24 — and R16 only while the
+Mythic toggle is off) are the blocked
 surfaces of §2.2 and the one interpretation rule the app deliberately does not
 automate. Each carries a `not automated` badge where it appears. That marking is
 the explicit non-decision template §10.13 requires; it is not a gap.
@@ -251,18 +276,26 @@ rooms/{roomId}
                                   meaning: null | { tableId, tableName, rolls, words, doubled },
                                   note, ts }, note } ]
   generalArea: null | { roll, elementId, elementName, sub: [...], meaning|null, note, ts }
-  details:     [ { areaId|null, tableId, tableName, rolls: [a,b], words: [w,w],
-                   doubled, ts } ]              // Sock Drawer / detail rolls, one list
-  encounter:   null | { asked: true, answer: "exYes"|"yes"|"no"|"exNo", note, ts }
-  hidden:      [ { question, answer, note, ts } ]   // B1 stub records
+  details:     [ { areaId|null, <meaning>, ts } ]  // Sock Drawer / detail rolls, one list
+
+  <meaning> = { tableId, tableName, rolls: [...], words: [...],
+                columns: [...] | null,        // Mythic only: which column each word came from
+                doubled }                     // words grow: "another word" appends
+  encounter:   null | { asked: true, answer: "exYes"|"yes"|"no"|"exNo", answerName,
+                        answerBlurb, note, ts,
+                        odds, oddsName, roll,        // null unless Mythic answered it
+                        event: null | <meaning> }    // a double fired a Random Event
+  hidden:      [ { question, answer, answerName, answerBlurb, note, ts,
+                   odds, oddsName, roll, event } ]
   description: ""            // free text; embellishments, not Areas
   notes:       ""
   state:       { complete: bool }               // derived.isComplete, stored for list rendering
 
 rollLog/{id}: { table, roll, result, crawlId, roomId, roomName, areaId|null,
-                context, houseAid?, ts }                    // capped at 200, paged 25 at a time
+                context, houseAid?, mythic?, ts }           // capped at 200, paged 25 at a time
+                                                            // provenance flags badge the row
 undo:         [ { label, snapshot, ts } ]                                  // one stack, any mutating action pushes
-settings:     { theme, textScale, ... }
+settings:     { theme, textScale, showHouseAids, useMythic }
 ```
 
 Rules: every rules number the schema references lives in the data files; every
@@ -325,13 +358,23 @@ table** — that is the one part of this milestone still owed.
 - ☑ Tutorial as its own route + neutral demo rooms (T8, T10)
 - ☑ Tablet layout at ≥760px: wider frame, larger keyword card, row-wise modal actions
 
-**Phase 6 — Hardening** ◐
-- ☑ Harness A (`npm test`, 63 checks), B (`npm run smoke`, 245), C (`npm run interact`, 243), D (fixtures fresh/mid-crawl/stress + both probes)
+**Phase 6 — One-Page Mythic** ☑ — R31–R37, T11–T14
+- ☑ `data-mythic.js`: the Ask The GM chart, Discover Meaning, Random Event triggers, its own rules entries
+- ☑ `src/mythic.js`: the engine, with the answer resolver and the event trigger as pure functions
+- ☑ Encounter check and hidden searches asked on the chart, with one shared odds picker
+- ☑ Random Events fired from the same roll, never a second question
+- ☑ Discover Meaning wired into the Random element and into Fortunate/Unfortunate, with "another word"
+- ☑ `Settings.useMythic` gating every surface and the rules-library entries, both states asserted
+- ☑ Provenance badge on Mythic rolls in the log — two sources now share one log
+
+**Phase 7 — Hardening** ◐
+- ☑ Harness A (`npm test`, 77 checks), B (`npm run smoke`, 257), C (`npm run interact`, 294), D (fixtures fresh/mid-crawl/stress + both probes)
 - ☑ Dead-data scan (`npm run scan`), clean
 - ☑ Accessibility: focus trap, `aria-live`, `aria-current`, labelled controls, 16px inputs, 40px+ targets, reduced motion, skip link
 - ☑ The §6.7 measurement contract, asserted on every route at every seed
-- ☑ Three guards proven to bite against reintroduced defects
-- ☐ **Cycle 2 of the audit protocol.** Cycle 1 produced twelve findings (`docs/AUDIT.md`); the stopping rule is a full cycle with none.
+- ☑ Six guards proven to bite against reintroduced defects
+- ☑ Audit cycle 1 (twelve findings) and cycle 2 (four, plus three harness faults) — `docs/AUDIT.md`
+- ☐ **Cycle 3 of the audit protocol.** The stopping rule is a full seven-pass cycle with no finding; two cycles have produced twelve and four.
 
 ## 8. Definition of done — per feature
 
@@ -361,8 +404,9 @@ Template §10 applies in full. The ones this project will actually be tested by:
 6. **Explain and enforce in the same change** — UI copy stating a mechanic owes either an enforcer or an explicit guidance-only mark.
 7. **Every flag has a setter, a reader and a clearer.** Name all three in the same change. This project has exactly two once-per flags and one clearer; if that clearer is not `lifecycle.newRoom`, it does not exist.
 8. **Defaults follow the fiction.** A rule that applies unless prevented ships defaulting to on.
-9. **Scope guard.** Article content only. Nothing invented is presented as official; the room-type list is a labelled house aid, and the demo rooms are labelled house content.
-10. **Reversibility is inventoried.** Every destructive action either undoes or confirms while naming the loss.
+9. **Two sources, one app.** Room Crafter content and One-Page Mythic content live in separate data files, and every Mythic surface — including its rules-library entries — is gated by `Settings.useMythic`. Describing a rule the app is not applying is the same defect as applying one it does not describe. Rolls from each source are badged in the log.
+10. **Scope guard.** Supplied content only. Nothing invented is presented as official; the room-type list is a labelled house aid, and the demo rooms are labelled house content.
+11. **Reversibility is inventoried.** Every destructive action either undoes or confirms while naming the loss.
 
 ---
 
@@ -377,4 +421,8 @@ Template §10 applies in full. The ones this project will actually be tested by:
 | 2026-09-11 | Audit cycle 1: twelve findings fixed (A-1…A-12) plus seven harness faults (H-1…H-7) | Template §11 | Each fix re-verified; three guards watched go red against reintroduced defects | `rc-v1` |
 | 2026-09-11 | A-1: routed room creation through `lifecycle.newRoom` | The named clearer for the once-per-X flags was not on any code path — the guarantee was a coincidence | `R12` covers it; `newRoom` throws if a new room carries spent flags | `rc-v1` |
 | 2026-09-11 | A-2: added the detail-roll control | The Sock Drawer table was extracted, tested and unreachable — §0 exactly | `R18 a detail roll lands on the room` | `rc-v1` |
+| 2026-09-11 | Phase 6: integrated One-Page Mythic behind `Settings.useMythic` — Ask The GM, Discover Meaning, Random Events; B1–B3 unblocked | The owner supplied the source; ruling A16 records it as the engine, Chaos Factor and all | Chart verified: nine rows each covering 1–100 exactly once, Yes-or-better strictly monotonic; Discover Meaning 50 bands, both columns alphabetical; 400 sampled asks with zero event mismatches | `rc-v2` |
+| 2026-09-11 | Audit cycle 2: A-13…A-16 and three harness faults | Template §11 | Three more guards watched go red | `rc-v2` |
+| 2026-09-11 | A-13: moved the default odds into the data layer | `"fifty"` was hardcoded in two `src/` modules (§10.2) | `R31` covers the row; `DEFAULT_ODDS` is the only source | `rc-v2` |
+| 2026-09-11 | H-10: the interaction audit now compares markup, not its length | A radiogroup changing selection is a net-zero length change, so nine live controls read as dead — and the same fault would hide any swap-shaped change | 294 controls, 0 findings | — |
 | 2026-09-11 | A-7: added the multi-room field | A permission the article grants had a schema field and no control (D-22) | `R25 the multi-room note persists` | `rc-v1` |
