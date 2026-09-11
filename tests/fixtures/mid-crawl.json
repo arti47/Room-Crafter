@@ -1,0 +1,535 @@
+{
+  "app": "room-crafter",
+  "version": 1,
+  "exportedAt": "2026-09-11T09:02:15.934Z",
+  "settings": {
+    "theme": "system",
+    "textScale": 1,
+    "showHouseAids": true,
+    "confirmDestructive": true
+  },
+  "crawls": [
+    {
+      "id": "crawl_c41c5925022ec967",
+      "name": "The tomb under the mill",
+      "note": "",
+      "createdAt": 1789117335929,
+      "lastOpenedAt": 1789117335934,
+      "rooms": [
+        "room_ca5213901e7d75f0",
+        "room_2d5175364eed4049",
+        "room_e555766870ad67b9"
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "room_ca5213901e7d75f0",
+      "crawlId": "crawl_c41c5925022ec967",
+      "budget": 6,
+      "context": {
+        "label": "The antechamber",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117335929,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 14,
+          "word": "Cloth",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 6,
+          "word": "Bleak",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 45,
+          "word": "Image",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 78,
+          "word": "Sound",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 34,
+          "word": "Extra",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 66,
+          "word": "Ornate",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_223891680b1c3637",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 95,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335931
+          },
+          "note": ""
+        },
+        {
+          "id": "area_fbb8a68478b4b2f5",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 90,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335931
+          },
+          "note": ""
+        },
+        {
+          "id": "area_aadd8f435cb07ebe",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 75,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335931
+          },
+          "note": ""
+        },
+        {
+          "id": "area_6fc0e82137e7b6d3",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 50,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335932
+          },
+          "note": ""
+        },
+        {
+          "id": "area_b1ecba6e47f4b374",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 62,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335932
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": {
+        "roll": 10,
+        "elementId": "expected",
+        "elementName": "Expected",
+        "sub": [],
+        "meaning": null,
+        "note": "",
+        "ts": 1789117335932
+      },
+      "encounter": {
+        "asked": true,
+        "answer": "no",
+        "answerName": "No",
+        "note": "",
+        "ts": 1789117335931
+      },
+      "hidden": [],
+      "description": "Low, dry and colder than the stair behind you.",
+      "notes": "",
+      "state": {
+        "complete": true
+      }
+    },
+    {
+      "id": "room_2d5175364eed4049",
+      "crawlId": "crawl_c41c5925022ec967",
+      "budget": 3,
+      "context": {
+        "label": "The flooded tunnel",
+        "roomType": "Tunnel",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117335932,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 55,
+          "word": "Map",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 5,
+          "word": "Belongings",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 17,
+          "word": "Collection",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_d5e0465cd89d2860",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 62,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335932
+          },
+          "note": ""
+        },
+        {
+          "id": "area_010a24e5dbb97098",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": null,
+          "note": ""
+        },
+        {
+          "id": "area_e7b114ad64fa311e",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3
+          ],
+          "order": 2,
+          "search": null,
+          "note": ""
+        }
+      ],
+      "generalArea": null,
+      "encounter": null,
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "Yes",
+          "note": "a keystone below the waterline",
+          "ts": 1789117335933
+        }
+      ],
+      "description": "Ankle-deep. The water is going somewhere.",
+      "notes": "",
+      "state": {
+        "complete": false
+      }
+    },
+    {
+      "id": "room_e555766870ad67b9",
+      "crawlId": "crawl_c41c5925022ec967",
+      "budget": 6,
+      "context": {
+        "label": "The scriptorium",
+        "roomType": "Study",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117335934,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 63,
+          "word": "Occupied",
+          "use": "pending"
+        },
+        {
+          "n": 2,
+          "roll": 1,
+          "word": "Active",
+          "use": "pending"
+        }
+      ],
+      "areas": [],
+      "generalArea": null,
+      "encounter": null,
+      "hidden": [],
+      "description": "",
+      "notes": "",
+      "state": {
+        "complete": false
+      }
+    }
+  ],
+  "rollLog": [
+    {
+      "id": "roll_0484b8b6ff292864",
+      "ts": 1789117335934,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_e555766870ad67b9",
+      "roomName": "The scriptorium",
+      "table": "Room Descriptors",
+      "roll": 1,
+      "result": "Active",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_003cc242e09c9212",
+      "ts": 1789117335934,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_e555766870ad67b9",
+      "roomName": "The scriptorium",
+      "table": "Room Descriptors",
+      "roll": 63,
+      "result": "Occupied",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_62149e1e2bb375d0",
+      "ts": 1789117335932,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_2d5175364eed4049",
+      "roomName": "The flooded tunnel",
+      "table": "Room Elements",
+      "roll": 62,
+      "result": "Minimized Expected",
+      "areaId": "area_d5e0465cd89d2860",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_1ef0fe8dfd472f47",
+      "ts": 1789117335932,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_2d5175364eed4049",
+      "roomName": "The flooded tunnel",
+      "table": "Room Descriptors",
+      "roll": 17,
+      "result": "Collection",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_e681fd2f9f465227",
+      "ts": 1789117335932,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_2d5175364eed4049",
+      "roomName": "The flooded tunnel",
+      "table": "Room Descriptors",
+      "roll": 5,
+      "result": "Belongings",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_34117002422208e9",
+      "ts": 1789117335932,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_2d5175364eed4049",
+      "roomName": "The flooded tunnel",
+      "table": "Room Descriptors",
+      "roll": 55,
+      "result": "Map",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_f6c13c9aa61a1cdf",
+      "ts": 1789117335932,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_ca5213901e7d75f0",
+      "roomName": "The antechamber",
+      "table": "Room Elements",
+      "roll": 10,
+      "result": "Expected",
+      "areaId": null,
+      "context": "General Area"
+    },
+    {
+      "id": "roll_9ceeb1db13d49fdd",
+      "ts": 1789117335932,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_ca5213901e7d75f0",
+      "roomName": "The antechamber",
+      "table": "Room Elements",
+      "roll": 62,
+      "result": "Minimized Expected",
+      "areaId": "area_b1ecba6e47f4b374",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_f1f4030a9025df39",
+      "ts": 1789117335931,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_ca5213901e7d75f0",
+      "roomName": "The antechamber",
+      "table": "Room Elements",
+      "roll": 50,
+      "result": "Enhanced Expected",
+      "areaId": "area_6fc0e82137e7b6d3",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_f4424859f11cd291",
+      "ts": 1789117335931,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_ca5213901e7d75f0",
+      "roomName": "The antechamber",
+      "table": "Room Elements",
+      "roll": 75,
+      "result": "Unfortunate",
+      "areaId": "area_aadd8f435cb07ebe",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_3b5fb7a048234a81",
+      "ts": 1789117335931,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_ca5213901e7d75f0",
+      "roomName": "The antechamber",
+      "table": "Room Elements",
+      "roll": 90,
+      "result": "Random",
+      "areaId": "area_fbb8a68478b4b2f5",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_ce438e316fd13f99",
+      "ts": 1789117335931,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_ca5213901e7d75f0",
+      "roomName": "The antechamber",
+      "table": "Room Elements",
+      "roll": 95,
+      "result": "Random",
+      "areaId": "area_223891680b1c3637",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_9929fa372f2a2584",
+      "ts": 1789117335931,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_ca5213901e7d75f0",
+      "roomName": "The antechamber",
+      "table": "Room Descriptors",
+      "roll": 66,
+      "result": "Ornate",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_f678d6ada5990541",
+      "ts": 1789117335931,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_ca5213901e7d75f0",
+      "roomName": "The antechamber",
+      "table": "Room Descriptors",
+      "roll": 34,
+      "result": "Extra",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_fc67c8b3a72b98e8",
+      "ts": 1789117335930,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_ca5213901e7d75f0",
+      "roomName": "The antechamber",
+      "table": "Room Descriptors",
+      "roll": 78,
+      "result": "Sound",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_ed3000a2b2c28dea",
+      "ts": 1789117335930,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_ca5213901e7d75f0",
+      "roomName": "The antechamber",
+      "table": "Room Descriptors",
+      "roll": 45,
+      "result": "Image",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_683367a7f1abb3fc",
+      "ts": 1789117335930,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_ca5213901e7d75f0",
+      "roomName": "The antechamber",
+      "table": "Room Descriptors",
+      "roll": 6,
+      "result": "Bleak",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_aada0dbaa38e0de3",
+      "ts": 1789117335930,
+      "crawlId": "crawl_c41c5925022ec967",
+      "roomId": "room_ca5213901e7d75f0",
+      "roomName": "The antechamber",
+      "table": "Room Descriptors",
+      "roll": 14,
+      "result": "Cloth",
+      "areaId": null,
+      "context": "keyword 1"
+    }
+  ]
+}

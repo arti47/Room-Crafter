@@ -1,0 +1,14 @@
+{
+  "name": "Room Crafter",
+  "short_name": "Rooms",
+  "description": "A room oracle: generate a room from keywords, then find out what searching it turns up.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4efe4",
+  "theme_color": "#f4efe4",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

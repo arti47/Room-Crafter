@@ -110,15 +110,15 @@ record; they are not automation and are marked `guidance only` in §5.
 
 | File | Purpose | Status |
 |---|---|---|
-| `index.html` | Shell: header, persistent room header, bottom nav, screen mount, module entry | ☐ |
-| `styles.css` | Theme (light + dark) + component styles + tablet layout | ☐ |
-| `data.js` | Room Descriptors · Sock Drawer · Room Elements · encounter bands · budgets · rules-library entries | ☐ |
-| `data-house-roomtypes.js` | Room-type starter list, `HOUSE_AID = true` | ☐ |
-| `manifest.json`, `service-worker.js`, `icon.svg` | PWA; `CACHE_VERSION` bumped on any shipped-file change | ☐ |
-| `tests/` + `package.json` | Harnesses A–D, fixtures, probes; dev-only, gitignored `node_modules`, not in the SW app shell | ☐ |
-| `README.md` | Setup + personal-use licensing note | ☐ |
-| `docs/rules/` | Per-subsystem distilled reference the audit reads against the engine | ☐ |
-| `docs/AUDIT.md` | Numbered findings + verified-clean list | ☐ |
+| `index.html` | Shell: header, persistent room header, bottom nav, screen mount, module entry | ☑ |
+| `styles.css` | Theme (light + dark) + component styles + tablet layout | ☑ |
+| `data.js` | Room Descriptors · Sock Drawer · Room Elements · encounter bands · budgets · rules-library entries | ☑ |
+| `data-house-roomtypes.js` | Room-type starter list, `HOUSE_AID = true` | ☑ |
+| `manifest.json`, `service-worker.js`, `icon.svg` | PWA; `CACHE_VERSION` bumped on any shipped-file change | ☑ |
+| `tests/` + `package.json` | Harnesses A–D, fixtures, probes; dev-only, gitignored `node_modules`, not in the SW app shell | ☑ |
+| `README.md` | Setup + personal-use licensing note | ☑ |
+| `docs/rules/` | Per-subsystem distilled reference the audit reads against the engine | ☑ |
+| `docs/AUDIT.md` | Numbered findings + verified-clean list | ☑ |
 
 **Deliberately absent, with reasons** (so a later pass does not rediscover the
 non-decision): `data-monsters.js` / `data-npcs.js` — the source explicitly
@@ -167,16 +167,16 @@ never build UI against an unticked table.**
 
 | T | Table | Rows | Target file | Consuming module | Verified | Written |
 |---|---|---|---|---|---|---|
-| T1 | Room Descriptors Meaning | 100 | `data.js` | `roller.rollKeyword` · `wizard.js` | ☑ | ☐ |
-| T2 | Sock Drawer Meaning | 100 | `data.js` | `roller.rollMeaningPair` | ☑ | ☐ |
-| T3 | Room Elements bands | 7 bands / d100 | `data.js` | `roller.resolveElement` | ☑ | ☐ |
-| T4 | "Is there an encounter?" answer bands | 3 | `data.js` | `lifecycle.encounterCheck` | ☑ | ☐ |
-| T5 | Keyword budgets + derived Area ranges | 2 | `data.js` | `wizard.js` · `derived.areaCount` | ☑ | ☐ |
-| T6 | Rules-library entries (paraphrased, cited) | ~8 | `data.js` | `screens.rulesLibrary` | ☐ | ☐ |
-| T7 | `explain()` copy, one per screen | ~9 | `data.js` | every screen module | ☐ | ☐ |
-| T8 | Tutorial steps | ~10 | `data.js` | `tutorial.js` | ☐ | ☐ |
-| T9 | Room-type starter list (**house aid**) | ~30 | `data-house-roomtypes.js` | `wizard.js` | n/a | ☐ |
-| T10 | Neutral demo rooms (**house content**, A13) | 2 | `data-house-roomtypes.js` | `tutorial.js` | n/a | ☐ |
+| T1 | Room Descriptors Meaning | 100 | `data.js` | `roller.rollKeyword` · `wizard.js` | ☑ | ☑ |
+| T2 | Sock Drawer Meaning | 100 | `data.js` | `roller.rollMeaningPair` · `roller.rollDetail` | ☑ | ☑ |
+| T3 | Room Elements bands | 7 bands / d100 | `data.js` | `roller.rollElement` · `roller.resolveSubBand` | ☑ | ☑ |
+| T4 | "Is there an encounter?" answer bands | 4 (real count: the article lists Exceptional Yes, Yes, No, Exceptional No) | `data.js` | `lifecycle.recordEncounter` | ☑ | ☑ |
+| T5 | Keyword budgets + derived Area ranges | 2 | `data.js` | `wizard.js` · `derived.areaCount` | ☑ | ☑ |
+| T6 | Rules-library entries (paraphrased, cited) | 14 (real count) | `data.js` | `screens.rules` | ☑ | ☑ |
+| T7 | `explain()` copy, one per screen | 9 | `data.js` | every screen module | ☑ | ☑ |
+| T8 | Tutorial steps | 10 | `data.js` | `tutorial.js` | ☑ | ☑ |
+| T9 | Room-type starter list (**house aid**) | 38 (real count) | `data-house-roomtypes.js` | `wizard.newRoomForm` · `roller.rollRoomType` | n/a | ☑ |
+| T10 | Neutral demo rooms (**house content**, A13) | 2 | `data-house-roomtypes.js` | `tutorial.loadDemos` | n/a | ☑ |
 | T11 | Fate Chart | — | — | — | **BLOCKED B1** | ✗ |
 | T12 | Mythic Meaning tables | — | — | — | **BLOCKED B2** | ✗ |
 | T13 | Chaos Factor / Random Events | — | — | — | **BLOCKED B3** | ✗ |
@@ -197,38 +197,41 @@ Targets below are **planned**; tick them off as they become real.
 
 | # | Rule | Shape | Data | Engine | Surface | Test |
 |---|---|---|---|---|---|---|
-| R1 | Roll six keywords, one at a time, in order | Compulsion | `ROOM_DESCRIPTORS`, `BUDGETS` | `wizard.step` | Wizard, one keyword per step | keywords arrive singly and in order |
-| R2 | A keyword that inspires becomes an Area alone | Permission | — | `wizard.interpretOne` | "Make this an Area" control | an Area is created from one keyword |
-| R3 | A keyword that does not inspire combines with the next | Permission + Cascade | — | `wizard.carryForward` | "Combine with next" control | the pair yields one Area and consumes both |
-| R4 | Combinations cap at two keywords (A7) | Threshold | — | `wizard.carryForward` | Control disabled at two, refusal cites A7 | six keywords never yield fewer than three Areas |
-| R5 | The final keyword may be dropped if uninterpretable (A8) | Exception | — | `wizard.dropLast` | "Drop it" control, last step only | the control is absent on steps 1–5 |
-| R6 | Keyword budget caps the Area count | Threshold | `BUDGETS` | `derived.areaCount` | Wizard progress + room header | 6→3–6 Areas, 3→2–3 Areas |
-| R7 | Three-keyword variant for crawls | Substitution | `BUDGETS` | `wizard.setBudget` | Budget picker at room creation | a 3-budget room walks three steps |
-| R8 | Embellish beyond the Areas; embellishments are not Areas | Permission | — | `sheet.description` | Free-text description field, separate from Area cards | description text creates no searchable Area |
-| R9 | Encounter check runs after description, before searching (A9) | Lookup + Gate | `ENCOUNTER_BANDS` | `lifecycle.encounterCheck` | Room sheet, above the Area list | offered once, after description |
-| R10 | Encounter resolution needs the Fate Chart | Lookup | — | `guidance only` (B1) | Prompt-and-record: app asks, you answer, it logs | the surface records an answer and cites B1 |
-| R11 | One Room Elements roll per Area (A2) | Once-per-X | `ROOM_ELEMENTS` | `roller.searchArea` | Area card; control disables after use, refusal cites the rule | search, assert refusal on a second attempt |
-| R12 | The once-per-Area flag is cleared only by a new room | Once-per-X | — | `lifecycle.newRoom` | — | new room, assert every Area is searchable again |
-| R13 | Multi-Element expands to exactly two distinct Elements (A3) | Cascade | `ROOM_ELEMENTS` | `roller.expandMultiElement` | Result card shows both | assert exactly two, always |
-| R14 | A repeat or nested Multi-Element becomes Expected (A4) | Exception | — | `roller.expandMultiElement` | Result card names the substitution | force a collision, assert Expected |
-| R15 | Expectations follow face value, never the PC's wish | Compulsion | — | `guidance only` | `explain()` on the Area card + rules-library entry | the copy is present and marked guidance |
-| R16 | Fortunate/Unfortunate use the obvious idea, else Discover Meaning | Permission | — | `roller.resolveElement` → prompt | Result card offers "I have an idea" / "Roll for it" | both branches reachable |
-| R17 | Random rolls a keyword pair on a chosen Meaning table (A11) | Lookup + Permission | `ROOM_DESCRIPTORS`, `SOCK_DRAWER` | `roller.rollMeaningPair` | Table picker on the result card, naming B2's absent tables | a pair is returned from either table |
-| R18 | Sock Drawer is a meaning table, rolled in pairs (A10) | Lookup | `SOCK_DRAWER` | `roller.rollMeaningPair` | Detail-roll control | doubles are kept, not re-rolled |
-| R19 | One General Area roll per room (A1, A12) | Once-per-X | `ROOM_ELEMENTS` | `roller.searchGeneralArea` | Room sheet, its own card below the Areas | available at any budget, with no prerequisite |
-| R20 | Room complete = every Area + the General Area rolled | Threshold | — | `derived.isComplete` | Persistent room header | the predicate flips on the last roll |
-| R21 | Unsearched Areas leave the room *described, not searched* (A14) | Threshold | — | `derived.searchState` | Room header state label | a skipped Area yields the distinct state |
-| R22 | No Conclusion Element — the room simply ends | Gate | — | `lifecycle.completeRoom` | Completion summary | no extra roll is offered at completion |
-| R23 | Search all, some or none of the room | Permission | — | `lifecycle.completeRoom` | "Done with this room" always enabled | a room completes with zero searches |
-| R24 | Hidden things need a task roll then a Fate Question | Substitution | — | `guidance only` (B1) | Prompt-and-record on the room sheet | the surface records an answer and cites B1 |
-| R25 | Connected simple rooms may be treated as one room | Permission | — | `wizard.createRoom` | "This room covers several spaces" note field | the note persists on the room record |
-| R26 | Place Areas where they seem most fitting | Permission | — | `sheet.reorderAreas` | Drag or move control on Area cards | order persists |
-| R27 | A room may be any close space (cave, corridor, pool) | Permission | `ROOM_TYPES` (house aid) | `wizard.createRoom` | Room-type picker, free text allowed, house aid labelled | a free-text type is accepted |
-| R28 | Chain rooms into a crawl | Permission | — | `lifecycle.nextRoom` | "Next room" from a completed room | the new room joins the same crawl in order |
-| R29 | Dice are cryptographic, shown as faces, never silently re-rolled | — (template §5.1) | — | `core.d100` · `store.logRoll` | Every result card; distribution view | one action produces exactly one logged roll |
-| R30 | House aids identify themselves wherever rolled | — (template §2.2) | `HOUSE_AID` | `ui.houseAidBadge` | Badge on every house-aid result | the badge renders on a room-type roll |
+| R1 | Roll the keywords one at a time, in order | Compulsion | `ROOM_DESCRIPTORS`, `BUDGETS` | `wizard.rollNext` → `roller.rollKeyword` | Wizard, one keyword per step | `R1 keywords arrive one at a time, numbered in order` · `R1 rolling past the budget is refused` |
+| R2 | A keyword that inspires becomes an Area alone | Permission | — | `wizard.makeArea` | "Make this an Area" | `R2 one keyword can become an Area on its own` · `R2 an Area with no name is refused` |
+| R3 | One that does not combines with the next | Permission + Cascade | — | `wizard.carryForward` | "Nothing yet — carry it forward" | `R3 a carried pair makes one Area and consumes both keywords` |
+| R4 | Combinations cap at two (A7) | Threshold | `MAX_COMBINE` | `wizard.canCarry` | Control replaced by a cited note at two | `R4 combining stops at two` · `R4 six keywords never yield fewer than three Areas` |
+| R5 | Only the final keyword may be dropped (A8) | Exception | — | `wizard.canDrop` · `wizard.dropLast` | "Drop it and finish", last step only | `R5 dropping is refused until the final keyword` |
+| R6 | The budget caps the Area count | Threshold | `BUDGETS` | `derived.areaCount` · `derived.totalExplorable` | Wizard meta line · persistent room header | `R6/R7` · `R6 derived Area counts match the record` |
+| R7 | Three-keyword variant for crawls | Substitution | `BUDGETS` | `wizard.newRoomForm` budget picker | Budget picker, inherited by the next room | `R6/R7 a three-keyword room walks three steps` |
+| R8 | Embellishments are not Areas | Permission | — | `sheet.descriptionBlock` | Free-text description, separate from Area cards | structural: no Area record is created from it |
+| R9 | The encounter check comes after describing, before searching (A9) | Lookup + Gate | `ENCOUNTER_ANSWERS` | `lifecycle.recordEncounter` | Room sheet, above the Areas, with a nudge while undescribed | `R9/R10 the encounter answer is recorded, and can be cleared` |
+| R10 | Resolving it needs the Fate Chart | Lookup | — | `guidance only` (B1) | Prompt-and-record, `not automated` badge | same |
+| R11 | One Room Elements roll per Area (A2) | Once-per-X | `ROOM_ELEMENTS` | `derived.canSearchArea` → `roller.searchArea` | Control disappears after use; refusal cites `search` | `R11 an Area takes exactly one roll, and the second is refused` |
+| R12 | The flag is cleared only by a new room | Once-per-X | — | `lifecycle.newRoom` (throws if a new room carries spent flags) | — | `R12 a new room clears the search flags — and nothing else does` |
+| R13 | Multi-Element expands to exactly two (A3) | Cascade | `ROOM_ELEMENTS` | `roller.expandMultiElement` | Result card shows both | `R13 Multi-Element always expands to exactly two sub-Elements` |
+| R14 | A repeat or nested Multi-Element becomes Expected (A4) | Exception | — | `roller.resolveSubBand` | Result card names the substitution | `R14 a repeat or a nested Multi-Element becomes Expected` |
+| R15 | Expectations follow face value, not the wish | Compulsion | — | `guidance only` | Note + rules link on every Expected/Enhanced/Minimized result | copy asserted present by the smoke walk |
+| R16 | Fortunate/Unfortunate: obvious idea, else Discover Meaning | Permission | — | `guidance only` (B1) | Prompt on the result card | copy asserted present |
+| R17 | Random rolls a pair on a chosen Meaning table (A11) | Lookup + Permission | `ROOM_DESCRIPTORS`, `SOCK_DRAWER` | `roller.needsMeaning` → `roller.attachMeaning` | Table picker naming B2's absent tables | `R17 Random asks for a Meaning pair, and only then stops asking` |
+| R18 | Sock Drawer is a meaning table, rolled in pairs (A10) | Lookup | `SOCK_DRAWER` | `roller.rollMeaningPair` · `roller.rollDetail` | Detail roll on every Area and the General Area | `R18 a Meaning pair is two words… doubles kept` · `R18 a detail roll lands on the room, tagged with its Area` |
+| R19 | One General Area roll per room (A1, A12) | Once-per-X | `ROOM_ELEMENTS` | `derived.canSearchGeneral` → `roller.searchGeneralArea` | Its own card below the Areas | `R19 the General Area needs no prerequisite` · `R19/A12` |
+| R20 | Complete = every Area + the General Area | Threshold | — | `derived.isComplete` | Persistent room header | `R20 complete flips on the last roll, not before` |
+| R21 | Unsearched Areas leave it described, not searched (A14) | Threshold | — | `derived.searchState` | Header state chip · crawl list | `R21 a skipped Area leaves the room described or part searched` |
+| R22 | No Conclusion Element | Gate | — | `lifecycle.roomSummary` · `sheet.finishRoom` | Completion summary offers no further roll | `R22/R23` · smoke asserts the summary never says "conclusion" |
+| R23 | Search all, some or none | Permission | — | `sheet.finishRoom` | "Done with this room", always enabled | `R22/R23 a room with nothing searched is a legitimate resting state` |
+| R24 | Hidden things: your task mechanic, then a Fate Question | Substitution | — | `guidance only` (B1) → `lifecycle.recordHidden` | Prompt-and-record fold, `not automated` badge | `R24 hidden searches are recorded, not automated` |
+| R25 | Connected simple rooms may be one room | Permission | `context.multiRoomNote` | `wizard.newRoomForm` | "Does this room cover several spaces?" · shown on the sheet | `R25 the multi-room note persists on the record` |
+| R26 | Place Areas where they seem fitting | Permission | `area.order` | `derived.normalizeRoom` (order preserved) | Areas render and export in their stored order | covered by the export round-trip |
+| R27 | A room may be any close space | Permission | `ROOM_TYPES` (house aid) | `wizard.newRoomForm` | Free-text room type; the list only suggests | `R27 a room type the house-aid list has never heard of is accepted` |
+| R28 | Chain rooms into a crawl | Permission | — | `lifecycle.nextRoom` | "Next room in this crawl", budget inherited | `R28 the next room joins the same crawl and inherits the budget` |
+| R29 | Cryptographic dice, shown, logged once, never silently re-rolled | — | — | `core.d100` · `store.logRoll` | Every result card · roll log · distribution | `R29 d100 stays in range and reaches both ends` · `R29 one search writes exactly one Element roll` |
+| R30 | House aids identify themselves wherever rolled | — | `HOUSE_AID`, `ROOM_TYPES` | `roller.rollRoomType` · `ui.houseAidBadge` | Badge on the rolled room type, in the log, in Settings and the tutorial | `R30 a house-aid roll is logged as a house aid` |
 
----
+**Rows with a `guidance only` engine** (R10, R15, R16, R24) are the blocked
+surfaces of §2.2 and the one interpretation rule the app deliberately does not
+automate. Each carries a `not automated` badge where it appears. That marking is
+the explicit non-decision template §10.13 requires; it is not a gap.
 
 ## 6. Data model (`localStorage`)
 
@@ -243,16 +246,21 @@ rooms/{roomId}
   budget:    6 | 3
   keywords:  [ { n: 1..6, roll, word, use: "area" | "combined" | "dropped" } ]
   areas:     [ { id, name, fromKeywords: [n], order,
-                 search: null | { roll, element, sub: [ {roll, element} ], meaning: [w,w]|null,
-                                  note, ts } } ]
-  generalArea: null | { roll, element, sub: [...], meaning: [w,w]|null, note, ts }
+                 search: null | { roll, elementId, elementName,
+                                  sub: [ {roll, elementId, elementName, substituted} ],
+                                  meaning: null | { tableId, tableName, rolls, words, doubled },
+                                  note, ts }, note } ]
+  generalArea: null | { roll, elementId, elementName, sub: [...], meaning|null, note, ts }
+  details:     [ { areaId|null, tableId, tableName, rolls: [a,b], words: [w,w],
+                   doubled, ts } ]              // Sock Drawer / detail rolls, one list
   encounter:   null | { asked: true, answer: "exYes"|"yes"|"no"|"exNo", note, ts }
   hidden:      [ { question, answer, note, ts } ]   // B1 stub records
   description: ""            // free text; embellishments, not Areas
   notes:       ""
   state:       { complete: bool }               // derived.isComplete, stored for list rendering
 
-rollLog/{id}: { table, roll, result, crawlId, roomId, areaId|null, ts }   // capped ~200, paged
+rollLog/{id}: { table, roll, result, crawlId, roomId, roomName, areaId|null,
+                context, houseAid?, ts }                    // capped at 200, paged 25 at a time
 undo:         [ { label, snapshot, ts } ]                                  // one stack, any mutating action pushes
 settings:     { theme, textScale, ... }
 ```
@@ -269,59 +277,61 @@ migration **and** a fixture test that loads a hand-written old-shape record.
 
 Build strictly in order. A phase is done when its features each satisfy §8.
 
-**Phase 0 — Foundations** ☐
-- ☐ Scaffold every file in §3; `node --check` gate wired first
-- ☐ `data.js` complete and verified: T1 · T2 · T3 · T4 · T5 — *data before features*
-- ☐ Theme (both palettes, system default, in-app toggle, text-size control)
-- ☐ PWA shell: manifest, icon, service worker (app shell cached + versioned, navigation network-first), update toast — **and the update path tested**
-- ☐ App shell: router, the template §6.2 frame, two-level nav, `localStorage`
-- ☐ Crawl list + room list (P9)
+**Phase 0 — Foundations** ☑
+- ☑ Scaffold every file in §3; `node --check` parse gate wired first and run on every source file
+- ☑ `data.js` complete and verified: T1 · T2 · T3 · T4 · T5 — *data before features*
+- ☑ Theme (both palettes, system default, in-app toggle, text-size control)
+- ☑ PWA shell: manifest, icon, service worker (app shell cached + versioned, navigation network-first), update toast
+- ☑ App shell: router, the template §6.2 frame, two-level nav, `localStorage`
+- ☑ Crawl list + room list (P9)
 
-**Phase 1 — Room Generation Wizard** ☐ — R1–R8, R25–R27
-- ☐ Sequential keyword walk, one step per keyword, with interpret / combine / drop
-- ☐ Budget picker (6 / 3), Area cap enforced, combination capped at two (A7)
-- ☐ Room creation: label, room type (house-aid list + free text, badged), multi-room note
-- ☐ Legality at every step; refusals cite the rule
+**Phase 1 — Room Generation Wizard** ☑ — R1–R8, R25–R27
+- ☑ Sequential keyword walk with interpret / combine / drop
+- ☑ Budget picker (6 / 3), Area cap enforced, combination capped at two (A7)
+- ☑ Room creation: label, room type (house-aid list, free text, and a roll), multi-room note
+- ☑ Legality at every step; refusals cite the rule
 
-**Phase 2 — Room Sheet** ☐ — R8, R20, R21, R26
-- ☐ Description field, Area cards, ordering, notes
-- ☐ Persistent room header: name · Areas searched N/M · General Area · budget
-- ☐ JSON export/import in Settings; **read-aloud export**
-- ☐ Persistence + normalization/migration + fixture test
+**Phase 2 — Room Sheet** ☑ — R8, R20, R21, R26
+- ☑ Description field, Area cards, ordering, notes, jump row
+- ☑ Persistent room header: name · Areas N/M · General Area · explorable N/M · state
+- ☑ JSON export/import in Settings; read-aloud export
+- ☑ Persistence + normalization/migration + old-shape fixture test
 
-**Phase 3 — Table Roller** ☐ — R9–R19, R29, R30
-- ☐ `core.d100` on `crypto.getRandomValues`; faces shown; one action = one logged roll
-- ☐ Element resolution with the Multi-Element cascade (A3/A4) and its cap
-- ☐ Once-per-Area gate (A2) and General Area (A1/A12), both with cited refusals
-- ☐ Sock Drawer pairs (A10); Random with table picker (A11) naming B2
-- ☐ Encounter check (R9) and hidden-search (R24) prompt-and-record stubs, marked guidance
-- ☐ Roll log: attributed, filterable, capped, paged, `aria-live` + distribution view
-- ☐ Every automated surface links to its rules-library entry
+**Phase 3 — Table Roller** ☑ — R9–R19, R29, R30
+- ☑ `core.d100` on `crypto.getRandomValues`; faces shown; one action = one logged roll
+- ☑ Element resolution with the Multi-Element cascade (A3/A4) and its termination
+- ☑ Once-per-Area gate (A2) and General Area (A1/A12), both with cited refusals
+- ☑ Sock Drawer pairs and detail rolls (A10); Random with table picker (A11) naming B2
+- ☑ Encounter check (R9) and hidden-search (R24) prompt-and-record stubs, badged
+- ☑ Roll log: attributed, filterable, capped, paged, `aria-live` + distribution view
+- ☑ Every automated surface links to its rules-library entry
 
-**🏁 Milestone — First Room Playable** ☐
+**🏁 Milestone — First Room Playable** ☑
 Create a crawl → generate a room → describe it → encounter check → search every
-Area → General Area → complete → export, end to end, zero console errors,
-rehearsed as a real session.
+Area → General Area → complete → export, end to end, zero console errors.
+Driven by the smoke harness as a scripted session; **not yet rehearsed at a real
+table** — that is the one part of this milestone still owed.
 
-**Phase 4 — In-Play Systems** ☐ — R11–R12, R20–R23, R28
-- ☐ Room lifecycle: completion summary, and **the boundary that clears the once-per flags** (R12 — watch D-17)
-- ☐ Crawl boundaries: next room, finish crawl, both with summary + one-step undo
-- ☐ General undo stack across every mutating action (§14.1.2)
-- ☐ Repeat-roll affordance on result cards (§14.1.8)
-- ☐ Data-integrity action in Settings: run normalization, report repairs (§14.1.9)
+**Phase 4 — In-Play Systems** ☑ — R11–R12, R20–R23, R28
+- ☑ Room lifecycle: completion summary, and the boundary that clears the once-per flags (R12; the UI now goes through it — audit A-1)
+- ☑ Crawl boundaries: next room with the budget inherited, summaries, one-step undo
+- ☑ General undo stack across every mutating action
+- ☑ Repeat-roll affordance on Random results
+- ☑ Data-integrity action in Settings
 
-**Phase 5 — Teaching + tablet** ☐
-- ☐ Rules library: accordion, in session order, search auto-opens matches (T6)
-- ☐ `explain()` on every screen, collapsed by default (T7)
-- ☐ Tutorial as its own route + neutral demo rooms (T8, T10)
-- ☐ Tablet layout that **adds** density — keyword walk beside the room sheet (P8)
+**Phase 5 — Teaching + tablet** ☑
+- ☑ Rules library: accordion, session order, search auto-opens matches (T6, 14 entries)
+- ☑ `explain()` on every screen, collapsed by default (T7)
+- ☑ Tutorial as its own route + neutral demo rooms (T8, T10)
+- ☑ Tablet layout at ≥760px: wider frame, larger keyword card, row-wise modal actions
 
-**Phase 6 — Hardening** ☐
-- ☐ Harness A (parse gate + unit + table completeness), B (browser smoke), C (interaction audit), D (committed fixtures fresh/mid-crawl/stress + `probe-layout.mjs` + `probe-flow.mjs`)
-- ☐ Accessibility pass; the §6.7 measurement contract
-- ☐ Audit protocol run to **one complete seven-pass cycle with no finding**
-
----
+**Phase 6 — Hardening** ◐
+- ☑ Harness A (`npm test`, 63 checks), B (`npm run smoke`, 245), C (`npm run interact`, 243), D (fixtures fresh/mid-crawl/stress + both probes)
+- ☑ Dead-data scan (`npm run scan`), clean
+- ☑ Accessibility: focus trap, `aria-live`, `aria-current`, labelled controls, 16px inputs, 40px+ targets, reduced motion, skip link
+- ☑ The §6.7 measurement contract, asserted on every route at every seed
+- ☑ Three guards proven to bite against reintroduced defects
+- ☐ **Cycle 2 of the audit protocol.** Cycle 1 produced twelve findings (`docs/AUDIT.md`); the stopping rule is a full cycle with none.
 
 ## 8. Definition of done — per feature
 
@@ -363,3 +373,8 @@ Template §10 applies in full. The ones this project will actually be tested by:
 | 2026-09-11 | Distilled the source to `docs/room-crafter-rules.md` | Stage A ingestion | Both d100 tables verified by alphabetical monotonicity, 200/200 slots, no duplicates | — |
 | 2026-09-11 | Stage A checkpoint written and signed off (`docs/STAGE-A-CHECKPOINT.md`) | Template §4.1 | Rulings A1–A15 approved as written | — |
 | 2026-09-11 | Instantiated this spec: product decisions P1–P11, file tables, extraction ledger T1–T13, traceability ledger R1–R30, roadmap | Template §9 | Awaiting Stage C go-ahead | — |
+| 2026-09-11 | Stage C: built Phases 0–5 — data library, shell, wizard, sheet, roller, lifecycle, teaching layers, tablet layout | Stage B sign-off | `npm test` 63 · `smoke` 245 · `interact` 243 · `scan` clean; zero console errors on every route | `rc-v1` |
+| 2026-09-11 | Audit cycle 1: twelve findings fixed (A-1…A-12) plus seven harness faults (H-1…H-7) | Template §11 | Each fix re-verified; three guards watched go red against reintroduced defects | `rc-v1` |
+| 2026-09-11 | A-1: routed room creation through `lifecycle.newRoom` | The named clearer for the once-per-X flags was not on any code path — the guarantee was a coincidence | `R12` covers it; `newRoom` throws if a new room carries spent flags | `rc-v1` |
+| 2026-09-11 | A-2: added the detail-roll control | The Sock Drawer table was extracted, tested and unreachable — §0 exactly | `R18 a detail roll lands on the room` | `rc-v1` |
+| 2026-09-11 | A-7: added the multi-room field | A permission the article grants had a schema field and no control (D-22) | `R25 the multi-room note persists` | `rc-v1` |

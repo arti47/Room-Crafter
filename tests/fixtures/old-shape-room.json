@@ -1,0 +1,10 @@
+{
+  "id": "room_legacy",
+  "crawlId": "crawl_legacy",
+  "label": "A room saved by an older build",
+  "areas": [
+    { "name": "A cracked mirror" },
+    { "name": "A chest with no lid", "search": null }
+  ],
+  "description": "Written before the record had a context block."
+}

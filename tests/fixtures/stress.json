@@ -1,0 +1,6572 @@
+{
+  "app": "room-crafter",
+  "version": 1,
+  "exportedAt": "2026-09-11T09:02:17.072Z",
+  "settings": {
+    "theme": "system",
+    "textScale": 1,
+    "showHouseAids": true,
+    "confirmDestructive": true
+  },
+  "crawls": [
+    {
+      "id": "crawl_9d6e364f0ff73a94",
+      "name": "Crawl 1 — a long name that has to wrap on a narrow phone screen",
+      "note": "",
+      "createdAt": 1789117335934,
+      "lastOpenedAt": 1789117335962,
+      "rooms": [
+        "room_65d8f36067cab9f2",
+        "room_89cfe50b6c8badb6",
+        "room_05c50015c185484c",
+        "room_6269cebf67366ea6",
+        "room_9e73dddbc517f15a",
+        "room_2b61a58088e8cf8a"
+      ]
+    },
+    {
+      "id": "crawl_a364327ad7251dd8",
+      "name": "Crawl 2 — a long name that has to wrap on a narrow phone screen",
+      "note": "",
+      "createdAt": 1789117335978,
+      "lastOpenedAt": 1789117336126,
+      "rooms": [
+        "room_e900a34809d3a219",
+        "room_b3883c7ef99e9aa1",
+        "room_e9f491e8079967c8",
+        "room_966fe629ce902186",
+        "room_6b4c5f894c368777",
+        "room_06a070a82804a6ad"
+      ]
+    },
+    {
+      "id": "crawl_a4700cad43bae60d",
+      "name": "Crawl 3 — a long name that has to wrap on a narrow phone screen",
+      "note": "",
+      "createdAt": 1789117336166,
+      "lastOpenedAt": 1789117336466,
+      "rooms": [
+        "room_bce63ecdd7913791",
+        "room_73d43b1f119ac7e1",
+        "room_202ba4cb02df4063",
+        "room_09549233864ba880",
+        "room_7679cefd266fcdfa",
+        "room_4be3cae79089f263"
+      ]
+    },
+    {
+      "id": "crawl_085b0b2c4177569f",
+      "name": "Crawl 4 — a long name that has to wrap on a narrow phone screen",
+      "note": "",
+      "createdAt": 1789117336534,
+      "lastOpenedAt": 1789117336971,
+      "rooms": [
+        "room_f06d8884498ac622",
+        "room_7416634009bbdd91",
+        "room_2ba85c605dec1d67",
+        "room_215d62aab3f95fb8",
+        "room_12b9ce443aecb446",
+        "room_b68de451eca80bec"
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "room_65d8f36067cab9f2",
+      "crawlId": "crawl_9d6e364f0ff73a94",
+      "budget": 6,
+      "context": {
+        "label": "Room 1 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117335934,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 54,
+          "word": "Lock",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 27,
+          "word": "Deliberate",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 28,
+          "word": "Device",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 3,
+          "word": "Beautiful",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 64,
+          "word": "Open",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 52,
+          "word": "Light",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_b355cd54bfb4d329",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 70,
+            "elementId": "fortunate",
+            "elementName": "Fortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335935
+          },
+          "note": ""
+        },
+        {
+          "id": "area_1bfb48a77a026e46",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 88,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335935
+          },
+          "note": ""
+        },
+        {
+          "id": "area_3e80ed1cc7dbe262",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 39,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335935
+          },
+          "note": ""
+        },
+        {
+          "id": "area_b922a266cc30375a",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 87,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335935
+          },
+          "note": ""
+        },
+        {
+          "id": "area_4e3baafd78e2880b",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 69,
+            "elementId": "fortunate",
+            "elementName": "Fortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335935
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": {
+        "roll": 88,
+        "elementId": "random",
+        "elementName": "Random",
+        "sub": [],
+        "meaning": null,
+        "note": "",
+        "ts": 1789117335935
+      },
+      "encounter": {
+        "asked": true,
+        "answer": "no",
+        "answerName": "No",
+        "note": "a note about what was waiting",
+        "ts": 1789117335935
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117335935
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": true
+      }
+    },
+    {
+      "id": "room_89cfe50b6c8badb6",
+      "crawlId": "crawl_9d6e364f0ff73a94",
+      "budget": 6,
+      "context": {
+        "label": "Room 2 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117335936,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 24,
+          "word": "Damaged",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 3,
+          "word": "Beautiful",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 100,
+          "word": "Wrecked",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 63,
+          "word": "Occupied",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 94,
+          "word": "Vessel",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 13,
+          "word": "Character",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_1817587798374e52",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 57,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335937
+          },
+          "note": ""
+        },
+        {
+          "id": "area_cdc5cb96ad8702e5",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 16,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335937
+          },
+          "note": ""
+        },
+        {
+          "id": "area_503c7afffc84c6d8",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 55,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335937
+          },
+          "note": ""
+        },
+        {
+          "id": "area_5803fdd8670d9338",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 46,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335937
+          },
+          "note": ""
+        },
+        {
+          "id": "area_1786f7a785ad1d75",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 19,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335937
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": null,
+      "encounter": {
+        "asked": true,
+        "answer": "yes",
+        "answerName": "Yes",
+        "note": "a note about what was waiting",
+        "ts": 1789117335937
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117335938
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": false
+      }
+    },
+    {
+      "id": "room_05c50015c185484c",
+      "crawlId": "crawl_9d6e364f0ff73a94",
+      "budget": 6,
+      "context": {
+        "label": "Room 3 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117335938,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 92,
+          "word": "Useful",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 23,
+          "word": "Currency",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 74,
+          "word": "Secured",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 82,
+          "word": "Substance",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 23,
+          "word": "Currency",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 53,
+          "word": "Liquid",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_2783b7e4381c8901",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 32,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335941
+          },
+          "note": ""
+        },
+        {
+          "id": "area_dc4a7eaa31a8a4ae",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 19,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335941
+          },
+          "note": ""
+        },
+        {
+          "id": "area_bba1f47899e98464",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 74,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335941
+          },
+          "note": ""
+        },
+        {
+          "id": "area_19f885484632661c",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 5,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335941
+          },
+          "note": ""
+        },
+        {
+          "id": "area_e7825e48cd49760b",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 57,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335941
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": {
+        "roll": 60,
+        "elementId": "minimized",
+        "elementName": "Minimized Expected",
+        "sub": [],
+        "meaning": null,
+        "note": "",
+        "ts": 1789117335942
+      },
+      "encounter": {
+        "asked": true,
+        "answer": "no",
+        "answerName": "No",
+        "note": "a note about what was waiting",
+        "ts": 1789117335941
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117335942
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": true
+      }
+    },
+    {
+      "id": "room_6269cebf67366ea6",
+      "crawlId": "crawl_9d6e364f0ff73a94",
+      "budget": 6,
+      "context": {
+        "label": "Room 4 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117335943,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 53,
+          "word": "Liquid",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 72,
+          "word": "Scenery",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 98,
+          "word": "Weapon",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 25,
+          "word": "Danger",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 43,
+          "word": "Heavy",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 82,
+          "word": "Substance",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_17874196e1cc8c67",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 82,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335948
+          },
+          "note": ""
+        },
+        {
+          "id": "area_7434b1a5a222dc2b",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 72,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335948
+          },
+          "note": ""
+        },
+        {
+          "id": "area_5e59cfebcd72dba0",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 66,
+            "elementId": "fortunate",
+            "elementName": "Fortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335948
+          },
+          "note": ""
+        },
+        {
+          "id": "area_736b2522e76e0c38",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 22,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335948
+          },
+          "note": ""
+        },
+        {
+          "id": "area_2d798a642baa45d8",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 40,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335948
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": null,
+      "encounter": {
+        "asked": true,
+        "answer": "yes",
+        "answerName": "Yes",
+        "note": "a note about what was waiting",
+        "ts": 1789117335947
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117335950
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": false
+      }
+    },
+    {
+      "id": "room_9e73dddbc517f15a",
+      "crawlId": "crawl_9d6e364f0ff73a94",
+      "budget": 6,
+      "context": {
+        "label": "Room 5 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117335952,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 17,
+          "word": "Collection",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 62,
+          "word": "Object",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 6,
+          "word": "Bleak",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 96,
+          "word": "Warm",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 15,
+          "word": "Clothes",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 48,
+          "word": "Instrument",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_fde901b20b6654ff",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 51,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335956
+          },
+          "note": ""
+        },
+        {
+          "id": "area_f25c6bdaf82eb259",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 38,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335956
+          },
+          "note": ""
+        },
+        {
+          "id": "area_b68f024905c4d270",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 56,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335956
+          },
+          "note": ""
+        },
+        {
+          "id": "area_86663bca6b616f6a",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 32,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335957
+          },
+          "note": ""
+        },
+        {
+          "id": "area_2ac703a4c4d73864",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 58,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335957
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": {
+        "roll": 9,
+        "elementId": "expected",
+        "elementName": "Expected",
+        "sub": [],
+        "meaning": null,
+        "note": "",
+        "ts": 1789117335957
+      },
+      "encounter": {
+        "asked": true,
+        "answer": "no",
+        "answerName": "No",
+        "note": "a note about what was waiting",
+        "ts": 1789117335956
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117335959
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": true
+      }
+    },
+    {
+      "id": "room_2b61a58088e8cf8a",
+      "crawlId": "crawl_9d6e364f0ff73a94",
+      "budget": 6,
+      "context": {
+        "label": "Room 6 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117335962,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 35,
+          "word": "Faded",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 92,
+          "word": "Useful",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 82,
+          "word": "Substance",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 58,
+          "word": "Messy",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 61,
+          "word": "Natural",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 35,
+          "word": "Faded",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_08ed9c2180b15f40",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 12,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335969
+          },
+          "note": ""
+        },
+        {
+          "id": "area_b96993f15302c817",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 3,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335969
+          },
+          "note": ""
+        },
+        {
+          "id": "area_a9dfbc9d1bb9020a",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 88,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335970
+          },
+          "note": ""
+        },
+        {
+          "id": "area_5b7df425a0e82b83",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 31,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335970
+          },
+          "note": ""
+        },
+        {
+          "id": "area_286e7f95acb2a91b",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 18,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335970
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": null,
+      "encounter": {
+        "asked": true,
+        "answer": "yes",
+        "answerName": "Yes",
+        "note": "a note about what was waiting",
+        "ts": 1789117335969
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117335974
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": false
+      }
+    },
+    {
+      "id": "room_e900a34809d3a219",
+      "crawlId": "crawl_a364327ad7251dd8",
+      "budget": 6,
+      "context": {
+        "label": "Room 1 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117335981,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 86,
+          "word": "Text",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 70,
+          "word": "Pristine",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 7,
+          "word": "Bright",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 79,
+          "word": "Sparse",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 2,
+          "word": "Art",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 68,
+          "word": "Personal",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_045ba9539eb077da",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 88,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335989
+          },
+          "note": ""
+        },
+        {
+          "id": "area_e309e25ed226af11",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 48,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335989
+          },
+          "note": ""
+        },
+        {
+          "id": "area_3032298dd3bba8dc",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 96,
+            "elementId": "multi",
+            "elementName": "Multi-Element",
+            "sub": [
+              {
+                "roll": 82,
+                "elementId": "random",
+                "elementName": "Random",
+                "substituted": null
+              },
+              {
+                "roll": 58,
+                "elementId": "minimized",
+                "elementName": "Minimized Expected",
+                "substituted": null
+              }
+            ],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335991
+          },
+          "note": ""
+        },
+        {
+          "id": "area_3b8ccb65de25cfe5",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 57,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335991
+          },
+          "note": ""
+        },
+        {
+          "id": "area_fc424d596c085c67",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 24,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117335991
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": {
+        "roll": 92,
+        "elementId": "random",
+        "elementName": "Random",
+        "sub": [],
+        "meaning": null,
+        "note": "",
+        "ts": 1789117335992
+      },
+      "encounter": {
+        "asked": true,
+        "answer": "no",
+        "answerName": "No",
+        "note": "a note about what was waiting",
+        "ts": 1789117335988
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117335996
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": true
+      }
+    },
+    {
+      "id": "room_b3883c7ef99e9aa1",
+      "crawlId": "crawl_a364327ad7251dd8",
+      "budget": 6,
+      "context": {
+        "label": "Room 2 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336001,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 44,
+          "word": "Humble",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 10,
+          "word": "Ceiling",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 31,
+          "word": "Display",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 81,
+          "word": "Strange",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 52,
+          "word": "Light",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 19,
+          "word": "Covered",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_00359372dd2cacfb",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 20,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336011
+          },
+          "note": ""
+        },
+        {
+          "id": "area_2fa2b897bfe1501e",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 33,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336011
+          },
+          "note": ""
+        },
+        {
+          "id": "area_bc16a272512c2b67",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 41,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336012
+          },
+          "note": ""
+        },
+        {
+          "id": "area_cd39d0f7373fe1ee",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 37,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336012
+          },
+          "note": ""
+        },
+        {
+          "id": "area_8c121e0262ea9e9c",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 36,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336012
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": null,
+      "encounter": {
+        "asked": true,
+        "answer": "yes",
+        "answerName": "Yes",
+        "note": "a note about what was waiting",
+        "ts": 1789117336010
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336018
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": false
+      }
+    },
+    {
+      "id": "room_e9f491e8079967c8",
+      "crawlId": "crawl_a364327ad7251dd8",
+      "budget": 6,
+      "context": {
+        "label": "Room 3 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336025,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 49,
+          "word": "Interesting",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 46,
+          "word": "Incomplete",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 91,
+          "word": "Unpleasant",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 81,
+          "word": "Strange",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 22,
+          "word": "Creature",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 67,
+          "word": "Partition",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_595e83300d892e03",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 70,
+            "elementId": "fortunate",
+            "elementName": "Fortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336037
+          },
+          "note": ""
+        },
+        {
+          "id": "area_00e04cd3066fd3f8",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 39,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336037
+          },
+          "note": ""
+        },
+        {
+          "id": "area_ceeb6eadf1c2c49f",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 94,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336038
+          },
+          "note": ""
+        },
+        {
+          "id": "area_8c7d9d036f3c87bb",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 43,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336038
+          },
+          "note": ""
+        },
+        {
+          "id": "area_a30309394b028a15",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 7,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336039
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": {
+        "roll": 36,
+        "elementId": "expected",
+        "elementName": "Expected",
+        "sub": [],
+        "meaning": null,
+        "note": "",
+        "ts": 1789117336039
+      },
+      "encounter": {
+        "asked": true,
+        "answer": "no",
+        "answerName": "No",
+        "note": "a note about what was waiting",
+        "ts": 1789117336036
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336046
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": true
+      }
+    },
+    {
+      "id": "room_966fe629ce902186",
+      "crawlId": "crawl_a364327ad7251dd8",
+      "budget": 6,
+      "context": {
+        "label": "Room 4 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336053,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 36,
+          "word": "Fixture",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 48,
+          "word": "Instrument",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 64,
+          "word": "Open",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 55,
+          "word": "Map",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 36,
+          "word": "Fixture",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 47,
+          "word": "Information",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_3bd094f66b22bdda",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 89,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336067
+          },
+          "note": ""
+        },
+        {
+          "id": "area_5ad966eca96b54c7",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 15,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336068
+          },
+          "note": ""
+        },
+        {
+          "id": "area_e787b5e2349608f5",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 56,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336068
+          },
+          "note": ""
+        },
+        {
+          "id": "area_d26475782621995b",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 1,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336069
+          },
+          "note": ""
+        },
+        {
+          "id": "area_f665ecb49b204006",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 71,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336069
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": null,
+      "encounter": {
+        "asked": true,
+        "answer": "yes",
+        "answerName": "Yes",
+        "note": "a note about what was waiting",
+        "ts": 1789117336067
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336077
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": false
+      }
+    },
+    {
+      "id": "room_6b4c5f894c368777",
+      "crawlId": "crawl_a364327ad7251dd8",
+      "budget": 6,
+      "context": {
+        "label": "Room 5 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336085,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 51,
+          "word": "Ledge",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 86,
+          "word": "Text",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 71,
+          "word": "Sacred",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 50,
+          "word": "Large",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 19,
+          "word": "Covered",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 100,
+          "word": "Wrecked",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_45baca0c9879d96e",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 72,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336105
+          },
+          "note": ""
+        },
+        {
+          "id": "area_9cdce27b5c008015",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 77,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336105
+          },
+          "note": ""
+        },
+        {
+          "id": "area_6a90ccb8d0eabed4",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 11,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336106
+          },
+          "note": ""
+        },
+        {
+          "id": "area_a9507c92584c3d66",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 16,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336106
+          },
+          "note": ""
+        },
+        {
+          "id": "area_66d7b9387bfc168c",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 81,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336107
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": {
+        "roll": 99,
+        "elementId": "multi",
+        "elementName": "Multi-Element",
+        "sub": [
+          {
+            "roll": 92,
+            "elementId": "random",
+            "elementName": "Random",
+            "substituted": null
+          },
+          {
+            "roll": 5,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "substituted": null
+          }
+        ],
+        "meaning": null,
+        "note": "",
+        "ts": 1789117336108
+      },
+      "encounter": {
+        "asked": true,
+        "answer": "no",
+        "answerName": "No",
+        "note": "a note about what was waiting",
+        "ts": 1789117336104
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336116
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": true
+      }
+    },
+    {
+      "id": "room_06a070a82804a6ad",
+      "crawlId": "crawl_a364327ad7251dd8",
+      "budget": 6,
+      "context": {
+        "label": "Room 6 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336125,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 39,
+          "word": "Furniture",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 78,
+          "word": "Sound",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 91,
+          "word": "Unpleasant",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 47,
+          "word": "Information",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 8,
+          "word": "Broken",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 62,
+          "word": "Object",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_15e44be7d6f49689",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 81,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336142
+          },
+          "note": ""
+        },
+        {
+          "id": "area_fdaa86e5e6f21a28",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 24,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336143
+          },
+          "note": ""
+        },
+        {
+          "id": "area_1d0b64792363644d",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 29,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336143
+          },
+          "note": ""
+        },
+        {
+          "id": "area_01bf7d20ad8f4389",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 23,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336144
+          },
+          "note": ""
+        },
+        {
+          "id": "area_cab323b0bbe12fc7",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 47,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336145
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": null,
+      "encounter": {
+        "asked": true,
+        "answer": "yes",
+        "answerName": "Yes",
+        "note": "a note about what was waiting",
+        "ts": 1789117336142
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336155
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": false
+      }
+    },
+    {
+      "id": "room_bce63ecdd7913791",
+      "crawlId": "crawl_a4700cad43bae60d",
+      "budget": 6,
+      "context": {
+        "label": "Room 1 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336178,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 41,
+          "word": "Goods",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 71,
+          "word": "Sacred",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 51,
+          "word": "Ledge",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 7,
+          "word": "Bright",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 81,
+          "word": "Strange",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 65,
+          "word": "Ornament",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_55cd622f4014e03d",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 95,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336197
+          },
+          "note": ""
+        },
+        {
+          "id": "area_97d8ebe23f3d5aa1",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 55,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336198
+          },
+          "note": ""
+        },
+        {
+          "id": "area_22bd72bdb2c92e8d",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 15,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336199
+          },
+          "note": ""
+        },
+        {
+          "id": "area_941e1336993005a9",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 45,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336200
+          },
+          "note": ""
+        },
+        {
+          "id": "area_e05b7ddd9606b2b2",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 45,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336200
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": {
+        "roll": 24,
+        "elementId": "expected",
+        "elementName": "Expected",
+        "sub": [],
+        "meaning": null,
+        "note": "",
+        "ts": 1789117336201
+      },
+      "encounter": {
+        "asked": true,
+        "answer": "no",
+        "answerName": "No",
+        "note": "a note about what was waiting",
+        "ts": 1789117336197
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336215
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": true
+      }
+    },
+    {
+      "id": "room_73d43b1f119ac7e1",
+      "crawlId": "crawl_a4700cad43bae60d",
+      "budget": 6,
+      "context": {
+        "label": "Room 2 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336228,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 53,
+          "word": "Liquid",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 83,
+          "word": "Supply",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 99,
+          "word": "Window",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 84,
+          "word": "Symbol",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 90,
+          "word": "Unknown",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 59,
+          "word": "Missing",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_37a73f82ee988fdb",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 46,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336247
+          },
+          "note": ""
+        },
+        {
+          "id": "area_0c1d1a79378a90c2",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 78,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336248
+          },
+          "note": ""
+        },
+        {
+          "id": "area_c3732db139912490",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 54,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336248
+          },
+          "note": ""
+        },
+        {
+          "id": "area_f18175113cd876d4",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 86,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336249
+          },
+          "note": ""
+        },
+        {
+          "id": "area_449355b4ff540f20",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 56,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336250
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": null,
+      "encounter": {
+        "asked": true,
+        "answer": "yes",
+        "answerName": "Yes",
+        "note": "a note about what was waiting",
+        "ts": 1789117336246
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336269
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": false
+      }
+    },
+    {
+      "id": "room_202ba4cb02df4063",
+      "crawlId": "crawl_a4700cad43bae60d",
+      "budget": 6,
+      "context": {
+        "label": "Room 3 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336285,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 61,
+          "word": "Natural",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 2,
+          "word": "Art",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 100,
+          "word": "Wrecked",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 92,
+          "word": "Useful",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 7,
+          "word": "Bright",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 77,
+          "word": "Smell",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_36321c65fb0dcd3e",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 42,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336305
+          },
+          "note": ""
+        },
+        {
+          "id": "area_af54d437335a6d65",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 48,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336306
+          },
+          "note": ""
+        },
+        {
+          "id": "area_f9dd81e8b09d3a4b",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 42,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336307
+          },
+          "note": ""
+        },
+        {
+          "id": "area_132a80f565ca3e27",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 81,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336307
+          },
+          "note": ""
+        },
+        {
+          "id": "area_5e1c2fe1eaaa03ac",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 93,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336308
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": {
+        "roll": 35,
+        "elementId": "expected",
+        "elementName": "Expected",
+        "sub": [],
+        "meaning": null,
+        "note": "",
+        "ts": 1789117336309
+      },
+      "encounter": {
+        "asked": true,
+        "answer": "no",
+        "answerName": "No",
+        "note": "a note about what was waiting",
+        "ts": 1789117336304
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336322
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": true
+      }
+    },
+    {
+      "id": "room_09549233864ba880",
+      "crawlId": "crawl_a4700cad43bae60d",
+      "budget": 6,
+      "context": {
+        "label": "Room 4 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336337,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 12,
+          "word": "Chaos",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 37,
+          "word": "Floor",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 97,
+          "word": "Water",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 14,
+          "word": "Cloth",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 71,
+          "word": "Sacred",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 74,
+          "word": "Secured",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_a7532c0ad52e6d5b",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 70,
+            "elementId": "fortunate",
+            "elementName": "Fortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336361
+          },
+          "note": ""
+        },
+        {
+          "id": "area_68e0e35986a4f5ec",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 78,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336362
+          },
+          "note": ""
+        },
+        {
+          "id": "area_ff162a1651999fe7",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 70,
+            "elementId": "fortunate",
+            "elementName": "Fortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336363
+          },
+          "note": ""
+        },
+        {
+          "id": "area_3f19d314a206c19e",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 63,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336363
+          },
+          "note": ""
+        },
+        {
+          "id": "area_7ed5e345f957d97a",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 66,
+            "elementId": "fortunate",
+            "elementName": "Fortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336364
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": null,
+      "encounter": {
+        "asked": true,
+        "answer": "yes",
+        "answerName": "Yes",
+        "note": "a note about what was waiting",
+        "ts": 1789117336360
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336379
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": false
+      }
+    },
+    {
+      "id": "room_7679cefd266fcdfa",
+      "crawlId": "crawl_a4700cad43bae60d",
+      "budget": 6,
+      "context": {
+        "label": "Room 5 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336396,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 13,
+          "word": "Character",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 2,
+          "word": "Art",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 85,
+          "word": "Table",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 56,
+          "word": "Mechanism",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 98,
+          "word": "Weapon",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 83,
+          "word": "Supply",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_92754e3672dac250",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 56,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336421
+          },
+          "note": ""
+        },
+        {
+          "id": "area_d8c7f69ff5408d58",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 11,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336421
+          },
+          "note": ""
+        },
+        {
+          "id": "area_054f764cf7914d50",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 41,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336422
+          },
+          "note": ""
+        },
+        {
+          "id": "area_6e3b054d03e1ab71",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 5,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336423
+          },
+          "note": ""
+        },
+        {
+          "id": "area_dc5cd0be75c6d881",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 76,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336424
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": {
+        "roll": 79,
+        "elementId": "unfortunate",
+        "elementName": "Unfortunate",
+        "sub": [],
+        "meaning": null,
+        "note": "",
+        "ts": 1789117336424
+      },
+      "encounter": {
+        "asked": true,
+        "answer": "no",
+        "answerName": "No",
+        "note": "a note about what was waiting",
+        "ts": 1789117336420
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336442
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": true
+      }
+    },
+    {
+      "id": "room_4be3cae79089f263",
+      "crawlId": "crawl_a4700cad43bae60d",
+      "budget": 6,
+      "context": {
+        "label": "Room 6 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336466,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 92,
+          "word": "Useful",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 88,
+          "word": "Tool",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 86,
+          "word": "Text",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 37,
+          "word": "Floor",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 61,
+          "word": "Natural",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 93,
+          "word": "Valuable",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_b4428b73f6086b80",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 38,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336491
+          },
+          "note": ""
+        },
+        {
+          "id": "area_fe18b47fc440eb74",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 46,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336492
+          },
+          "note": ""
+        },
+        {
+          "id": "area_a5f25071b27230af",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 8,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336492
+          },
+          "note": ""
+        },
+        {
+          "id": "area_1bbc6f29bf7546a9",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 3,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336493
+          },
+          "note": ""
+        },
+        {
+          "id": "area_343be205078e52c5",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 55,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336494
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": null,
+      "encounter": {
+        "asked": true,
+        "answer": "yes",
+        "answerName": "Yes",
+        "note": "a note about what was waiting",
+        "ts": 1789117336490
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336515
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": false
+      }
+    },
+    {
+      "id": "room_f06d8884498ac622",
+      "crawlId": "crawl_085b0b2c4177569f",
+      "budget": 6,
+      "context": {
+        "label": "Room 1 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336556,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 38,
+          "word": "Food",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 50,
+          "word": "Large",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 87,
+          "word": "Tidy",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 98,
+          "word": "Weapon",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 66,
+          "word": "Ornate",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 66,
+          "word": "Ornate",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_7ad9a73f1ec16ac7",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 55,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336583
+          },
+          "note": ""
+        },
+        {
+          "id": "area_c5ac0b5b2b78eb1c",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 29,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336584
+          },
+          "note": ""
+        },
+        {
+          "id": "area_bfd8414fa539f91a",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 93,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336585
+          },
+          "note": ""
+        },
+        {
+          "id": "area_aae6268b10483689",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 76,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336586
+          },
+          "note": ""
+        },
+        {
+          "id": "area_b969e1e3347ca259",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 39,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336586
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": {
+        "roll": 71,
+        "elementId": "unfortunate",
+        "elementName": "Unfortunate",
+        "sub": [],
+        "meaning": null,
+        "note": "",
+        "ts": 1789117336587
+      },
+      "encounter": {
+        "asked": true,
+        "answer": "no",
+        "answerName": "No",
+        "note": "a note about what was waiting",
+        "ts": 1789117336582
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336609
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": true
+      }
+    },
+    {
+      "id": "room_7416634009bbdd91",
+      "crawlId": "crawl_085b0b2c4177569f",
+      "budget": 6,
+      "context": {
+        "label": "Room 2 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336627,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 44,
+          "word": "Humble",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 39,
+          "word": "Furniture",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 46,
+          "word": "Incomplete",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 28,
+          "word": "Device",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 38,
+          "word": "Food",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 99,
+          "word": "Window",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_f7520796e994e2f9",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 87,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336655
+          },
+          "note": ""
+        },
+        {
+          "id": "area_4ddd92d2fb90720e",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 72,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336657
+          },
+          "note": ""
+        },
+        {
+          "id": "area_0a6e11e2b1d5f128",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 19,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336657
+          },
+          "note": ""
+        },
+        {
+          "id": "area_ba6598d0021eab95",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 5,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336658
+          },
+          "note": ""
+        },
+        {
+          "id": "area_ceb49680aae54a3c",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 75,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336659
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": null,
+      "encounter": {
+        "asked": true,
+        "answer": "yes",
+        "answerName": "Yes",
+        "note": "a note about what was waiting",
+        "ts": 1789117336654
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336678
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": false
+      }
+    },
+    {
+      "id": "room_2ba85c605dec1d67",
+      "crawlId": "crawl_085b0b2c4177569f",
+      "budget": 6,
+      "context": {
+        "label": "Room 3 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336697,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 57,
+          "word": "Medicine",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 31,
+          "word": "Display",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 84,
+          "word": "Symbol",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 25,
+          "word": "Danger",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 43,
+          "word": "Heavy",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 45,
+          "word": "Image",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_266e5419d2a58177",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 81,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336729
+          },
+          "note": ""
+        },
+        {
+          "id": "area_f54af7c9817e18b7",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 75,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336730
+          },
+          "note": ""
+        },
+        {
+          "id": "area_73697289debc5203",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 5,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336731
+          },
+          "note": ""
+        },
+        {
+          "id": "area_4866c74345d11f79",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 97,
+            "elementId": "multi",
+            "elementName": "Multi-Element",
+            "sub": [
+              {
+                "roll": 78,
+                "elementId": "unfortunate",
+                "elementName": "Unfortunate",
+                "substituted": null
+              },
+              {
+                "roll": 37,
+                "elementId": "expected",
+                "elementName": "Expected",
+                "substituted": null
+              }
+            ],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336732
+          },
+          "note": ""
+        },
+        {
+          "id": "area_4971b7ee69ec3da1",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 55,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336733
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": {
+        "roll": 82,
+        "elementId": "random",
+        "elementName": "Random",
+        "sub": [],
+        "meaning": null,
+        "note": "",
+        "ts": 1789117336734
+      },
+      "encounter": {
+        "asked": true,
+        "answer": "no",
+        "answerName": "No",
+        "note": "a note about what was waiting",
+        "ts": 1789117336728
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336753
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": true
+      }
+    },
+    {
+      "id": "room_215d62aab3f95fb8",
+      "crawlId": "crawl_085b0b2c4177569f",
+      "budget": 6,
+      "context": {
+        "label": "Room 4 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336782,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 96,
+          "word": "Warm",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 45,
+          "word": "Image",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 48,
+          "word": "Instrument",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 79,
+          "word": "Sparse",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 92,
+          "word": "Useful",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 41,
+          "word": "Goods",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_0ac15caf99dd8c49",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 51,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336822
+          },
+          "note": ""
+        },
+        {
+          "id": "area_43f9f3b71ef6a263",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 47,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336823
+          },
+          "note": ""
+        },
+        {
+          "id": "area_0f1983181ee09132",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 94,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336823
+          },
+          "note": ""
+        },
+        {
+          "id": "area_6ba81a6cc1290336",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 19,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336824
+          },
+          "note": ""
+        },
+        {
+          "id": "area_a7414dbc4f563339",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 53,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336825
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": null,
+      "encounter": {
+        "asked": true,
+        "answer": "yes",
+        "answerName": "Yes",
+        "note": "a note about what was waiting",
+        "ts": 1789117336821
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336848
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": false
+      }
+    },
+    {
+      "id": "room_12b9ce443aecb446",
+      "crawlId": "crawl_085b0b2c4177569f",
+      "budget": 6,
+      "context": {
+        "label": "Room 5 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336870,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 91,
+          "word": "Unpleasant",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 27,
+          "word": "Deliberate",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 6,
+          "word": "Bleak",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 31,
+          "word": "Display",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 39,
+          "word": "Furniture",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 49,
+          "word": "Interesting",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_8d0d19dab0f502ed",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 40,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336904
+          },
+          "note": ""
+        },
+        {
+          "id": "area_984a422f803fb22c",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 20,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336905
+          },
+          "note": ""
+        },
+        {
+          "id": "area_f7a3ffd1ae3b92cc",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 73,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336906
+          },
+          "note": ""
+        },
+        {
+          "id": "area_645e2da9de65af55",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 59,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336907
+          },
+          "note": ""
+        },
+        {
+          "id": "area_08f8b9538e6b1231",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 93,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117336907
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": {
+        "roll": 26,
+        "elementId": "expected",
+        "elementName": "Expected",
+        "sub": [],
+        "meaning": null,
+        "note": "",
+        "ts": 1789117336908
+      },
+      "encounter": {
+        "asked": true,
+        "answer": "no",
+        "answerName": "No",
+        "note": "a note about what was waiting",
+        "ts": 1789117336903
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117336932
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": true
+      }
+    },
+    {
+      "id": "room_b68de451eca80bec",
+      "crawlId": "crawl_085b0b2c4177569f",
+      "budget": 6,
+      "context": {
+        "label": "Room 6 — a deliberately long room label to stress the header",
+        "roomType": "Dungeon chamber",
+        "houseAidType": false,
+        "genreNote": "",
+        "multiRoomNote": ""
+      },
+      "createdAt": 1789117336970,
+      "keywords": [
+        {
+          "n": 1,
+          "roll": 42,
+          "word": "Grand",
+          "use": "area"
+        },
+        {
+          "n": 2,
+          "roll": 3,
+          "word": "Beautiful",
+          "use": "area"
+        },
+        {
+          "n": 3,
+          "roll": 75,
+          "word": "Shelves",
+          "use": "combined"
+        },
+        {
+          "n": 4,
+          "roll": 88,
+          "word": "Tool",
+          "use": "area"
+        },
+        {
+          "n": 5,
+          "roll": 44,
+          "word": "Humble",
+          "use": "area"
+        },
+        {
+          "n": 6,
+          "roll": 95,
+          "word": "Wall",
+          "use": "area"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area_3c8ba5ab7355e570",
+          "name": "A workbench under a rack of hanging tools",
+          "fromKeywords": [
+            1
+          ],
+          "order": 0,
+          "search": {
+            "roll": 16,
+            "elementId": "expected",
+            "elementName": "Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117337024
+          },
+          "note": ""
+        },
+        {
+          "id": "area_616ddaa87353d08b",
+          "name": "Shelves crammed to the ceiling with parts trays",
+          "fromKeywords": [
+            2
+          ],
+          "order": 1,
+          "search": {
+            "roll": 94,
+            "elementId": "random",
+            "elementName": "Random",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117337026
+          },
+          "note": ""
+        },
+        {
+          "id": "area_0e3e4a7d5e977aee",
+          "name": "A strongbox with its lock half dismantled",
+          "fromKeywords": [
+            3,
+            4
+          ],
+          "order": 2,
+          "search": {
+            "roll": 74,
+            "elementId": "unfortunate",
+            "elementName": "Unfortunate",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117337027
+          },
+          "note": ""
+        },
+        {
+          "id": "area_da88c40ad798d142",
+          "name": "A bin of brass shavings and failed cuts",
+          "fromKeywords": [
+            5
+          ],
+          "order": 3,
+          "search": {
+            "roll": 48,
+            "elementId": "enhanced",
+            "elementName": "Enhanced Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117337029
+          },
+          "note": ""
+        },
+        {
+          "id": "area_ae0fbbe33a16fa19",
+          "name": "A ledger left open on a stool",
+          "fromKeywords": [
+            6
+          ],
+          "order": 4,
+          "search": {
+            "roll": 57,
+            "elementId": "minimized",
+            "elementName": "Minimized Expected",
+            "sub": [],
+            "meaning": null,
+            "note": "",
+            "ts": 1789117337030
+          },
+          "note": ""
+        }
+      ],
+      "generalArea": null,
+      "encounter": {
+        "asked": true,
+        "answer": "yes",
+        "answerName": "Yes",
+        "note": "a note about what was waiting",
+        "ts": 1789117337022
+      },
+      "hidden": [
+        {
+          "question": "Is something hidden found?",
+          "answer": "No",
+          "note": "",
+          "ts": 1789117337071
+        }
+      ],
+      "description": "A long description written at the table, the sort that runs to several sentences because the player got carried away and kept typing until the paragraph would not fit on one phone screen at all.",
+      "notes": "Notes that also run long, because notes always do.",
+      "state": {
+        "complete": false
+      }
+    }
+  ],
+  "rollLog": [
+    {
+      "id": "roll_a1bb5622979875fd",
+      "ts": 1789117337030,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_b68de451eca80bec",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 57,
+      "result": "Minimized Expected",
+      "areaId": "area_ae0fbbe33a16fa19",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_16c3c793d724d8f0",
+      "ts": 1789117337029,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_b68de451eca80bec",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 48,
+      "result": "Enhanced Expected",
+      "areaId": "area_da88c40ad798d142",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_c6a837e4a8ca2965",
+      "ts": 1789117337027,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_b68de451eca80bec",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 74,
+      "result": "Unfortunate",
+      "areaId": "area_0e3e4a7d5e977aee",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_4117e9739c550e57",
+      "ts": 1789117337025,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_b68de451eca80bec",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 94,
+      "result": "Random",
+      "areaId": "area_616ddaa87353d08b",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_25e438c62263ad76",
+      "ts": 1789117337024,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_b68de451eca80bec",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 16,
+      "result": "Expected",
+      "areaId": "area_3c8ba5ab7355e570",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_5c837f1565199000",
+      "ts": 1789117336982,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_b68de451eca80bec",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 95,
+      "result": "Wall",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_05270e78f9dafd45",
+      "ts": 1789117336980,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_b68de451eca80bec",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 44,
+      "result": "Humble",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_898d79309f2d9e91",
+      "ts": 1789117336977,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_b68de451eca80bec",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 88,
+      "result": "Tool",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_a872aacac76883a3",
+      "ts": 1789117336976,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_b68de451eca80bec",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 75,
+      "result": "Shelves",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_028a6bfa8dfdff62",
+      "ts": 1789117336974,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_b68de451eca80bec",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 3,
+      "result": "Beautiful",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_f36a30a521559f98",
+      "ts": 1789117336971,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_b68de451eca80bec",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 42,
+      "result": "Grand",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_017e78dbc9f9ac27",
+      "ts": 1789117336908,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_12b9ce443aecb446",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 26,
+      "result": "Expected",
+      "areaId": null,
+      "context": "General Area"
+    },
+    {
+      "id": "roll_df15990ea34ec58d",
+      "ts": 1789117336907,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_12b9ce443aecb446",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 93,
+      "result": "Random",
+      "areaId": "area_08f8b9538e6b1231",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_cd671ae16f672adf",
+      "ts": 1789117336906,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_12b9ce443aecb446",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 59,
+      "result": "Minimized Expected",
+      "areaId": "area_645e2da9de65af55",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_f45e20741bfb02ff",
+      "ts": 1789117336906,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_12b9ce443aecb446",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 73,
+      "result": "Unfortunate",
+      "areaId": "area_f7a3ffd1ae3b92cc",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_03f6e539f0ebbc81",
+      "ts": 1789117336905,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_12b9ce443aecb446",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 20,
+      "result": "Expected",
+      "areaId": "area_984a422f803fb22c",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_3cd458eebe596fe9",
+      "ts": 1789117336904,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_12b9ce443aecb446",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 40,
+      "result": "Expected",
+      "areaId": "area_8d0d19dab0f502ed",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_d614d8f9d0dd48db",
+      "ts": 1789117336879,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_12b9ce443aecb446",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 49,
+      "result": "Interesting",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_fbfe73957789fe89",
+      "ts": 1789117336877,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_12b9ce443aecb446",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 39,
+      "result": "Furniture",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_7c0d15e9b908e47f",
+      "ts": 1789117336876,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_12b9ce443aecb446",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 31,
+      "result": "Display",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_85139cc985ce10d8",
+      "ts": 1789117336875,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_12b9ce443aecb446",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 6,
+      "result": "Bleak",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_a924c02ec33b18cd",
+      "ts": 1789117336873,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_12b9ce443aecb446",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 27,
+      "result": "Deliberate",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_f4ceef54bbc5fbd7",
+      "ts": 1789117336871,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_12b9ce443aecb446",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 91,
+      "result": "Unpleasant",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_d414ff1005024268",
+      "ts": 1789117336825,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_215d62aab3f95fb8",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 53,
+      "result": "Minimized Expected",
+      "areaId": "area_a7414dbc4f563339",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_4d989b29a7577d3c",
+      "ts": 1789117336824,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_215d62aab3f95fb8",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 19,
+      "result": "Expected",
+      "areaId": "area_6ba81a6cc1290336",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_1a450928ba0a65ad",
+      "ts": 1789117336823,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_215d62aab3f95fb8",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 94,
+      "result": "Random",
+      "areaId": "area_0f1983181ee09132",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_7b54dd4fb5b99c53",
+      "ts": 1789117336822,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_215d62aab3f95fb8",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 47,
+      "result": "Enhanced Expected",
+      "areaId": "area_43f9f3b71ef6a263",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_6228676ad6e54147",
+      "ts": 1789117336822,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_215d62aab3f95fb8",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 51,
+      "result": "Minimized Expected",
+      "areaId": "area_0ac15caf99dd8c49",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_bd23456033744eca",
+      "ts": 1789117336797,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_215d62aab3f95fb8",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 41,
+      "result": "Goods",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_35eb3257fd484475",
+      "ts": 1789117336791,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_215d62aab3f95fb8",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 92,
+      "result": "Useful",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_d86cfbd62bc52d12",
+      "ts": 1789117336789,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_215d62aab3f95fb8",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 79,
+      "result": "Sparse",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_51138ac60e7c9145",
+      "ts": 1789117336787,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_215d62aab3f95fb8",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 48,
+      "result": "Instrument",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_b8f1aa59a2d101bc",
+      "ts": 1789117336786,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_215d62aab3f95fb8",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 45,
+      "result": "Image",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_20fff5975b847f99",
+      "ts": 1789117336783,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_215d62aab3f95fb8",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 96,
+      "result": "Warm",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_7c5f080a8f19a9de",
+      "ts": 1789117336734,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 82,
+      "result": "Random",
+      "areaId": null,
+      "context": "General Area"
+    },
+    {
+      "id": "roll_ae2282fa8955765f",
+      "ts": 1789117336733,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 55,
+      "result": "Minimized Expected",
+      "areaId": "area_4971b7ee69ec3da1",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_a1ced9f992362291",
+      "ts": 1789117336732,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 37,
+      "result": "Expected",
+      "areaId": "area_4866c74345d11f79",
+      "context": "A bin of brass shavings and failed cuts · multi-element 2"
+    },
+    {
+      "id": "roll_e0e573a37cc80051",
+      "ts": 1789117336732,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 78,
+      "result": "Unfortunate",
+      "areaId": "area_4866c74345d11f79",
+      "context": "A bin of brass shavings and failed cuts · multi-element 1"
+    },
+    {
+      "id": "roll_54f4587319b8a852",
+      "ts": 1789117336731,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 97,
+      "result": "Multi-Element",
+      "areaId": "area_4866c74345d11f79",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_b74389fa55d234a7",
+      "ts": 1789117336730,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 5,
+      "result": "Expected",
+      "areaId": "area_73697289debc5203",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_f682687b9d738b5b",
+      "ts": 1789117336730,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 75,
+      "result": "Unfortunate",
+      "areaId": "area_f54af7c9817e18b7",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_30aa861b26a923dd",
+      "ts": 1789117336729,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 81,
+      "result": "Random",
+      "areaId": "area_266e5419d2a58177",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_77f3c5406fde1088",
+      "ts": 1789117336704,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 45,
+      "result": "Image",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_fad583fe870fb2c5",
+      "ts": 1789117336703,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 43,
+      "result": "Heavy",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_1fb2b852d9c4267d",
+      "ts": 1789117336702,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 25,
+      "result": "Danger",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_09d9edc54a023bd1",
+      "ts": 1789117336701,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 84,
+      "result": "Symbol",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_63b047ac86db3c77",
+      "ts": 1789117336699,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 31,
+      "result": "Display",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_6fbbc6abb7fac80b",
+      "ts": 1789117336698,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_2ba85c605dec1d67",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 57,
+      "result": "Medicine",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_8453627e48eb8ffe",
+      "ts": 1789117336659,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_7416634009bbdd91",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 75,
+      "result": "Unfortunate",
+      "areaId": "area_ceb49680aae54a3c",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_52a157cc03036bed",
+      "ts": 1789117336658,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_7416634009bbdd91",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 5,
+      "result": "Expected",
+      "areaId": "area_ba6598d0021eab95",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_966044eb065c9572",
+      "ts": 1789117336657,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_7416634009bbdd91",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 19,
+      "result": "Expected",
+      "areaId": "area_0a6e11e2b1d5f128",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_bf670241981a8e37",
+      "ts": 1789117336655,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_7416634009bbdd91",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 72,
+      "result": "Unfortunate",
+      "areaId": "area_4ddd92d2fb90720e",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_23886f5e808a8f07",
+      "ts": 1789117336654,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_7416634009bbdd91",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 87,
+      "result": "Random",
+      "areaId": "area_f7520796e994e2f9",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_65e57738fed43420",
+      "ts": 1789117336634,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_7416634009bbdd91",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 99,
+      "result": "Window",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_c0fff5f9e197b5c8",
+      "ts": 1789117336632,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_7416634009bbdd91",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 38,
+      "result": "Food",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_bfe5a114649ad14f",
+      "ts": 1789117336631,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_7416634009bbdd91",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 28,
+      "result": "Device",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_474d45ae67f3a496",
+      "ts": 1789117336630,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_7416634009bbdd91",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 46,
+      "result": "Incomplete",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_fd95c1749aeee3ed",
+      "ts": 1789117336629,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_7416634009bbdd91",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 39,
+      "result": "Furniture",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_e4cb00275c5c6197",
+      "ts": 1789117336628,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_7416634009bbdd91",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 44,
+      "result": "Humble",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_46f13fe62d40a146",
+      "ts": 1789117336587,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_f06d8884498ac622",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 71,
+      "result": "Unfortunate",
+      "areaId": null,
+      "context": "General Area"
+    },
+    {
+      "id": "roll_99802f0a4f6022cb",
+      "ts": 1789117336586,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_f06d8884498ac622",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 39,
+      "result": "Expected",
+      "areaId": "area_b969e1e3347ca259",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_eaf8270658bba54f",
+      "ts": 1789117336585,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_f06d8884498ac622",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 76,
+      "result": "Unfortunate",
+      "areaId": "area_aae6268b10483689",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_0ad2a70cc0047713",
+      "ts": 1789117336584,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_f06d8884498ac622",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 93,
+      "result": "Random",
+      "areaId": "area_bfd8414fa539f91a",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_d9e624a2b945f208",
+      "ts": 1789117336584,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_f06d8884498ac622",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 29,
+      "result": "Expected",
+      "areaId": "area_c5ac0b5b2b78eb1c",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_dc75e0d2ec528d07",
+      "ts": 1789117336583,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_f06d8884498ac622",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 55,
+      "result": "Minimized Expected",
+      "areaId": "area_7ad9a73f1ec16ac7",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_e97a1a110beeefb2",
+      "ts": 1789117336563,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_f06d8884498ac622",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 66,
+      "result": "Ornate",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_c82a7b19369a327a",
+      "ts": 1789117336562,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_f06d8884498ac622",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 66,
+      "result": "Ornate",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_d97959a204a2f50e",
+      "ts": 1789117336560,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_f06d8884498ac622",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 98,
+      "result": "Weapon",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_a0d6e56d04d1fb33",
+      "ts": 1789117336560,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_f06d8884498ac622",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 87,
+      "result": "Tidy",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_e2ddffd319dd6238",
+      "ts": 1789117336558,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_f06d8884498ac622",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 50,
+      "result": "Large",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_e292bf5d246a84c5",
+      "ts": 1789117336557,
+      "crawlId": "crawl_085b0b2c4177569f",
+      "roomId": "room_f06d8884498ac622",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 38,
+      "result": "Food",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_42da751b89cc7580",
+      "ts": 1789117336494,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_4be3cae79089f263",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 55,
+      "result": "Minimized Expected",
+      "areaId": "area_343be205078e52c5",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_db2e8a41560e8dbf",
+      "ts": 1789117336493,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_4be3cae79089f263",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 3,
+      "result": "Expected",
+      "areaId": "area_1bbc6f29bf7546a9",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_27ded4caf274c3bf",
+      "ts": 1789117336492,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_4be3cae79089f263",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 8,
+      "result": "Expected",
+      "areaId": "area_a5f25071b27230af",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_0e1b65c59152a12a",
+      "ts": 1789117336491,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_4be3cae79089f263",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 46,
+      "result": "Enhanced Expected",
+      "areaId": "area_fe18b47fc440eb74",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_b5f0f30b6a377f50",
+      "ts": 1789117336491,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_4be3cae79089f263",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 38,
+      "result": "Expected",
+      "areaId": "area_b4428b73f6086b80",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_eed9eb513c256147",
+      "ts": 1789117336473,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_4be3cae79089f263",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 93,
+      "result": "Valuable",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_fb524f8569f320c7",
+      "ts": 1789117336472,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_4be3cae79089f263",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 61,
+      "result": "Natural",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_09bab6cf182d13d0",
+      "ts": 1789117336469,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_4be3cae79089f263",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 37,
+      "result": "Floor",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_2c06b4a7ff017611",
+      "ts": 1789117336469,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_4be3cae79089f263",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 86,
+      "result": "Text",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_88b7af350c23aea8",
+      "ts": 1789117336467,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_4be3cae79089f263",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 88,
+      "result": "Tool",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_9b48b91939469c9c",
+      "ts": 1789117336466,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_4be3cae79089f263",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 92,
+      "result": "Useful",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_f1b74fac2d4fd740",
+      "ts": 1789117336424,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_7679cefd266fcdfa",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 79,
+      "result": "Unfortunate",
+      "areaId": null,
+      "context": "General Area"
+    },
+    {
+      "id": "roll_a9db69c28590e394",
+      "ts": 1789117336424,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_7679cefd266fcdfa",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 76,
+      "result": "Unfortunate",
+      "areaId": "area_dc5cd0be75c6d881",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_8689cc2e0de1ca2f",
+      "ts": 1789117336423,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_7679cefd266fcdfa",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 5,
+      "result": "Expected",
+      "areaId": "area_6e3b054d03e1ab71",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_3801c2a596bce56d",
+      "ts": 1789117336422,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_7679cefd266fcdfa",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 41,
+      "result": "Enhanced Expected",
+      "areaId": "area_054f764cf7914d50",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_0b2304a989e9061d",
+      "ts": 1789117336421,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_7679cefd266fcdfa",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 11,
+      "result": "Expected",
+      "areaId": "area_d8c7f69ff5408d58",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_ee2a410efe0afa4b",
+      "ts": 1789117336420,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_7679cefd266fcdfa",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 56,
+      "result": "Minimized Expected",
+      "areaId": "area_92754e3672dac250",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_8524d687975c8838",
+      "ts": 1789117336403,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_7679cefd266fcdfa",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 83,
+      "result": "Supply",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_287c28dd6be96414",
+      "ts": 1789117336402,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_7679cefd266fcdfa",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 98,
+      "result": "Weapon",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_170364057a9b122a",
+      "ts": 1789117336400,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_7679cefd266fcdfa",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 56,
+      "result": "Mechanism",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_5d2a7ed602ce0317",
+      "ts": 1789117336399,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_7679cefd266fcdfa",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 85,
+      "result": "Table",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_a400c02b22ad0430",
+      "ts": 1789117336398,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_7679cefd266fcdfa",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 2,
+      "result": "Art",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_6c4594545b8c595b",
+      "ts": 1789117336397,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_7679cefd266fcdfa",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 13,
+      "result": "Character",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_c5b51abd8567c129",
+      "ts": 1789117336364,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_09549233864ba880",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 66,
+      "result": "Fortunate",
+      "areaId": "area_7ed5e345f957d97a",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_49cc696f90a898fd",
+      "ts": 1789117336363,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_09549233864ba880",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 63,
+      "result": "Minimized Expected",
+      "areaId": "area_3f19d314a206c19e",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_ef0586eac8abaefe",
+      "ts": 1789117336363,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_09549233864ba880",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 70,
+      "result": "Fortunate",
+      "areaId": "area_ff162a1651999fe7",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_a803088f6d6014d3",
+      "ts": 1789117336362,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_09549233864ba880",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 78,
+      "result": "Unfortunate",
+      "areaId": "area_68e0e35986a4f5ec",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_22f26c29dbbf37d5",
+      "ts": 1789117336361,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_09549233864ba880",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 70,
+      "result": "Fortunate",
+      "areaId": "area_a7532c0ad52e6d5b",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_16e49a4ea680a7db",
+      "ts": 1789117336344,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_09549233864ba880",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 74,
+      "result": "Secured",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_71019da91ca7b0fa",
+      "ts": 1789117336343,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_09549233864ba880",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 71,
+      "result": "Sacred",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_8abe292f1e13dff8",
+      "ts": 1789117336342,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_09549233864ba880",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 14,
+      "result": "Cloth",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_6fbbf7e249092ed4",
+      "ts": 1789117336341,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_09549233864ba880",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 97,
+      "result": "Water",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_10de14085aa0db1d",
+      "ts": 1789117336340,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_09549233864ba880",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 37,
+      "result": "Floor",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_df4787f8a59a64fe",
+      "ts": 1789117336338,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_09549233864ba880",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 12,
+      "result": "Chaos",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_84e716abc1ea8530",
+      "ts": 1789117336308,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_202ba4cb02df4063",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 35,
+      "result": "Expected",
+      "areaId": null,
+      "context": "General Area"
+    },
+    {
+      "id": "roll_ea9a220c70b215e1",
+      "ts": 1789117336308,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_202ba4cb02df4063",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 93,
+      "result": "Random",
+      "areaId": "area_5e1c2fe1eaaa03ac",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_a0b11bab480fe075",
+      "ts": 1789117336307,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_202ba4cb02df4063",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 81,
+      "result": "Random",
+      "areaId": "area_132a80f565ca3e27",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_2e2034486e9416d4",
+      "ts": 1789117336306,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_202ba4cb02df4063",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 42,
+      "result": "Enhanced Expected",
+      "areaId": "area_f9dd81e8b09d3a4b",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_f135f4e6e693906c",
+      "ts": 1789117336306,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_202ba4cb02df4063",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 48,
+      "result": "Enhanced Expected",
+      "areaId": "area_af54d437335a6d65",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_531629e2f969f8ae",
+      "ts": 1789117336305,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_202ba4cb02df4063",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 42,
+      "result": "Enhanced Expected",
+      "areaId": "area_36321c65fb0dcd3e",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_fe8166904898fff9",
+      "ts": 1789117336290,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_202ba4cb02df4063",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 77,
+      "result": "Smell",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_c6ada53ed97e3b07",
+      "ts": 1789117336290,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_202ba4cb02df4063",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 7,
+      "result": "Bright",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_68be0ddde351fabd",
+      "ts": 1789117336289,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_202ba4cb02df4063",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 92,
+      "result": "Useful",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_2e97f10c2a975c4e",
+      "ts": 1789117336288,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_202ba4cb02df4063",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 100,
+      "result": "Wrecked",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_98be883706b2b6ae",
+      "ts": 1789117336287,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_202ba4cb02df4063",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 2,
+      "result": "Art",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_c293217568fad56f",
+      "ts": 1789117336286,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_202ba4cb02df4063",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 61,
+      "result": "Natural",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_3a4fbf6000e7d2c5",
+      "ts": 1789117336249,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_73d43b1f119ac7e1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 56,
+      "result": "Minimized Expected",
+      "areaId": "area_449355b4ff540f20",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_401565bd6fb6f6e9",
+      "ts": 1789117336249,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_73d43b1f119ac7e1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 86,
+      "result": "Random",
+      "areaId": "area_f18175113cd876d4",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_7fc064384cf50666",
+      "ts": 1789117336248,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_73d43b1f119ac7e1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 54,
+      "result": "Minimized Expected",
+      "areaId": "area_c3732db139912490",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_8920ac5ed5135953",
+      "ts": 1789117336247,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_73d43b1f119ac7e1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 78,
+      "result": "Unfortunate",
+      "areaId": "area_0c1d1a79378a90c2",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_2933103d78045d89",
+      "ts": 1789117336247,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_73d43b1f119ac7e1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 46,
+      "result": "Enhanced Expected",
+      "areaId": "area_37a73f82ee988fdb",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_a354585f6f04d849",
+      "ts": 1789117336232,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_73d43b1f119ac7e1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 59,
+      "result": "Missing",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_b2ac01ce28324be0",
+      "ts": 1789117336232,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_73d43b1f119ac7e1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 90,
+      "result": "Unknown",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_b7bc855cef34578a",
+      "ts": 1789117336231,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_73d43b1f119ac7e1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 84,
+      "result": "Symbol",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_585a68963cf9cae2",
+      "ts": 1789117336230,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_73d43b1f119ac7e1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 99,
+      "result": "Window",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_44a821240fd1fff6",
+      "ts": 1789117336229,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_73d43b1f119ac7e1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 83,
+      "result": "Supply",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_474ea2a4e0461cb3",
+      "ts": 1789117336228,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_73d43b1f119ac7e1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 53,
+      "result": "Liquid",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_e7997dc17c60956d",
+      "ts": 1789117336201,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_bce63ecdd7913791",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 24,
+      "result": "Expected",
+      "areaId": null,
+      "context": "General Area"
+    },
+    {
+      "id": "roll_ada846c51b7130ed",
+      "ts": 1789117336200,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_bce63ecdd7913791",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 45,
+      "result": "Enhanced Expected",
+      "areaId": "area_e05b7ddd9606b2b2",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_0a725b41c1d13100",
+      "ts": 1789117336200,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_bce63ecdd7913791",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 45,
+      "result": "Enhanced Expected",
+      "areaId": "area_941e1336993005a9",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_746ba4a8db77e1f4",
+      "ts": 1789117336199,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_bce63ecdd7913791",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 15,
+      "result": "Expected",
+      "areaId": "area_22bd72bdb2c92e8d",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_d977ce6b631b755b",
+      "ts": 1789117336198,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_bce63ecdd7913791",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 55,
+      "result": "Minimized Expected",
+      "areaId": "area_97d8ebe23f3d5aa1",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_f3913448d12827ba",
+      "ts": 1789117336197,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_bce63ecdd7913791",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 95,
+      "result": "Random",
+      "areaId": "area_55cd622f4014e03d",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_e0f2a7133343c5d2",
+      "ts": 1789117336183,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_bce63ecdd7913791",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 65,
+      "result": "Ornament",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_d4b861c62f5ebb1f",
+      "ts": 1789117336182,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_bce63ecdd7913791",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 81,
+      "result": "Strange",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_74c18e8f9a433e9c",
+      "ts": 1789117336181,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_bce63ecdd7913791",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 7,
+      "result": "Bright",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_510cddd34de5a527",
+      "ts": 1789117336180,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_bce63ecdd7913791",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 51,
+      "result": "Ledge",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_cf6a77700ae3b2a2",
+      "ts": 1789117336180,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_bce63ecdd7913791",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 71,
+      "result": "Sacred",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_ff3dc39b117a630c",
+      "ts": 1789117336179,
+      "crawlId": "crawl_a4700cad43bae60d",
+      "roomId": "room_bce63ecdd7913791",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 41,
+      "result": "Goods",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_b235146db23f0a8d",
+      "ts": 1789117336144,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_06a070a82804a6ad",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 47,
+      "result": "Enhanced Expected",
+      "areaId": "area_cab323b0bbe12fc7",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_3bbc706c831cb66f",
+      "ts": 1789117336144,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_06a070a82804a6ad",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 23,
+      "result": "Expected",
+      "areaId": "area_01bf7d20ad8f4389",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_b99ddffcc505620b",
+      "ts": 1789117336143,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_06a070a82804a6ad",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 29,
+      "result": "Expected",
+      "areaId": "area_1d0b64792363644d",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_6c0ad2eb44523864",
+      "ts": 1789117336143,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_06a070a82804a6ad",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 24,
+      "result": "Expected",
+      "areaId": "area_fdaa86e5e6f21a28",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_18ff637cdfb2e1e5",
+      "ts": 1789117336142,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_06a070a82804a6ad",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 81,
+      "result": "Random",
+      "areaId": "area_15e44be7d6f49689",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_bb6c199233fb34a0",
+      "ts": 1789117336129,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_06a070a82804a6ad",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 62,
+      "result": "Object",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_e1096ed7c42313f9",
+      "ts": 1789117336128,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_06a070a82804a6ad",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 8,
+      "result": "Broken",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_84415bbd529f21eb",
+      "ts": 1789117336128,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_06a070a82804a6ad",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 47,
+      "result": "Information",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_cd206c94db3ba122",
+      "ts": 1789117336127,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_06a070a82804a6ad",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 91,
+      "result": "Unpleasant",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_c6468a2cbb3f42bc",
+      "ts": 1789117336127,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_06a070a82804a6ad",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 78,
+      "result": "Sound",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_ffabd23d823d45c3",
+      "ts": 1789117336126,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_06a070a82804a6ad",
+      "roomName": "Room 6 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 39,
+      "result": "Furniture",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_518f71e66420a4fe",
+      "ts": 1789117336108,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 5,
+      "result": "Expected",
+      "areaId": null,
+      "context": "General Area · multi-element 2"
+    },
+    {
+      "id": "roll_e0a61318a5469bc1",
+      "ts": 1789117336107,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 92,
+      "result": "Random",
+      "areaId": null,
+      "context": "General Area · multi-element 1"
+    },
+    {
+      "id": "roll_addd4ea884527712",
+      "ts": 1789117336107,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 99,
+      "result": "Multi-Element",
+      "areaId": null,
+      "context": "General Area"
+    },
+    {
+      "id": "roll_311a3985fe120ccc",
+      "ts": 1789117336107,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 81,
+      "result": "Random",
+      "areaId": "area_66d7b9387bfc168c",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_53257478078dd19e",
+      "ts": 1789117336106,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 16,
+      "result": "Expected",
+      "areaId": "area_a9507c92584c3d66",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_edc367c0df1e3f7a",
+      "ts": 1789117336106,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 11,
+      "result": "Expected",
+      "areaId": "area_6a90ccb8d0eabed4",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_029a1660dd23f1c0",
+      "ts": 1789117336105,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 77,
+      "result": "Unfortunate",
+      "areaId": "area_9cdce27b5c008015",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_a410ddde8eded07f",
+      "ts": 1789117336105,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 72,
+      "result": "Unfortunate",
+      "areaId": "area_45baca0c9879d96e",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_99f57ebaf8c52b90",
+      "ts": 1789117336089,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 100,
+      "result": "Wrecked",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_23519250973ef9bb",
+      "ts": 1789117336088,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 19,
+      "result": "Covered",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_16fece63060c38ac",
+      "ts": 1789117336087,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 50,
+      "result": "Large",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_e58032c521cde8e7",
+      "ts": 1789117336087,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 71,
+      "result": "Sacred",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_2a22646c8c0cfe66",
+      "ts": 1789117336086,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 86,
+      "result": "Text",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_c1364d5e4c5d025d",
+      "ts": 1789117336085,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_6b4c5f894c368777",
+      "roomName": "Room 5 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 51,
+      "result": "Ledge",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_103d3ca011330678",
+      "ts": 1789117336069,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_966fe629ce902186",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 71,
+      "result": "Unfortunate",
+      "areaId": "area_f665ecb49b204006",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_35a2c7a5725d2211",
+      "ts": 1789117336068,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_966fe629ce902186",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 1,
+      "result": "Expected",
+      "areaId": "area_d26475782621995b",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_e0af39086fed3dcb",
+      "ts": 1789117336068,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_966fe629ce902186",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 56,
+      "result": "Minimized Expected",
+      "areaId": "area_e787b5e2349608f5",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_aefbb28f9a75731f",
+      "ts": 1789117336068,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_966fe629ce902186",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 15,
+      "result": "Expected",
+      "areaId": "area_5ad966eca96b54c7",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_acc132e623e4c3d2",
+      "ts": 1789117336067,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_966fe629ce902186",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 89,
+      "result": "Random",
+      "areaId": "area_3bd094f66b22bdda",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_9fa6051630f870d3",
+      "ts": 1789117336057,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_966fe629ce902186",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 47,
+      "result": "Information",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_0dbfba5c5dc3a383",
+      "ts": 1789117336056,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_966fe629ce902186",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 36,
+      "result": "Fixture",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_11e9d760eda4e898",
+      "ts": 1789117336056,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_966fe629ce902186",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 55,
+      "result": "Map",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_ef82344cc8774efd",
+      "ts": 1789117336055,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_966fe629ce902186",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 64,
+      "result": "Open",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_5cfdbfdd794193b0",
+      "ts": 1789117336054,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_966fe629ce902186",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 48,
+      "result": "Instrument",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_fa6794e7e0c59134",
+      "ts": 1789117336054,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_966fe629ce902186",
+      "roomName": "Room 4 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 36,
+      "result": "Fixture",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_d4a473de4e036215",
+      "ts": 1789117336039,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_e9f491e8079967c8",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 36,
+      "result": "Expected",
+      "areaId": null,
+      "context": "General Area"
+    },
+    {
+      "id": "roll_dd28317361469ecd",
+      "ts": 1789117336039,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_e9f491e8079967c8",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 7,
+      "result": "Expected",
+      "areaId": "area_a30309394b028a15",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_1368d0f16fcc2cd1",
+      "ts": 1789117336038,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_e9f491e8079967c8",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 43,
+      "result": "Enhanced Expected",
+      "areaId": "area_8c7d9d036f3c87bb",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_5f3cee99b8e33687",
+      "ts": 1789117336038,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_e9f491e8079967c8",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 94,
+      "result": "Random",
+      "areaId": "area_ceeb6eadf1c2c49f",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_f481540fab1fadf0",
+      "ts": 1789117336037,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_e9f491e8079967c8",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 39,
+      "result": "Expected",
+      "areaId": "area_00e04cd3066fd3f8",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_21cec6bd560d4f2e",
+      "ts": 1789117336037,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_e9f491e8079967c8",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 70,
+      "result": "Fortunate",
+      "areaId": "area_595e83300d892e03",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_1e69a9c2d9b7563b",
+      "ts": 1789117336028,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_e9f491e8079967c8",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 67,
+      "result": "Partition",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_8def6c1a80cd677b",
+      "ts": 1789117336027,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_e9f491e8079967c8",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 22,
+      "result": "Creature",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_6020720884efdc66",
+      "ts": 1789117336027,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_e9f491e8079967c8",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 81,
+      "result": "Strange",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_4304da8ce4eecd19",
+      "ts": 1789117336026,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_e9f491e8079967c8",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 91,
+      "result": "Unpleasant",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_7ccb5126564332a6",
+      "ts": 1789117336026,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_e9f491e8079967c8",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 46,
+      "result": "Incomplete",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_2da4413d17e54b11",
+      "ts": 1789117336025,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_e9f491e8079967c8",
+      "roomName": "Room 3 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 49,
+      "result": "Interesting",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_8ba4bf4a86326bba",
+      "ts": 1789117336012,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_b3883c7ef99e9aa1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 36,
+      "result": "Expected",
+      "areaId": "area_8c121e0262ea9e9c",
+      "context": "A ledger left open on a stool"
+    },
+    {
+      "id": "roll_b176ba6707844c7b",
+      "ts": 1789117336012,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_b3883c7ef99e9aa1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 37,
+      "result": "Expected",
+      "areaId": "area_cd39d0f7373fe1ee",
+      "context": "A bin of brass shavings and failed cuts"
+    },
+    {
+      "id": "roll_426b885687313401",
+      "ts": 1789117336012,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_b3883c7ef99e9aa1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 41,
+      "result": "Enhanced Expected",
+      "areaId": "area_bc16a272512c2b67",
+      "context": "A strongbox with its lock half dismantled"
+    },
+    {
+      "id": "roll_eb3f83ce8c3197b9",
+      "ts": 1789117336011,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_b3883c7ef99e9aa1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 33,
+      "result": "Expected",
+      "areaId": "area_2fa2b897bfe1501e",
+      "context": "Shelves crammed to the ceiling with parts trays"
+    },
+    {
+      "id": "roll_b1f11d80c9013143",
+      "ts": 1789117336011,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_b3883c7ef99e9aa1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 20,
+      "result": "Expected",
+      "areaId": "area_00359372dd2cacfb",
+      "context": "A workbench under a rack of hanging tools"
+    },
+    {
+      "id": "roll_4d2fa68a67d631f1",
+      "ts": 1789117336004,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_b3883c7ef99e9aa1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 19,
+      "result": "Covered",
+      "areaId": null,
+      "context": "keyword 6"
+    },
+    {
+      "id": "roll_745337d5a7564320",
+      "ts": 1789117336003,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_b3883c7ef99e9aa1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 52,
+      "result": "Light",
+      "areaId": null,
+      "context": "keyword 5"
+    },
+    {
+      "id": "roll_0ed3e30304dc07fc",
+      "ts": 1789117336003,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_b3883c7ef99e9aa1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 81,
+      "result": "Strange",
+      "areaId": null,
+      "context": "keyword 4"
+    },
+    {
+      "id": "roll_d73aad239d1c0972",
+      "ts": 1789117336002,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_b3883c7ef99e9aa1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 31,
+      "result": "Display",
+      "areaId": null,
+      "context": "keyword 3"
+    },
+    {
+      "id": "roll_fa60d243fb5d6ddc",
+      "ts": 1789117336002,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_b3883c7ef99e9aa1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 10,
+      "result": "Ceiling",
+      "areaId": null,
+      "context": "keyword 2"
+    },
+    {
+      "id": "roll_a111bb753d16458f",
+      "ts": 1789117336001,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_b3883c7ef99e9aa1",
+      "roomName": "Room 2 — a deliberately long room label to stress the header",
+      "table": "Room Descriptors",
+      "roll": 44,
+      "result": "Humble",
+      "areaId": null,
+      "context": "keyword 1"
+    },
+    {
+      "id": "roll_c49609211aa59f5d",
+      "ts": 1789117335991,
+      "crawlId": "crawl_a364327ad7251dd8",
+      "roomId": "room_e900a34809d3a219",
+      "roomName": "Room 1 — a deliberately long room label to stress the header",
+      "table": "Room Elements",
+      "roll": 92,
+      "result": "Random",
+      "areaId": null,
+      "context": "General Area"
+    }
+  ]
+}
