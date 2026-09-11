@@ -1,0 +1,19 @@
+{
+  "name": "room-crafter",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Dev-only harnesses. The app itself has no build step and no dependencies.",
+  "scripts": {
+    "test": "node tests/unit.mjs",
+    "smoke": "node tests/smoke.mjs",
+    "interact": "node tests/interaction.mjs",
+    "probe:layout": "node tests/probe-layout.mjs",
+    "probe:flow": "node tests/probe-flow.mjs",
+    "scan": "node tests/dead-data.mjs",
+    "all": "npm run test && npm run scan && npm run smoke && npm run interact"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.49.0"
+  }
+}
