@@ -1,6 +1,6 @@
 // screens.js — home/crawls, crawl detail, roll log, distribution, rules, settings.
 import { el, add, when, plural } from "./core.js";
-import { explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast, emptyState, sectionNav, houseAidBadge } from "./ui.js";
+import { explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast, emptyState, sectionNav, houseAidBadge, radioGroup, downloadText, pickFile } from "./ui.js";
 import { EXPLAIN, RULES_LIBRARY, ROLL_LOG_CAP } from "../data.js";
 import { MYTHIC_RULES, MYTHIC } from "../data-mythic.js";
 import * as store from "./store.js";
@@ -138,16 +138,12 @@ export function log() {
 
   const all = store.rollLog();
   const tables = Array.from(new Set(all.map(r => r.table)));
-  const row = el("div", { class: "choice-row choice-wrap", role: "radiogroup", "aria-label": "Filter by table" });
-  for (const t of ["all", ...tables]) {
-    const on = logFilter === t;
-    add(row, el("button", {
-      class: "choice choice-sm" + (on ? " choice-on" : ""), type: "button",
-      role: "radio", "aria-checked": on ? "true" : "false",
-      onclick: () => { logFilter = t; logShown = LOG_PAGE; rerender(); }
-    }, el("span", { class: "choice-main", text: t === "all" ? "All" : t })));
-  }
-  add(content, row);
+  add(content, radioGroup({
+    label: "Filter by table",
+    options: ["all", ...tables].map(t => ({ id: t, label: t === "all" ? "All" : t })),
+    value: logFilter, compact: true,
+    onChange: t => { logFilter = t; logShown = LOG_PAGE; rerender(); }
+  }));
 
   const rows = logFilter === "all" ? all : all.filter(r => r.table === logFilter);
   if (!rows.length) {
@@ -363,15 +359,7 @@ export function settingsScreen() {
 function choiceRow(label, options, currentId, onPick) {
   const wrap = el("div", { class: "setting" });
   add(wrap, el("p", { class: "field-label", text: label }));
-  const row = el("div", { class: "choice-row", role: "radiogroup", "aria-label": label });
-  for (const o of options) {
-    add(row, el("button", {
-      class: "choice" + (o.id === currentId ? " choice-on" : ""), type: "button", role: "radio",
-      "aria-checked": o.id === currentId ? "true" : "false",
-      onclick: () => onPick(o.id)
-    }, el("span", { class: "choice-main", text: o.label })));
-  }
-  add(wrap, row);
+  add(wrap, radioGroup({ label, options, value: currentId, wrap: false, onChange: onPick }));
   return wrap;
 }
 
@@ -389,6 +377,19 @@ function toggleRow(label, hint, on, onChange) {
 
 function exportFlow() {
   const text = store.exportJSON();
+  const stamp = new Date().toISOString().slice(0, 10);
+  // A file first; the textarea stays as the fallback for a browser that blocks
+  // downloads, and for anyone who would rather read what they are exporting.
+  if (downloadText("room-crafter-" + stamp + ".json", text)) {
+    showToast("Exported room-crafter-" + stamp + ".json", {
+      action: { label: "Show text", onClick: () => exportTextFlow(text) }
+    });
+    return;
+  }
+  exportTextFlow(text);
+}
+
+function exportTextFlow(text) {
   const ta = el("textarea", { class: "field mono", rows: 12, readonly: true, "aria-label": "Exported JSON" });
   ta.value = text;
   modal({
@@ -407,21 +408,24 @@ function exportFlow() {
 }
 
 function importFlow() {
-  const ta = el("textarea", { class: "field mono", rows: 10, placeholder: "Paste an exported Room Crafter file", "aria-label": "JSON to import" });
+  const ta = el("textarea", { class: "field mono", rows: 8, placeholder: "…or paste an exported Room Crafter file here", "aria-label": "JSON to import" });
+  const status = el("p", { class: "hint", text: "Choose the file you exported, or paste its contents." });
+  const chooser = el("button", { class: "btn btn-secondary btn-wide", type: "button", onclick: () => {
+    pickFile(".json,application/json", text => { ta.value = text; status.textContent = "File loaded — now Merge or Replace."; });
+  } }, "Choose a file");
+  const apply = merge => {
+    if (!ta.value.trim()) { showToast("Nothing to import yet."); return true; }
+    const r = store.importJSON(ta.value, { merge });
+    showToast(r.ok ? (merge ? "Merged " : "Imported ") + r.rooms + " room(s)." : r.error);
+    rerender();
+  };
   modal({
     title: "Import",
-    body: el("div", {}, ta, el("p", { class: "hint", text: "Replacing overwrites what is here. Merging keeps both and skips anything already present." })),
+    body: el("div", {}, chooser, status, ta,
+      el("p", { class: "hint", text: "Replacing overwrites what is here. Merging keeps both and skips anything already present." })),
     actions: [
-      { label: "Merge", onClick: () => {
-        const r = store.importJSON(ta.value, { merge: true });
-        showToast(r.ok ? "Merged " + r.rooms + " room(s)." : r.error);
-        rerender();
-      } },
-      { label: "Replace everything", danger: true, onClick: () => {
-        const r = store.importJSON(ta.value, { merge: false });
-        showToast(r.ok ? "Imported " + r.rooms + " room(s)." : r.error);
-        rerender();
-      } },
+      { label: "Merge", onClick: () => apply(true) },
+      { label: "Replace everything", danger: true, onClick: () => apply(false) },
       { label: "Cancel" }
     ]
   });

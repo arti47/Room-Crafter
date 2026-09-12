@@ -330,11 +330,30 @@ a { color: var(--accent); }
 }
 .toast-action { background: none; border: 0; color: var(--accent); font: inherit; font-weight: 700; min-height: 44px; cursor: pointer; }
 
+/* ── Area cards: title, provenance and the small tools ─────────────────── */
+.card-head { display: flex; align-items: flex-start; gap: 8px; }
+.card-head-text { flex: 1 1 auto; min-width: 0; }
+.card-tools { display: flex; gap: 2px; flex: 0 0 auto; }
+.icon-sm { min-width: 40px; min-height: 40px; font-size: 15px; border-radius: 8px; }
+.icon-btn[disabled] { opacity: .3; cursor: default; }
+
+/* The pinned bar can carry a primary and one quiet link under it. */
+.bar-stack { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.btn-link {
+  background: none; border: 0; color: var(--ink-3); font: inherit; font-size: .85em;
+  min-height: 44px; padding: 0 16px; cursor: pointer; text-decoration: underline;
+}
+.asker .choice-row { margin-bottom: 4px; }
+.asker .fold-tight { margin: 0 0 8px; }
+.details-block { margin-top: 6px; }
+
 /* ── Tablet: adds density, never stretches (P8) ────────────────────────── */
+.two-col { display: block; }
+.col { min-width: 0; }
 @media (min-width: 760px) {
-  main#screen { max-width: 900px; padding-left: 24px; padding-right: 24px; }
-  .action-bar { max-width: 900px; }
-  .two-col, .block-areas { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+  main#screen { max-width: 1040px; padding-left: 24px; padding-right: 24px; }
+  .action-bar { max-width: 1040px; }
+  .two-col { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 0 28px; align-items: start; }
   .card-keyword { padding: 28px 16px; }
   .keyword-word { font-size: 2.4em; }
   .modal-backdrop { align-items: center; }

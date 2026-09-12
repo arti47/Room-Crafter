@@ -52,6 +52,16 @@ export const STATE_LABEL = {
   complete: "Fully explored"
 };
 
+// Where the article's procedure is up to, for the pinned primary action:
+// describe → ask → search each Area → General Area → finish.
+export function nextStep(room) {
+  if (!room.encounter && !room.encounterSkipped) return { step: "ask" };
+  const area = (room.areas || []).find(a => !a.search);
+  if (area) return { step: "search", areaId: area.id, areaName: area.name };
+  if (canSearchGeneral(room)) return { step: "general" };
+  return { step: "finish" };
+}
+
 export function budgetInfo(room) {
   return budget(room.budget || 6);
 }
@@ -70,9 +80,10 @@ export function normalizeRoom(room) {
   r.createdAt = r.createdAt || Date.now();
   r.budget = r.budget === 3 ? 3 : 6;
   r.context = {
-    label: "", roomType: "", houseAidType: false, genreNote: "", multiRoomNote: "",
+    label: "", roomType: "", houseAidType: false, multiRoomNote: "",
     ...(r.context || {})
   };
+  delete r.context.genreNote;   // never had a control; removed (audit A-18)
   r.keywords = Array.isArray(r.keywords) ? r.keywords : [];
   r.areas = (Array.isArray(r.areas) ? r.areas : []).map((a, i) => ({
     id: a.id || "area_" + i,
@@ -99,6 +110,14 @@ export function normalizeRoom(room) {
       note: "", ...r.encounter
     };
   }
+  // Free yes/no questions asked of the GM about this room (Mythic, R38).
+  r.questions = (Array.isArray(r.questions) ? r.questions : []).map(q => ({
+    question: q.question || "", answer: q.answer || "", answerName: q.answerName || "",
+    answerBlurb: q.answerBlurb || null, odds: q.odds || null, oddsName: q.oddsName || null,
+    roll: q.roll || null, event: q.event || null, note: q.note || "", ts: q.ts || 0
+  }));
+  // The encounter question may be passed over (a permission, not a gate).
+  r.encounterSkipped = !!r.encounterSkipped;
   r.description = r.description || "";
   r.notes = r.notes || "";
   // Derived-but-stored, for list rendering. Always recomputed, never trusted.
@@ -110,7 +129,6 @@ export function normalizeCrawl(crawl) {
   return {
     id: crawl.id || "",
     name: crawl.name || "Untitled crawl",
-    note: crawl.note || "",
     createdAt: crawl.createdAt || Date.now(),
     lastOpenedAt: crawl.lastOpenedAt || crawl.createdAt || Date.now(),
     rooms: Array.isArray(crawl.rooms) ? crawl.rooms.filter(Boolean) : []

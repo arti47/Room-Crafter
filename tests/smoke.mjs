@@ -120,8 +120,13 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   r.check("e2e: description saved",
     await until(page, () => document.body.textContent.includes("Smoke and old paper.")));
 
-  // Encounter check — asked on the Mythic chart, which is on by default.
-  await page.click("#sec-encounter .choice:nth-child(4)");              // odds: Likely
+  // The pinned primary now asks the encounter question first (§6.3.3).
+  const firstPrimary = await page.$eval("#action-bar-host .btn-primary", n => n.textContent);
+  r.check("e2e: the primary asks the encounter question before offering a search", /encounter/i.test(firstPrimary), firstPrimary);
+  r.check("e2e: the question can be skipped", !!(await page.$("#action-bar-host .btn-link")));
+
+  // Ask it from the block at Likely — the quick row's third chip.
+  await page.click("#sec-encounter .asker .choice-row .choice:nth-child(3)");
   await page.click("#sec-encounter .btn-secondary");                    // Ask
   r.check("e2e: Ask The GM produced an answer",
     await until(page, () => !!document.querySelector(".modal-backdrop")));
@@ -135,6 +140,21 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
       const t = document.querySelector("#sec-encounter").textContent;
       return /at Likely/.test(t) && /Clear/.test(t) && !/How likely is a Yes/.test(t);
     }));
+  const secondPrimary = await page.$eval("#action-bar-host .btn-primary", n => n.textContent);
+  r.check("e2e: once asked, the primary moves on to searching", /^Search:/.test(secondPrimary), secondPrimary);
+
+  // Rename and reorder an Area (R26).
+  await page.click('#sec-areas .area-card:nth-of-type(1) [aria-label="Rename this Area"]');
+  await until(page, () => !!document.querySelector("#prompt-field"));
+  await page.fill("#prompt-field", "Renamed Area");
+  await page.click(".modal-actions .btn-primary");
+  r.check("e2e: an Area can be renamed on the sheet",
+    await until(page, () => /Renamed Area/.test(document.querySelector("#sec-areas").textContent)));
+  await page.click('#sec-areas .area-card:nth-of-type(1) [aria-label="Move this Area down"]');
+  r.check("e2e: an Area can be moved",
+    await until(page, () => !/Renamed Area/.test(document.querySelector("#sec-areas .area-card:nth-of-type(1)").textContent)));
+  const thirdPrimary = await page.$eval("#action-bar-host .btn-primary", n => n.textContent);
+  r.check("e2e: the primary follows the new order", !/Renamed Area/.test(thirdPrimary), thirdPrimary);
 
   // Search everything through the pinned primary action.
   for (let i = 0; i < 4; i++) {
@@ -177,6 +197,11 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await goto(page, site, "#/room");
   const onText = await page.$eval("#sec-encounter", n => n.textContent);
   r.check("mythic on: the odds picker is offered", /How likely is a Yes/.test(onText));
+  const quick = await page.$$eval("#sec-encounter .asker > .choice-row .choice", ns => ns.map(n => n.textContent.trim()));
+  r.check("mythic on: the quick row is three odds with 50/50 in the middle",
+    quick.length === 3 && /50\/50/.test(quick[1]), quick.join(" | "));
+  r.check("mythic on: the full chart is behind a fold",
+    (await page.$("#sec-encounter .asker details .choice-row")) !== null);
   r.check("mythic on: nothing claims to be un-automated", !/not automated/.test(onText), onText.slice(0, 90));
 
   await page.evaluate(() => {
@@ -195,6 +220,27 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   const rulesOff = await page.$eval("#screen", n => n.textContent);
   r.check("mythic off: its rules leave the library too", !/Ask The Game Master/.test(rulesOff));
   r.check("mythic off: no console errors", page.__errors.length === 0, page.__errors[0]);
+  await page.context().close();
+}
+
+// Tablet width adds density: two real columns on the room sheet and the wizard.
+{
+  const page = await newPage(browser, site, { seed: "mid-crawl", width: 900, height: 1000 });
+  await goto(page, site, "#/room");
+  const cols = await page.evaluate(() => {
+    const l = document.querySelector(".two-col .col-room"), r = document.querySelector(".two-col .col-areas");
+    if (!l || !r) return null;
+    const a = l.getBoundingClientRect(), b = r.getBoundingClientRect();
+    return { sideBySide: b.left >= a.right - 1, leftW: Math.round(a.width), rightW: Math.round(b.width), over: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+  });
+  r.check("tablet: room sheet renders two columns side by side", !!cols && cols.sideBySide, JSON.stringify(cols));
+  r.check("tablet: no horizontal overflow at 900px", !!cols && cols.over <= 0, JSON.stringify(cols));
+  await page.setViewportSize({ width: 390, height: 780 });
+  const stacked = await page.evaluate(() => {
+    const l = document.querySelector(".two-col .col-room"), r = document.querySelector(".two-col .col-areas");
+    return r.getBoundingClientRect().top >= l.getBoundingClientRect().bottom - 1;
+  });
+  r.check("phone: the same columns stack", stacked);
   await page.context().close();
 }
 

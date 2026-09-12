@@ -55,6 +55,7 @@ the **Room** as the tracked entity. Signed off at Stage B.
 | # | Decision | Answer |
 |---|---|---|
 | P1 | Source scope | ~~Room Crafter article only~~ — **superseded.** One-Page Mythic was supplied after Stage B and unblocks B1–B3 (ruling A16) |
+| P13 | Review round (2026-09-12) | **Play order:** the pinned primary walks the procedure — ask (skippable) → search → General → finish · **Odds picker:** one row Unlikely/50-50/Likely, full chart behind a fold · **Tablet:** two real columns · **Areas:** rename + reorder, finds never editable · **Export:** files + share sheet, clipboard fallback · **Mis-taps:** no protection — the roll is the roll · **Free questions:** an Ask-the-GM fold on the room sheet |
 | P12 | Mythic scope | **All of it, behind a toggle** (`Settings.useMythic`, default on): Ask The GM, Discover Meaning, and Random Events. Off, the three surfaces revert to prompt-and-record and Mythic's rules leave the library |
 | P2 | Scope re-point + rulings | **Approved as written** — §1.0 above, rulings A1–A15 binding |
 | P3 | Repository | **Private** (owner to set). Verbatim tables stay committed; README carries the personal-use licensing note |
@@ -217,7 +218,7 @@ Targets below are **planned**; tick them off as they become real.
 | R6 | The budget caps the Area count | Threshold | `BUDGETS` | `derived.areaCount` · `derived.totalExplorable` | Wizard meta line · persistent room header | `R6/R7` · `R6 derived Area counts match the record` |
 | R7 | Three-keyword variant for crawls | Substitution | `BUDGETS` | `wizard.newRoomForm` budget picker | Budget picker, inherited by the next room | `R6/R7 a three-keyword room walks three steps` |
 | R8 | Embellishments are not Areas | Permission | — | `sheet.descriptionBlock` | Free-text description, separate from Area cards | structural: no Area record is created from it |
-| R9 | The encounter check comes after describing, before searching (A9) | Lookup + Gate | `ENCOUNTER_ANSWERS` | `lifecycle.recordEncounter` | Room sheet, above the Areas, with a nudge while undescribed | `R9/R10 the encounter answer is recorded, and can be cleared` |
+| R9 | The encounter check comes after describing, before searching (A9) | Lookup + Gate | `ENCOUNTER_ANSWERS` | `derived.nextStep` → `sheet.primaryAction`; `lifecycle.recordEncounter` · `lifecycle.skipEncounter` | The pinned primary asks it first, with a skip link; the block sits above the Areas | `the primary action walks the article's order` · `skipping the encounter is a permission` · `R9/R10` |
 | R10 | Resolving it needs the Fate Chart | Lookup | — | `guidance only` (B1) | Prompt-and-record, `not automated` badge | same |
 | R11 | One Room Elements roll per Area (A2) | Once-per-X | `ROOM_ELEMENTS` | `derived.canSearchArea` → `roller.searchArea` | Control disappears after use; refusal cites `search` | `R11 an Area takes exactly one roll, and the second is refused` |
 | R12 | The flag is cleared only by a new room | Once-per-X | — | `lifecycle.newRoom` (throws if a new room carries spent flags) | — | `R12 a new room clears the search flags — and nothing else does` |
@@ -234,7 +235,7 @@ Targets below are **planned**; tick them off as they become real.
 | R23 | Search all, some or none | Permission | — | `sheet.finishRoom` | "Done with this room", always enabled | `R22/R23 a room with nothing searched is a legitimate resting state` |
 | R24 | Hidden things: your task mechanic, then a Fate Question | Substitution | — | `guidance only` (B1) → `lifecycle.recordHidden` | Prompt-and-record fold, `not automated` badge | `R24 hidden searches are recorded, not automated` |
 | R25 | Connected simple rooms may be one room | Permission | `context.multiRoomNote` | `wizard.newRoomForm` | "Does this room cover several spaces?" · shown on the sheet | `R25 the multi-room note persists on the record` |
-| R26 | Place Areas where they seem fitting | Permission | `area.order` | `derived.normalizeRoom` (order preserved) | Areas render and export in their stored order | covered by the export round-trip |
+| R26 | Place Areas where they seem fitting, and name them better later | Permission | `area.order`, `area.name` | `lifecycle.moveArea` · `lifecycle.renameArea` | ✎ ▲ ▼ on every Area card; the find is never editable | `R26 an Area can be renamed` · `R26 Areas can be reordered` |
 | R27 | A room may be any close space | Permission | `ROOM_TYPES` (house aid) | `wizard.newRoomForm` | Free-text room type; the list only suggests | `R27 a room type the house-aid list has never heard of is accepted` |
 | R28 | Chain rooms into a crawl | Permission | — | `lifecycle.nextRoom` | "Next room in this crawl", budget inherited | `R28 the next room joins the same crawl and inherits the budget` |
 | R29 | Cryptographic dice, shown, logged once, never silently re-rolled | — | — | `core.d100` · `store.logRoll` | Every result card · roll log · distribution | `R29 d100 stays in range and reaches both ends` · `R29 one search writes exactly one Element roll` |
@@ -250,6 +251,8 @@ Targets below are **planned**; tick them off as they become real.
 | R34 | Keep rolling words until it comes clear | Permission | `MEANING_COLUMNS` | `mythic.anotherWord` | "+ Action" / "+ Description" on any Mythic meaning | `R34 another word appends rather than replacing` |
 | R35 | One question is one roll, read once for the answer and once for the event | Compulsion | — | `mythic.ask` | Answer card shows the single die | `R35 Ask The GM records the odds, the roll and the answer` · `R35 asking writes one roll, plus two only when an event fires` |
 | R36 | The answer belongs to the room, not the moment | — | — | `lifecycle.recordEncounter` · `lifecycle.recordHidden` | Room sheet · read-aloud export | `R36 a Mythic answer reaches the encounter record and the read-aloud text` · `R36 a hidden search keeps its Mythic answer through normalization` |
+| R38 | Any yes/no question about the room may be asked | Permission | — | `mythic.ask` → `lifecycle.recordQuestion` | "Ask the GM" fold on the sheet, kept with the room and in the read-aloud text | `R38 a free question is kept on the room` |
+| R39 | The fairness record is never capped | — (template §5.1) | — | `store.logRoll` face counter · `store.distribution` | Distribution view | `the face counts are never capped` · `face counts survive export, import and undo` |
 | R37 | The toggle gates every Mythic surface, and its rules with it | Gate | — | `Settings.useMythic` | Settings row; five call sites in `sheet.js`, one in `screens.js` | smoke asserts both states and that neither claims the other's copy |
 
 **Rows with a `guidance only` engine** (R10, R15, R24 — and R16 only while the
@@ -262,12 +265,12 @@ the explicit non-decision template §10.13 requires; it is not a gap.
 
 ```
 crawls/{crawlId}
-  meta:   { name, createdAt, lastOpenedAt, note }
+  meta:   { name, createdAt, lastOpenedAt }     // note removed (A-18)
   rooms:  [roomId, ...]                       // explicit order — the crawl sequence
 
 rooms/{roomId}
   crawlId, createdAt
-  context:   { label, roomType, houseAidType: bool, genreNote, multiRoomNote }
+  context:   { label, roomType, houseAidType: bool, multiRoomNote }   // genreNote removed (A-18)
   budget:    6 | 3
   keywords:  [ { n: 1..6, roll, word, use: "area" | "combined" | "dropped" } ]
   areas:     [ { id, name, fromKeywords: [n], order,
@@ -285,8 +288,10 @@ rooms/{roomId}
                         answerBlurb, note, ts,
                         odds, oddsName, roll,        // null unless Mythic answered it
                         event: null | <meaning> }    // a double fired a Random Event
+  encounterSkipped: bool                        // the question passed over (a permission)
   hidden:      [ { question, answer, answerName, answerBlurb, note, ts,
                    odds, oddsName, roll, event } ]
+  questions:   [ same shape as hidden ]          // free Ask-the-GM questions about the room (R38)
   description: ""            // free text; embellishments, not Areas
   notes:       ""
   state:       { complete: bool }               // derived.isComplete, stored for list rendering
@@ -294,6 +299,7 @@ rooms/{roomId}
 rollLog/{id}: { table, roll, result, crawlId, roomId, roomName, areaId|null,
                 context, houseAid?, mythic?, ts }           // capped at 200, paged 25 at a time
                                                             // provenance flags badge the row
+faceCounts:   { counts[101], total }           // never capped: the fairness record (A-19)
 undo:         [ { label, snapshot, ts } ]                                  // one stack, any mutating action pushes
 settings:     { theme, textScale, showHouseAids, useMythic }
 ```
@@ -356,7 +362,7 @@ table** — that is the one part of this milestone still owed.
 - ☑ Rules library: accordion, session order, search auto-opens matches (T6, 14 entries)
 - ☑ `explain()` on every screen, collapsed by default (T7)
 - ☑ Tutorial as its own route + neutral demo rooms (T8, T10)
-- ☑ Tablet layout at ≥760px: wider frame, larger keyword card, row-wise modal actions
+- ☑ Tablet layout at ≥760px: **two real columns** on the room sheet and the wizard (A-22 — the first version was the phone layout, wider)
 
 **Phase 6 — One-Page Mythic** ☑ — R31–R37, T11–T14
 - ☑ `data-mythic.js`: the Ask The GM chart, Discover Meaning, Random Event triggers, its own rules entries
@@ -367,14 +373,24 @@ table** — that is the one part of this milestone still owed.
 - ☑ `Settings.useMythic` gating every surface and the rules-library entries, both states asserted
 - ☑ Provenance badge on Mythic rolls in the log — two sources now share one log
 
-**Phase 7 — Hardening** ◐
-- ☑ Harness A (`npm test`, 77 checks), B (`npm run smoke`, 257), C (`npm run interact`, 294), D (fixtures fresh/mid-crawl/stress + both probes)
+**Phase 7 — Review round** ☑ — P13, A-17…A-29
+- ☑ Primary walks the procedure; the encounter question is skippable and recorded
+- ☑ Compact odds picker; radiogroups with keyboard behaviour via one `radioGroup` helper
+- ☑ Areas rename and reorder; detail/note folds only after a search
+- ☑ Free Ask-the-GM questions on the room sheet
+- ☑ Uncapped face counter behind the distribution view
+- ☑ File export/import; share sheet for read-aloud text
+- ☑ Dead fields removed; wizard trail and header humanised; one label for finishing a room
+
+**Phase 8 — Hardening** ◐
+- ☑ Harness A (`npm test`, 85 checks), B (`npm run smoke`, 268), C (`npm run interact`, 342), D (fixtures fresh/mid-crawl/stress + both probes)
 - ☑ Dead-data scan (`npm run scan`), clean
 - ☑ Accessibility: focus trap, `aria-live`, `aria-current`, labelled controls, 16px inputs, 40px+ targets, reduced motion, skip link
 - ☑ The §6.7 measurement contract, asserted on every route at every seed
 - ☑ Six guards proven to bite against reintroduced defects
-- ☑ Audit cycle 1 (twelve findings) and cycle 2 (four, plus three harness faults) — `docs/AUDIT.md`
-- ☐ **Cycle 3 of the audit protocol.** The stopping rule is a full seven-pass cycle with no finding; two cycles have produced twelve and four.
+- ☑ Audit cycles 1–3 (twelve, four, thirteen findings) — `docs/AUDIT.md`
+- ☐ **Cycle 4.** The stopping rule is unmet. The method not yet used is a real session at a table.
+- ☐ PWA update-path test (deploy a change, reload, assert the toast)
 
 ## 8. Definition of done — per feature
 
@@ -425,4 +441,8 @@ Template §10 applies in full. The ones this project will actually be tested by:
 | 2026-09-11 | Audit cycle 2: A-13…A-16 and three harness faults | Template §11 | Three more guards watched go red | `rc-v2` |
 | 2026-09-11 | A-13: moved the default odds into the data layer | `"fifty"` was hardcoded in two `src/` modules (§10.2) | `R31` covers the row; `DEFAULT_ODDS` is the only source | `rc-v2` |
 | 2026-09-11 | H-10: the interaction audit now compares markup, not its length | A radiogroup changing selection is a net-zero length change, so nine live controls read as dead — and the same fault would hide any swap-shaped change | 294 controls, 0 findings | — |
+| 2026-09-12 | Review round (P13): primary walks the procedure with a skippable encounter question; compact odds picker; two-column tablet layout; Area rename/reorder; free Ask-the-GM questions; uncapped face counter; file export/import + share sheet; radiogroup keyboard behaviour; dead fields removed; wizard trail and header humanised | Flow walk with screenshots at 390/dark/900 found thirteen things (A-17…A-29) | `npm test` 85 · `smoke` 268 · `interact` 342 · `scan` clean; room sheet 3.7→3.3 viewports at mid-crawl | `rc-v3` |
+| 2026-09-12 | A-22: the tablet layout was a stretched phone layout | `.two-col` was dead CSS; Phase 5's tablet line had been ticked on a wider frame alone | smoke asserts columns side by side at 900px and stacked at 390px | `rc-v3` |
+| 2026-09-12 | A-19: distribution now reads an uncapped per-face counter | The log cap was silently truncating the fairness record at ~13 rooms | `the face counts are never capped` at 2× the cap; survive export/import/undo | `rc-v3` |
+| 2026-09-12 | H-11: quick-odds row built in stated order, not chart order | Filtering the chart put Unlikely third; the smoke walk caught "Yes at Unlikely" where Likely was asked | assertion retained | — |
 | 2026-09-11 | A-7: added the multi-room field | A permission the article grants had a schema field and no control (D-22) | `R25 the multi-room note persists` | `rc-v1` |

@@ -29,8 +29,9 @@ It installs as a PWA and works offline. Everything is stored in your browser's
 - **Table roller** — d100 over Room Descriptors, Sock Drawer and Room Elements,
   including the Multi-Element cascade.
 - **Crawls** — rooms chained in order; keep as many as you like.
-- **Roll log** with a distribution view, **JSON export/import**, and a
-  **read-aloud export** that writes the room as plain text for the table.
+- **Roll log** with a distribution view that is never capped, **JSON
+  export/import** as files, and a **read-aloud export** that writes the room
+  as plain text and hands it to your phone's share sheet.
 - **Rules library** and a **tutorial**, in the app's own words.
 
 ## Asking Mythic
@@ -45,6 +46,7 @@ carries **One-Page Mythic** for them:
 - **Discover Meaning** — Action and Description columns, wired into the Random
   element (81–95) and offered when a Fortunate or Unfortunate result leaves you
   with no obvious idea. Roll more words until it comes clear.
+- **Ask the GM** — any other yes/no question about the room, kept with it.
 
 Note this is the one-page emulator, **not Mythic GME 2e**: there is no Chaos
 Factor, and the odds row is the only input to the chart.

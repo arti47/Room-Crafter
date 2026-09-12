@@ -151,6 +151,84 @@ export function sectionNav(items, currentId) {
   return nav;
 }
 
+// A radiogroup with real radiogroup keyboard behaviour: arrows move the
+// selection, Home/End jump. Every choice row in the app goes through here.
+export function radioGroup({ label, options, value, onChange, compact = false, wrap = true }) {
+  const row = el("div", {
+    class: "choice-row" + (wrap ? " choice-wrap" : ""),
+    role: "radiogroup", "aria-label": label
+  });
+  let current = value;
+  const buttons = options.map(o => el("button", {
+    class: "choice" + (compact ? " choice-sm" : "") + (o.id === current ? " choice-on" : ""),
+    type: "button", role: "radio",
+    "aria-checked": o.id === current ? "true" : "false",
+    tabindex: o.id === current ? "0" : "-1",
+    onclick: () => select(o.id, true),
+    onkeydown: e => {
+      const i = options.findIndex(x => x.id === current);
+      let next = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") next = (i + 1) % options.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = (i - 1 + options.length) % options.length;
+      else if (e.key === "Home") next = 0;
+      else if (e.key === "End") next = options.length - 1;
+      if (next === null) return;
+      e.preventDefault();
+      select(options[next].id, true);
+      buttons[next].focus();
+    }
+  }, el("span", { class: "choice-main", text: o.label }),
+     o.sub ? el("span", { class: "choice-sub", text: o.sub }) : null));
+  function select(id, fire) {
+    current = id;
+    buttons.forEach((b, i) => {
+      const on = options[i].id === id;
+      b.className = "choice" + (compact ? " choice-sm" : "") + (on ? " choice-on" : "");
+      b.setAttribute("aria-checked", on ? "true" : "false");
+      b.setAttribute("tabindex", on ? "0" : "-1");
+    });
+    if (fire && onChange) onChange(id);
+  }
+  add(row, ...buttons);
+  row.getValue = () => current;
+  row.setValue = id => select(id, false);
+  return row;
+}
+
+// Hands the viewer a file. Falls back to the textarea path where a browser
+// blocks programmatic downloads.
+export function downloadText(filename, text, type = "application/json") {
+  try {
+    const blob = new Blob([text], { type });
+    const url = URL.createObjectURL(blob);
+    const a = el("a", { href: url, download: filename });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    return true;
+  } catch { return false; }
+}
+
+export function pickFile(accept, onText) {
+  const input = el("input", { type: "file", accept, class: "sr-only", "aria-label": "Choose a file" });
+  input.addEventListener("change", () => {
+    const f = input.files && input.files[0];
+    if (!f) return;
+    f.text().then(onText).finally(() => input.remove());
+  });
+  document.body.append(input);
+  input.click();
+}
+
+export async function shareText(title, text) {
+  if (navigator.share) {
+    try { await navigator.share({ title, text }); return "shared"; }
+    catch (e) { return e && e.name === "AbortError" ? "cancelled" : "unsupported"; }
+  }
+  return "unsupported";
+}
+
 export function emptyState(message, actionLabel, href) {
   const box = el("div", { class: "empty" });
   add(box, el("p", { class: "prose", text: message }));

@@ -254,9 +254,121 @@ picker present; the jump row added in cycle 1 (A-12) covers it.
 - **Both toggle states** render, neither claims the other's copy, and the rules
   library follows the toggle.
 
-## Cycle 3 — still owed
+---
 
-Two cycles, twelve findings and then four. The stopping rule is a full
-seven-pass cycle with none, so a third is owed — and by the template's own
-evidence it should be expected to find something. Change the seed, the width and
-the order of reading before running it.
+## Cycle 3 — the review walk
+
+Run as a flow walk with screenshots at 390px, dark, and 900px, then a code
+re-read — a different method from cycles 1 and 2, as the template says to do
+when a pass runs dry. It found more than either.
+
+### Pass 7 — Flow walk (run first this time)
+
+**A-17 · The primary action skipped the article's order.**
+*Rule:* describe → ask → search (ruling A9, R9).
+*Target:* `src/sheet.js` → `primaryAction`; `src/derived.js` → `nextStep`.
+*Fix:* the pinned primary now walks the procedure — "Ask: is there an
+encounter?" until answered or skipped, then each Area, then the General Area,
+then finish. Skipping is a link under the primary and is recorded on the room,
+so the export can say "not asked" rather than nothing.
+*Why it mattered:* §6.3.3 — the app should read like the game's own sequence of
+play, and it opened on step three.
+
+**A-18 · Two more schema fields with no control.**
+*Target:* `context.genreNote`, `crawl.note`.
+*Fix:* removed, with a migration that drops `genreNote` from old records.
+*Why it mattered:* same class as A-7. Written empty, read by nothing.
+
+**A-19 · The fairness record was amputated by the log cap.**
+*Rule:* a distribution view across the campaign (template §5.1, §14.1.10).
+*Target:* `src/store.js` → `logRoll`, `distribution`.
+*Fix:* an uncapped per-face counter, written at the same moment as the log
+entry, exported, imported, undone and cleared with it. The log still pages and
+forgets; the counts do not.
+*Why it mattered:* 200 rolls is thirteen rooms with Mythic on. The view that
+exists to settle an argument about the dice was quietly forgetting the evidence.
+
+**A-20 · Areas could not be renamed or reordered.**
+*Rule:* place Areas where they seem most fitting (R26) — a permission I had
+rationalised in the ledger as "order preserved".
+*Target:* `src/lifecycle.js` → `renameArea`, `moveArea`; `src/sheet.js` → `areaCard`.
+*Fix:* rename and up/down controls on every card. What searching found is never
+editable.
+*Why it mattered:* D-22, in my own ledger, dressed up as a structural note.
+
+**A-21 · No general Ask The GM.**
+*Target:* `src/sheet.js` → `askBlock`; `src/lifecycle.js` → `recordQuestion`.
+*Fix:* a fold on the sheet for any yes/no question about the room, answered on
+the chart, kept with the room, Random Events included, in the read-aloud text.
+*Why it mattered:* the article names two questions; play asks twenty. Mythic is
+a general oracle and the app was using it as two buttons.
+
+### Pass 5 — Measured layout
+
+**A-22 · The tablet layout was the phone layout, wider.**
+*Rule:* P8 — a tablet layout must add density, never stretch (template §16).
+*Target:* `styles.css`; `src/sheet.js` → `render`; `src/wizard.js`.
+*Fix:* two real columns at ≥760px — the room's own matter left, the Areas
+right; the keyword card left, Areas-so-far right. `.two-col` had been dead CSS
+nothing used. The smoke harness now asserts the columns sit side by side at
+900px and stack at 390px.
+*Why it mattered:* I had ticked Phase 5's tablet line on the strength of a
+wider frame and a bigger keyword card. That was not the promise.
+
+**A-23 · The once-per-room odds picker outweighed the Areas.**
+*Rule:* frequency decides height (§6.3.4).
+*Target:* `src/sheet.js` → `oddsAsker`.
+*Fix:* one row — Unlikely / 50-50 / Likely — with the full nine behind a fold.
+The room sheet dropped from 3.7 to 3.3 viewports at mid-crawl even after the
+review's other controls were added.
+
+**A-24 · Area cards carried detail and note folds before the Area was searched.**
+*Fix:* both now appear only on a searched Area — they are things you do to
+something you have found.
+
+### Pass 4 — Interaction audit
+
+**A-25 · Radiogroups had the role without the keyboard behaviour.**
+*Fix:* one `radioGroup` helper in `ui.js` with arrow, Home and End handling,
+replacing five hand-rolled copies (budget, theme, text size, log filter, odds).
+
+### Read-through, small
+
+- **A-26** "Done with this room" and "Finish this room" were one action with two
+  names. Unified.
+- **A-27** The wizard's keyword trail showed the internal enum (`pending`,
+  `combined`). Now "on the table", "carried into the next", "became an Area:
+  …", "dropped".
+- **A-28** The room header during the wizard read "open GENERAL · 0/1
+  EXPLORABLE". It now shows keyword progress, which is the number that matters
+  while a room is being made.
+- **A-29** Export was clipboard-only. Now a file download with the textarea as
+  fallback; import opens a file picker; read-aloud text uses the share sheet
+  where the browser has one.
+
+### Harness faults
+
+- **H-11** The quick-odds row was built by filtering the chart in chart order,
+  so its third chip was *Unlikely*. The smoke walk caught it on the first run
+  ("Yes at Unlikely" where Likely was asked). Fixed to build the row in the
+  stated order; the assertion that caught it stays.
+- **H-12** The new "Skip the question" link was 32px tall. The tap-target check
+  caught it; it is 44px.
+
+### Verified clean in this cycle
+
+- Both column layouts: side by side at 900px, stacked at 390px, no overflow.
+- Every new control clickable, doing something, erroring nothing (342 controls).
+- The primary follows the procedure through all four steps, and follows a
+  reorder.
+- Face counts equal total rolls at 2× the log cap; survive export, import and
+  undo; reset with the log.
+- Rename leaves the find untouched; move refuses at both edges; the read-aloud
+  text follows the new order.
+
+## Cycle 4 — still owed
+
+Three cycles: twelve, four, thirteen. The third was the largest because the
+method changed. The stopping rule is unmet, and the method that would find the
+next set is the one not yet used: **a real session at a table**, phone in one
+hand, with someone who has not read the rulebook.

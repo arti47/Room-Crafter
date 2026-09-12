@@ -10,7 +10,8 @@ const K = {
   rooms: "rc.rooms",
   log: "rc.rollLog",
   undo: "rc.undo",
-  current: "rc.current"
+  current: "rc.current",
+  faces: "rc.faceCounts"
 };
 
 const listeners = new Set();
@@ -135,15 +136,27 @@ export function logRoll(entry) {
   const list = read(K.log, []);
   list.unshift({ id: uid("roll"), ts: Date.now(), ...entry });
   write(K.log, list.slice(0, ROLL_LOG_CAP));
+  // The fairness record is never capped: the log pages and forgets, the face
+  // counts do not (audit A-19).
+  if (typeof entry.roll === "number" && entry.roll >= 1 && entry.roll <= 100) {
+    const faces = read(K.faces, { counts: new Array(101).fill(0), total: 0 });
+    faces.counts[entry.roll] = (faces.counts[entry.roll] || 0) + 1;
+    faces.total++;
+    write(K.faces, faces);
+  }
   emit();
 }
 export function rollLog() { return read(K.log, []); }
 export function clearRollLog() {
   snapshot("Clear roll log");
   write(K.log, []);
+  write(K.faces, { counts: new Array(101).fill(0), total: 0 });
   emit();
 }
 export function distribution() {
+  const faces = read(K.faces, null);
+  if (faces && Array.isArray(faces.counts)) return { counts: faces.counts, total: faces.total || 0 };
+  // No counter yet (a record from before it existed): rebuild from what the log still holds.
   const counts = new Array(101).fill(0);
   let total = 0;
   for (const r of read(K.log, [])) {
@@ -160,6 +173,7 @@ function stateBlob() {
     crawls: read(K.crawls, []),
     rooms: read(K.rooms, []),
     log: read(K.log, []),
+    faces: read(K.faces, null),
     current: read(K.current, { crawlId: null, roomId: null })
   };
 }
@@ -178,6 +192,7 @@ export function undo() {
   write(K.crawls, top.blob.crawls);
   write(K.rooms, top.blob.rooms);
   write(K.log, top.blob.log);
+  if (top.blob.faces) write(K.faces, top.blob.faces);
   write(K.current, top.blob.current);
   write(K.undo, stack);
   emit();
@@ -195,7 +210,8 @@ export function exportJSON() {
     settings: allSettings(),
     crawls: read(K.crawls, []),
     rooms: read(K.rooms, []),
-    rollLog: read(K.log, [])
+    rollLog: read(K.log, []),
+    faceCounts: read(K.faces, null)
   }, null, 2);
 }
 
@@ -218,6 +234,7 @@ export function importJSON(text, { merge = false } = {}) {
     write(K.crawls, inCrawls);
     write(K.rooms, inRooms);
     write(K.log, (data.rollLog || []).slice(0, ROLL_LOG_CAP));
+    if (data.faceCounts && Array.isArray(data.faceCounts.counts)) write(K.faces, data.faceCounts);
     if (data.settings) replaceSettings(data.settings);
   }
   emit();
@@ -232,6 +249,7 @@ export function roomAsText(rm) {
   if (ctx.roomType) L.push("(" + ctx.roomType + ")");
   L.push("");
   if (rm.description) { L.push(rm.description, ""); }
+  if (!rm.encounter && rm.encounterSkipped) L.push("Encounter: not asked", "");
   if (rm.encounter) {
     const e = rm.encounter;
     L.push("Encounter: " + e.answerName + (e.oddsName ? " (" + e.oddsName + ", rolled " + e.roll + ")" : "") +
@@ -267,6 +285,15 @@ export function roomAsText(rm) {
       if (h.event) L.push("      Random Event: " + h.event.words.join(" / "));
     }
   }
+  if ((rm.questions || []).length) {
+    L.push("", "Asked the GM:");
+    for (const q of rm.questions) {
+      L.push("  - " + q.question + " -> " + q.answerName +
+        (q.oddsName ? " (" + q.oddsName + ", rolled " + q.roll + ")" : "") +
+        (q.note ? " — " + q.note : ""));
+      if (q.event) L.push("      Random Event: " + q.event.words.join(" / "));
+    }
+  }
   if (rm.notes) L.push("", "Notes:", rm.notes);
   return L.join("\n");
 }
@@ -284,6 +311,7 @@ export function describeFind(find) {
 export function wipeAll() {
   snapshot("Erase everything");
   write(K.crawls, []); write(K.rooms, []); write(K.log, []);
+  write(K.faces, { counts: new Array(101).fill(0), total: 0 });
   write(K.current, { crawlId: null, roomId: null });
   emit();
 }

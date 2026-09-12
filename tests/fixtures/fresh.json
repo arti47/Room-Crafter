@@ -1,7 +1,7 @@
 {
   "app": "room-crafter",
   "version": 1,
-  "exportedAt": "2026-09-11T11:24:18.380Z",
+  "exportedAt": "2026-09-12T01:49:17.085Z",
   "settings": {
     "theme": "system",
     "textScale": 1,
@@ -11,5 +11,6 @@
   },
   "crawls": [],
   "rooms": [],
-  "rollLog": []
+  "rollLog": [],
+  "faceCounts": null
 }

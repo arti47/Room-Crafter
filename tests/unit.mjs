@@ -471,6 +471,98 @@ check("R30 a house-aid roll is logged as a house aid", () => {
   eq(store.rollLog().length, before + 1);
 });
 
+// ── The procedure and the sheet's controls (batch after review) ─────────────
+check("the primary action walks the article's order: ask → search → General → finish", () => {
+  const room = walk(freshRoom(3), () => "area");
+  eq(derived.nextStep(room).step, "ask");
+  lifecycle.skipEncounter(room);
+  eq(derived.nextStep(room).step, "search");
+  eq(derived.nextStep(room).areaId, room.areas[0].id);
+  for (const a of room.areas) roller.searchArea(room, a.id);
+  eq(derived.nextStep(room).step, "general");
+  roller.searchGeneralArea(room);
+  eq(derived.nextStep(room).step, "finish");
+});
+check("skipping the encounter is a permission: it can be un-skipped and asked", () => {
+  const room = walk(freshRoom(3), () => "area");
+  lifecycle.skipEncounter(room);
+  eq(store.room(room.id).encounterSkipped, true);
+  lifecycle.clearEncounter(room);
+  eq(store.room(room.id).encounterSkipped, false);
+  eq(derived.nextStep(room).step, "ask");
+  ok(lifecycle.roomSummary({ ...room, encounterSkipped: true }).some(l => /not asked/.test(l)));
+});
+check("R38 a free question is kept on the room with its odds, roll and any event", () => {
+  const room = walk(freshRoom(3), () => "area");
+  const res = mythic.ask(room, "unlikely", "Is the strongbox trapped?");
+  lifecycle.recordQuestion(room, res, "");
+  const q = store.room(room.id).questions[0];
+  eq(q.question, "Is the strongbox trapped?");
+  eq(q.oddsName, "Unlikely");
+  eq(q.roll, res.roll);
+  eq(q.answerName, res.answerName);
+  ok(store.roomAsText(store.room(room.id)).includes("Is the strongbox trapped?"));
+});
+check("R26 an Area can be renamed, and what searching found is untouched", () => {
+  const room = walk(freshRoom(3), () => "area");
+  const id = room.areas[0].id;
+  roller.searchArea(room, id);
+  const before = JSON.stringify(store.room(room.id).areas[0].search);
+  ok(lifecycle.renameArea(room, id, "A better name"));
+  eq(store.room(room.id).areas[0].name, "A better name");
+  eq(JSON.stringify(store.room(room.id).areas[0].search), before);
+  eq(lifecycle.renameArea(room, id, "   "), false);
+});
+check("R26 Areas can be reordered, the order persists, and the edges refuse", () => {
+  const room = walk(freshRoom(6), () => "area");
+  const ids = room.areas.map(a => a.id);
+  eq(lifecycle.moveArea(room, ids[0], -1), false);
+  ok(lifecycle.moveArea(room, ids[0], 1));
+  const after = store.room(room.id).areas.map(a => a.id);
+  eq(after[0], ids[1]);
+  eq(after[1], ids[0]);
+  eq(after.slice(2), ids.slice(2));
+  eq(lifecycle.moveArea(room, after[after.length - 1], 1), false);
+  // the read-aloud text follows the new order
+  const text = store.roomAsText(store.room(room.id));
+  ok(text.indexOf(room.areas.find(a => a.id === after[0]).name) < text.indexOf(room.areas.find(a => a.id === after[1]).name));
+});
+check("the face counts are never capped, however much the log forgets", () => {
+  const room = walk(freshRoom(3), () => "area");
+  resetStorage();
+  const c = store.createCrawl("Faces");
+  const rm = store.createRoom(c.id, { label: "F" }, 3);
+  const n = data.ROLL_LOG_CAP + 150;
+  for (let i = 0; i < n; i++) roller.rollMeaningPair(rm, "sock");  // two rolls each
+  eq(store.rollLog().length, data.ROLL_LOG_CAP);
+  const dist = store.distribution();
+  eq(dist.total, n * 2);
+  eq(dist.counts.reduce((a, b) => a + b, 0), n * 2);
+});
+check("face counts survive export, import and undo; clearing the log resets them", () => {
+  resetStorage();
+  const c = store.createCrawl("Faces");
+  const rm = store.createRoom(c.id, { label: "F" }, 3);
+  for (let i = 0; i < 30; i++) roller.rollMeaningPair(rm, "sock");
+  eq(store.distribution().total, 60);
+  const json = store.exportJSON();
+  store.wipeAll();
+  eq(store.distribution().total, 0);
+  store.importJSON(json);
+  eq(store.distribution().total, 60);
+  store.clearRollLog();
+  eq(store.distribution().total, 0);
+  store.undo();
+  eq(store.distribution().total, 60);
+});
+check("dead fields are gone: genreNote and crawl.note are not written", () => {
+  resetStorage();
+  const c = store.createCrawl("X");
+  const rm = lifecycle.newRoom(c.id, { label: "Y", genreNote: "should vanish" }, 3);
+  eq("genreNote" in store.room(rm.id).context, false);
+  eq("note" in store.crawl(c.id), false);
+});
+
 // ── Roll log (R29) ───────────────────────────────────────────────────────────
 check("R29 one search writes exactly one Element roll to the log", () => {
   const room = walk(freshRoom(3), () => "area");

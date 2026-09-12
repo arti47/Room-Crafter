@@ -26,9 +26,55 @@ export function recordEncounter(room, answerId, note, mythicResult = null) {
   return room.encounter;
 }
 
+// Passing the question over is a permission the article grants by never
+// requiring it; recorded so the procedure can move on and the export says so.
+export function skipEncounter(room) {
+  store.snapshot("Skip the encounter question");
+  room.encounterSkipped = true;
+  store.saveRoom(room);
+}
+
+// A free yes/no question about the room, answered by Mythic (R38).
+export function recordQuestion(room, mythicResult, note) {
+  store.snapshot("Ask the GM");
+  room.questions = [...(room.questions || []), {
+    question: mythicResult.question, answer: mythicResult.answer,
+    answerName: mythicResult.answerName, answerBlurb: mythicResult.answerBlurb,
+    odds: mythicResult.odds, oddsName: mythicResult.oddsName, roll: mythicResult.roll,
+    event: mythicResult.event, note: note || "", ts: Date.now()
+  }];
+  store.saveRoom(room);
+  return room.questions[room.questions.length - 1];
+}
+
+// Place the Areas where they seem most fitting, and name them better later
+// (R26, ruling on editing). What searching found is never editable.
+export function renameArea(room, areaId, name) {
+  const area = (room.areas || []).find(a => a.id === areaId);
+  if (!area || !name || !name.trim()) return false;
+  store.snapshot("Rename Area");
+  area.name = name.trim();
+  store.saveRoom(room);
+  return true;
+}
+
+export function moveArea(room, areaId, delta) {
+  const list = [...(room.areas || [])].sort((a, b) => a.order - b.order);
+  const i = list.findIndex(a => a.id === areaId);
+  const j = i + delta;
+  if (i < 0 || j < 0 || j >= list.length) return false;
+  store.snapshot("Move Area");
+  [list[i], list[j]] = [list[j], list[i]];
+  list.forEach((a, k) => { a.order = k; });
+  room.areas = list;
+  store.saveRoom(room);
+  return true;
+}
+
 export function clearEncounter(room) {
   store.snapshot("Clear encounter answer");
   room.encounter = null;
+  room.encounterSkipped = false;
   store.saveRoom(room);
 }
 
@@ -75,6 +121,8 @@ export function roomSummary(room) {
   lines.push(searchedAreas(room) + " of " + areaCount(room) + " Areas searched");
   lines.push("General Area: " + (generalDone(room) ? room.generalArea.elementName : "not searched"));
   if (room.encounter) lines.push("Encounter: " + room.encounter.answerName);
+  else if (room.encounterSkipped) lines.push("Encounter: not asked");
+  if ((room.questions || []).length) lines.push((room.questions || []).length + " question(s) asked of the GM");
   if ((room.hidden || []).length) lines.push((room.hidden || []).length + " hidden search(es) recorded");
   lines.push("State: " + STATE_LABEL[searchState(room)]);
   return lines;

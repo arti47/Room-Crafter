@@ -1,6 +1,9 @@
 // sheet.js — the room sheet and its persistent header.
 import { el, add } from "./core.js";
-import { explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast, refuse, ruleLink, emptyState } from "./ui.js";
+import {
+  explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast,
+  refuse, ruleLink, emptyState, radioGroup, shareText
+} from "./ui.js";
 import { EXPLAIN, MEANING_TABLES, ENCOUNTER_ANSWERS, ROOM_ELEMENTS } from "../data.js";
 import * as store from "./store.js";
 import * as roller from "./roller.js";
@@ -9,27 +12,36 @@ import * as mythic from "./mythic.js";
 import { Settings } from "./settings.js";
 import {
   areaCount, searchedAreas, searchedTotal, totalExplorable, generalDone,
-  isComplete, searchState, STATE_LABEL, canSearchArea, canSearchGeneral
+  isComplete, searchState, STATE_LABEL, canSearchGeneral, nextStep
 } from "./derived.js";
 
 // ── Persistent room header (sticky, under the app header) ────────────────────
 // The two or three numbers that decide every choice stay visible while you read
-// anything else (§6.2).
+// anything else (§6.2). While the room is being made, the number that matters
+// is keyword progress, not search progress.
 export function header(room) {
   if (!room) return null;
   const bar = el("div", { class: "res-header", "aria-label": "Room status" });
   const state = searchState(room);
+  add(bar, el("span", { class: "res-name", text: room.context.label || "Untitled room" }));
+  if (state === "building") {
+    add(bar,
+      el("span", { class: "res-stat", title: "Keywords rolled" },
+        el("b", { text: (room.keywords || []).length + "/" + room.budget }),
+        el("small", { text: "Keywords" })),
+      el("span", { class: "res-stat", title: "Areas so far" },
+        el("b", { text: String(areaCount(room)) }),
+        el("small", { text: "Areas" })),
+      el("span", { class: "res-chip res-" + state, text: STATE_LABEL[state] }));
+    return bar;
+  }
   add(bar,
-    el("span", { class: "res-name", text: room.context.label || "Untitled room" }),
-    el("span", { class: "res-stat", title: "Areas searched" },
-      el("b", { text: searchedAreas(room) + "/" + areaCount(room) }),
-      el("small", { text: "Areas" })),
+    el("span", { class: "res-stat", title: "Areas plus the General Area, searched" },
+      el("b", { text: searchedTotal(room) + "/" + totalExplorable(room) }),
+      el("small", { text: "Explored" })),
     el("span", { class: "res-stat", title: "The General Area — the room itself" },
       el("b", { text: generalDone(room) ? "done" : "open" }),
       el("small", { text: "General" })),
-    el("span", { class: "res-stat", title: "Areas plus the General Area" },
-      el("b", { text: searchedTotal(room) + "/" + totalExplorable(room) }),
-      el("small", { text: "Explorable" })),
     el("span", { class: "res-chip res-" + state, text: STATE_LABEL[state] })
   );
   return bar;
@@ -56,17 +68,18 @@ export function render(params) {
     room.context.multiRoomNote
       ? el("p", { class: "meta", text: "Covers several spaces: " + room.context.multiRoomNote })
       : null,
-    explain(EXPLAIN.room)
+    explain(EXPLAIN.room),
+    jumpRow()
   );
 
-  add(content, jumpRow());
-  add(content, descriptionBlock(room));
-  add(content, encounterBlock(room));
-  add(content, areasBlock(room));
-  add(content, generalBlock(room));
-  add(content, hiddenBlock(room));
-  add(content, notesBlock(room));
-  add(content, roomActionsBlock(room));
+  // Two columns from tablet width up (P8): the room's own matter on the left,
+  // the Areas — the column you work down — on the right.
+  const left = el("div", { class: "col col-room" });
+  const right = el("div", { class: "col col-areas" });
+  add(left, descriptionBlock(room), encounterBlock(room), generalBlock(room),
+    askBlock(room), hiddenBlock(room), notesBlock(room), roomActionsBlock(room));
+  add(right, areasBlock(room));
+  add(content, el("div", { class: "two-col" }, left, right));
 
   const [bar, spacer] = actionBar(primaryAction(room));
   add(content, spacer);
@@ -79,14 +92,31 @@ function isWalkDone(room) {
   return rolled >= (room.budget || 6) && pend === 0;
 }
 
-// The one control the screen exists for, always above the fold (§6.3.2).
+// The one control the screen exists for, always above the fold (§6.3.2), and
+// it follows the article's own order: ask → search → General Area → finish.
 function primaryAction(room) {
-  const nextArea = (room.areas || []).find(a => !a.search);
-  if (nextArea) {
-    return el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => doSearch(room, nextArea.id) },
-      "Search: " + trim(nextArea.name, 28));
+  const next = nextStep(room);
+  if (next.step === "ask") {
+    if (Settings.useMythic()) {
+      return el("div", { class: "bar-stack" },
+        el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => askEncounter(room, mythic.DEFAULT_ODDS) },
+          "Ask: is there an encounter? (50/50)"),
+        el("button", { class: "btn-link", type: "button", onclick: () => { lifecycle.skipEncounter(room); rerender(); } },
+          "Skip the question"));
+    }
+    return el("div", { class: "bar-stack" },
+      el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => {
+        const t = document.getElementById("sec-encounter");
+        if (t) t.scrollIntoView({ block: "start" });
+      } }, "Record: is there an encounter?"),
+      el("button", { class: "btn-link", type: "button", onclick: () => { lifecycle.skipEncounter(room); rerender(); } },
+        "Skip the question"));
   }
-  if (canSearchGeneral(room)) {
+  if (next.step === "search") {
+    return el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => doSearch(room, next.areaId) },
+      "Search: " + trim(next.areaName, 28));
+  }
+  if (next.step === "general") {
     return el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => doGeneral(room) },
       "Search the General Area");
   }
@@ -96,13 +126,12 @@ function primaryAction(room) {
 
 function trim(s, n) { return s.length > n ? s.slice(0, n - 1) + "…" : s; }
 
-// ── Blocks ───────────────────────────────────────────────────────────────────
 // In-page jumps, not links: the app routes on the hash, so an anchor href would
 // navigate instead of scrolling.
 function jumpRow() {
   const targets = [
     ["The room", "sec-room"], ["Encounter", "sec-encounter"],
-    ["Areas", "sec-areas"], ["General", "sec-general"], ["Notes", "sec-notes"]
+    ["Areas", "sec-areas"], ["General", "sec-general"], ["Ask", "sec-ask"], ["Notes", "sec-notes"]
   ];
   const nav = el("nav", { class: "section-nav", "aria-label": "Jump to a section" });
   for (const [label, id] of targets) {
@@ -114,6 +143,7 @@ function jumpRow() {
   return nav;
 }
 
+// ── Blocks ───────────────────────────────────────────────────────────────────
 function descriptionBlock(room) {
   const box = el("section", { class: "block", id: "sec-room" });
   add(box, el("h2", { class: "block-title", text: "The room" }));
@@ -138,6 +168,7 @@ function descriptionBlock(room) {
 function encounterBlock(room) {
   const box = el("section", { class: "block", id: "sec-encounter" });
   add(box, el("h2", { class: "block-title", text: "Is there an encounter?" }));
+
   if (room.encounter) {
     add(box, answerCard(room.encounter));
     add(box, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
@@ -151,6 +182,15 @@ function encounterBlock(room) {
     return box;
   }
 
+  if (room.encounterSkipped) {
+    add(box,
+      el("p", { class: "prose", text: "Not asked for this room." }),
+      el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
+        lifecycle.clearEncounter(room); rerender();
+      } }, "Ask it after all"));
+    return box;
+  }
+
   add(box, el("p", { class: "prose" },
     "Ask it once, after describing the room and before searching — see ", ruleLink("encounter", "the rule"), "."));
   if (!room.description) {
@@ -158,10 +198,7 @@ function encounterBlock(room) {
   }
 
   if (Settings.useMythic()) {
-    add(box, oddsAsker(room, "Is there an encounter?", res => {
-      lifecycle.recordEncounter(room, res.answer, "", res);
-      rerender();
-    }));
+    add(box, oddsAsker(room, "Is there an encounter?", odds => askEncounter(room, odds)));
   } else {
     add(box, el("p", { class: "prose", text: "Mythic is switched off, so roll the question on your own tables and record what you got." }),
       el("span", { class: "badge badge-guidance", text: "not automated" }));
@@ -180,37 +217,41 @@ function encounterBlock(room) {
   return box;
 }
 
-// The odds picker and the Ask button, shared by the encounter check and the
-// hidden-search question — one control for one kind of thing.
-function oddsAsker(room, question, onAnswer) {
+function askEncounter(room, odds) {
+  const res = mythic.ask(room, odds, "Is there an encounter?");
+  lifecycle.recordEncounter(room, res.answer, "", res);
+  rerender();
+  showAnswer(res, "Is there an encounter?");
+}
+
+// The odds picker: the three you pick nine times in ten on one row, the full
+// chart behind a fold. Shared by every question the app asks (one control for
+// one kind of thing). Calls back with the chosen odds id.
+const QUICK_ODDS = ["unlikely", "fifty", "likely"];
+function oddsAsker(room, question, onAsk, { buttonLabel = "Ask" } = {}) {
   let odds = mythic.DEFAULT_ODDS;
-  const wrap = el("div", {});
-  const row = el("div", { class: "choice-row choice-wrap", role: "radiogroup", "aria-label": "How likely is a Yes?" });
-  const buttons = mythic.ODDS.map(o => {
-    const btn = el("button", {
-      class: "choice choice-sm" + (o.id === odds ? " choice-on" : ""),
-      type: "button", role: "radio", "aria-checked": o.id === odds ? "true" : "false",
-      onclick: () => {
-        odds = o.id;
-        buttons.forEach((b, i) => {
-          const on = mythic.ODDS[i].id === odds;
-          b.className = "choice choice-sm" + (on ? " choice-on" : "");
-          b.setAttribute("aria-checked", on ? "true" : "false");
-        });
-      }
-    }, el("span", { class: "choice-main", text: o.name }));
-    add(row, btn);
-    return btn;
+  const wrap = el("div", { class: "asker" });
+  const quick = radioGroup({
+    label: "How likely is a Yes?",
+    options: QUICK_ODDS.map(id => mythic.oddsById(id)).map(o => ({ id: o.id, label: o.name })),
+    value: odds,
+    compact: true, wrap: false,
+    onChange: id => { odds = id; full.setValue(id); }
   });
+  const full = radioGroup({
+    label: "All odds",
+    options: mythic.ODDS.map(o => ({ id: o.id, label: o.name })),
+    value: odds,
+    compact: true,
+    onChange: id => { odds = id; quick.setValue(QUICK_ODDS.includes(id) ? id : "__none"); }
+  });
+  const more = el("details", { class: "fold fold-tight" });
+  add(more, el("summary", { text: "More odds" }), full);
   add(wrap,
     el("p", { class: "field-label", text: "How likely is a Yes?" }),
-    row,
-    el("p", { class: "hint", text: mythic.MYTHIC_EXPLAIN.ask }),
-    el("button", { class: "btn btn-secondary btn-wide", type: "button", onclick: () => {
-      const res = mythic.ask(room, odds, question);
-      onAnswer(res);
-      showAnswer(res, question);
-    } }, "Ask")
+    quick, more,
+    el("button", { class: "btn btn-secondary btn-wide", type: "button", onclick: () => onAsk(odds) }, buttonLabel),
+    el("p", { class: "hint", text: mythic.MYTHIC_EXPLAIN.ask })
   );
   return wrap;
 }
@@ -243,6 +284,37 @@ function showAnswer(res, question) {
   });
 }
 
+// Free yes/no questions about the room (R38): is the door locked, is the chest
+// trapped. Mythic-gated like the rest; with it off the fold explains why it is
+// not here rather than vanishing.
+function askBlock(room) {
+  const d = el("details", { class: "fold", id: "sec-ask" });
+  const n = (room.questions || []).length;
+  add(d, el("summary", { text: "Ask the GM" + (n ? " (" + n + ")" : "") }));
+  add(d, el("p", { class: "prose" },
+    "Any yes/no question about this room. Decide how likely a Yes is and roll it — ",
+    ruleLink("mythic-ask", "the rule"), "."));
+  for (const q of room.questions || []) {
+    add(d, el("div", { class: "card" }, el("p", { class: "meta", text: q.question }), answerCard(q)));
+  }
+  if (!Settings.useMythic()) {
+    add(d, el("p", { class: "hint", text: "One-Page Mythic is switched off in Settings; this needs its chart." }),
+      el("span", { class: "badge badge-guidance", text: "not automated" }));
+    return d;
+  }
+  const q = el("input", { class: "field", type: "text", id: "ask-q", placeholder: "Is the strongbox trapped?" });
+  add(d, el("label", { class: "field-label", for: "ask-q", text: "The question" }), q);
+  add(d, oddsAsker(room, "", odds => {
+    const text = q.value.trim();
+    if (!text) { showToast("Type the question first."); q.focus(); return; }
+    const res = mythic.ask(room, odds, text);
+    lifecycle.recordQuestion(room, res, "");
+    rerender();
+    showAnswer(res, text);
+  }));
+  return d;
+}
+
 function areasBlock(room) {
   const box = el("section", { class: "block", id: "sec-areas" });
   add(box, el("h2", { class: "block-title", text: "Explorable Areas" },
@@ -251,11 +323,12 @@ function areasBlock(room) {
     add(box, el("p", { class: "hint", text: "No Areas — every keyword was dropped." }));
     return box;
   }
-  for (const a of room.areas) add(box, areaCard(room, a));
+  const list = [...room.areas].sort((a, b) => a.order - b.order);
+  list.forEach((a, i) => add(box, areaCard(room, a, i, list.length)));
   return box;
 }
 
-function areaCard(room, area) {
+function areaCard(room, area, index, count) {
   const done = !!area.search;
   const card = el("article", { class: "card area-card" + (done ? " card-done" : "") });
   const words = (area.fromKeywords || []).map(n => {
@@ -263,21 +336,36 @@ function areaCard(room, area) {
     return k ? k.word : null;
   }).filter(Boolean);
 
-  add(card,
-    el("h3", { class: "card-title", text: area.name }),
-    words.length ? el("p", { class: "meta", text: words.join(" + ") }) : null
-  );
+  const head = el("div", { class: "card-head" });
+  add(head,
+    el("div", { class: "card-head-text" },
+      el("h3", { class: "card-title", text: area.name }),
+      words.length ? el("p", { class: "meta", text: "from " + words.join(" + ") }) : null),
+    el("div", { class: "card-tools" },
+      el("button", { class: "icon-btn icon-sm", type: "button", "aria-label": "Rename this Area", title: "Rename", onclick: () => {
+        promptModal({ title: "Rename the Area", label: "What is it?", value: area.name, onConfirm: v => {
+          if (!lifecycle.renameArea(room, area.id, v)) return showToast("Give it a name.");
+          rerender();
+        } });
+      } }, "✎"),
+      el("button", { class: "icon-btn icon-sm", type: "button", "aria-label": "Move this Area up", title: "Move up",
+        disabled: index === 0 ? true : null,
+        onclick: () => { lifecycle.moveArea(room, area.id, -1); rerender(); } }, "▲"),
+      el("button", { class: "icon-btn icon-sm", type: "button", "aria-label": "Move this Area down", title: "Move down",
+        disabled: index === count - 1 ? true : null,
+        onclick: () => { lifecycle.moveArea(room, area.id, 1); rerender(); } }, "▼")));
+  add(card, head);
 
   if (done) {
     add(card, findBlock(room, area.search, { areaId: area.id }));
     add(card, el("p", { class: "hint" }, "Searched. One roll per Area — ", ruleLink("search", "the rule"), "."));
+    // Detail rolls and notes are things you do to something you have found.
+    add(card, detailBlock(room, area.id));
+    add(card, noteControl(area.note, v => { area.note = v; store.saveRoom(room); rerender(); }));
   } else {
     add(card, el("button", { class: "btn btn-secondary btn-wide", type: "button",
       onclick: () => doSearch(room, area.id) }, "Search this Area"));
   }
-
-  add(card, detailBlock(room, area.id));
-  add(card, noteControl(area.note, v => { area.note = v; store.saveRoom(room); rerender(); }));
   return card;
 }
 
@@ -289,31 +377,31 @@ function generalBlock(room) {
   const card = el("article", { class: "card area-card" + (generalDone(room) ? " card-done" : "") });
   if (generalDone(room)) {
     add(card, findBlock(room, room.generalArea, { areaId: null }));
+    add(card, detailBlock(room, null));
   } else {
     add(card, el("button", { class: "btn btn-secondary btn-wide", type: "button",
       onclick: () => doGeneral(room) }, "Search the General Area"));
   }
-  add(card, detailBlock(room, null));
   add(box, card);
   return box;
 }
 
 function hiddenBlock(room) {
-  const d = el("details", { class: "fold" });
+  const d = el("details", { class: "fold", id: "sec-hidden" });
   add(d, el("summary", { text: "Hidden things" + ((room.hidden || []).length ? " (" + room.hidden.length + ")" : "") }));
   add(d, el("p", { class: "prose" },
     "Room Crafter reports what is apparent. For a secret door or a stash, use your own game's search mechanic first, then ask — ",
     ruleLink("hidden", "the rule"), "."));
   for (const h of room.hidden || []) {
-    add(d, el("div", { class: "card" },
-      el("p", { class: "meta", text: h.question }),
-      answerCard(h)));
+    add(d, el("div", { class: "card" }, el("p", { class: "meta", text: h.question }), answerCard(h)));
   }
 
   if (Settings.useMythic()) {
-    add(d, oddsAsker(room, "Is something hidden found?", res => {
+    add(d, oddsAsker(room, "Is something hidden found?", odds => {
+      const res = mythic.ask(room, odds, "Is something hidden found?");
       lifecycle.recordHidden(room, "Is something hidden found?", res.answer, "", res);
       rerender();
+      showAnswer(res, "Is something hidden found?");
     }));
   } else {
     add(d, el("span", { class: "badge badge-guidance", text: "not automated" }));
@@ -358,7 +446,7 @@ function roomActionsBlock(room) {
   const box = el("section", { class: "block block-end" });
   add(box, el("h2", { class: "block-title", text: "This room" }));
   add(box, el("div", { class: "stack" },
-    el("button", { class: "btn btn-quiet btn-wide", type: "button", onclick: () => finishRoom(room) }, "Done with this room"),
+    el("button", { class: "btn btn-quiet btn-wide", type: "button", onclick: () => finishRoom(room) }, "Finish this room"),
     el("p", { class: "hint" }, "Searching is optional — a room you only looked at is a finished room. ", ruleLink("complete", "The rule"), "."),
     el("button", { class: "btn btn-quiet btn-wide", type: "button", onclick: () => readAloud(room) }, "Read-aloud text"),
     el("button", { class: "btn btn-quiet btn-wide", type: "button", onclick: () => nextRoomFlow(room) }, "Next room in this crawl"),
@@ -441,11 +529,6 @@ function findBlock(room, find, { areaId }) {
   return box;
 }
 
-function elementBlurb(id) {
-  const band = ROOM_ELEMENTS.find(x => x.id === id);
-  return band ? band.blurb : "";
-}
-
 // One renderer for a rolled meaning, whichever table produced it.
 function meaningBlock(room, find, areaId) {
   const m = find.meaning;
@@ -460,7 +543,6 @@ function meaningBlock(room, find, areaId) {
   }
   const row = el("div", { class: "choice-row choice-wrap" });
   if (m.tableId === "mythic") {
-    // "Get more words": keep rolling until an interpretation comes clear.
     for (const c of mythic.MEANING_COLUMNS) {
       add(row, el("button", { class: "choice choice-sm", type: "button", onclick: () => {
         mythic.anotherWord(room, m, c.id);
@@ -477,6 +559,11 @@ function meaningBlock(room, find, areaId) {
   }
   add(box, row);
   return box;
+}
+
+function elementBlurb(id) {
+  const band = ROOM_ELEMENTS.find(x => x.id === id);
+  return band ? band.blurb : "";
 }
 
 // One renderer for details, wherever they hang (§10.11: one record, not two).
@@ -569,20 +656,27 @@ function nextRoomFlow(fromRoom) {
 
 function readAloud(room) {
   const text = store.roomAsText(room);
-  const ta = el("textarea", { class: "field mono", rows: 14, readonly: true, "aria-label": "Read-aloud text" });
+  const ta = el("textarea", { class: "field mono", rows: 12, readonly: true, "aria-label": "Read-aloud text" });
   ta.value = text;
+  const title = room.context.label || "Room";
+  const actions = [];
+  if (navigator.share) {
+    actions.push({ label: "Share", onClick: () => {
+      shareText(title, text).then(r => { if (r === "unsupported") showToast("Sharing is not available here — copy instead."); });
+      return true;
+    } });
+  }
+  actions.push({ label: "Copy", onClick: () => {
+    ta.select();
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => showToast("Copied."), () => showToast("Select the text and copy."));
+    else showToast("Select the text and copy.");
+    return true;
+  } });
+  actions.push({ label: "Close" });
   modal({
     title: "Read-aloud text",
-    body: el("div", {}, ta, el("p", { class: "hint", text: "Select and copy, or use the button." })),
-    actions: [
-      { label: "Copy", onClick: () => {
-        ta.select();
-        if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => showToast("Copied."), () => showToast("Select the text and copy."));
-        else showToast("Select the text and copy.");
-        return true;
-      } },
-      { label: "Close" }
-    ]
+    body: el("div", {}, ta, el("p", { class: "hint", text: navigator.share ? "Share sends it to another app; Copy puts it on the clipboard." : "Select and copy, or use the button." })),
+    actions
   });
 }
 

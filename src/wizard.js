@@ -2,7 +2,7 @@
 // The app enforces the order, the cap and the count. The interpretation is yours
 // — that is the one thing this tool exists to leave alone.
 import { el, add, clear, uid } from "./core.js";
-import { explain, actionBar, promptModal, showToast, refuse, ruleLink, houseAidBadge } from "./ui.js";
+import { explain, actionBar, promptModal, showToast, refuse, ruleLink, houseAidBadge, radioGroup } from "./ui.js";
 import { MAX_COMBINE, BUDGETS } from "../data.js";
 import { ROOM_TYPES, HOUSE_AID } from "../data-house-roomtypes.js";
 import * as store from "./store.js";
@@ -147,6 +147,9 @@ export function render(params) {
 
   // A keyword (or a carried pair) is on the table.
   const card = el("div", { class: "card card-keyword" });
+  const cols = el("div", { class: "two-col" });
+  const leftCol = el("div", { class: "col" });
+  const rightCol = el("div", { class: "col" });
   add(card, el("p", { class: "eyebrow", text: pend.length > 1 ? "Combined" : "Keyword " + pend[0].n }));
   add(card, el("p", { class: "keyword-word" },
     pend.map(k => k.word).join(" + ")));
@@ -154,7 +157,7 @@ export function render(params) {
   add(card, el("p", { class: "prose", text: pend.length > 1
     ? "Two words together. What is it in this room?"
     : "Does this suggest something in this room? If it does, name it. If not, carry it forward." }));
-  add(content, card);
+  add(leftCol, card);
 
   const controls = el("div", { class: "stack" });
   add(controls, el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => {
@@ -193,7 +196,9 @@ export function render(params) {
 
   const [b2, spacer2] = actionBar(controls);
   bar = b2;
-  add(content, areaList(room), keywordTrail(room), spacer2);
+  add(rightCol, areaList(room), keywordTrail(room));
+  add(cols, leftCol, rightCol);
+  add(content, cols, spacer2);
   return { title: "Room", content, bar };
 }
 
@@ -215,15 +220,24 @@ function areaList(room) {
   return box;
 }
 
+const USE_LABEL = {
+  pending: "on the table",
+  area: "became an Area",
+  combined: "carried into the next",
+  dropped: "dropped"
+};
+
 function keywordTrail(room) {
   if (!(room.keywords || []).length) return null;
   const d = el("details", { class: "fold" });
-  add(d, el("summary", { text: "Keyword trail" }));
+  add(d, el("summary", { text: "Keyword trail (" + room.keywords.length + ")" }));
   const ul = el("ul", { class: "list" });
   for (const k of room.keywords) {
+    const area = (room.areas || []).find(a => (a.fromKeywords || []).includes(k.n));
     add(ul, el("li", { class: "list-row" },
       el("span", { class: "list-main", text: k.n + ". " + k.word }),
-      el("span", { class: "list-sub", text: "d100 " + k.roll + " · " + k.use })
+      el("span", { class: "list-sub", text: "d100 " + k.roll + " · " + (USE_LABEL[k.use] || k.use) +
+        (area && k.use === "area" ? ": " + area.name : "") })
     ));
   }
   add(d, ul);
@@ -242,23 +256,12 @@ export function newRoomForm(crawlId, onCreated, fromRoom = null) {
   if (Settings.showHouseAids()) for (const t of ROOM_TYPES) add(dl, el("option", { value: t }));
 
   let budget = fromRoom ? (fromRoom.budget || 6) : 6;
-  const budgetRow = el("div", { class: "choice-row", role: "radiogroup", "aria-label": "Keyword budget" });
-  const buttons = BUDGETS.map(b => {
-    const btn = el("button", {
-      class: "choice" + (b.keywords === budget ? " choice-on" : ""),
-      type: "button", role: "radio", "aria-checked": b.keywords === budget ? "true" : "false",
-      onclick: () => {
-        budget = b.keywords;
-        buttons.forEach((x, i) => {
-          const on = BUDGETS[i].keywords === budget;
-          x.className = "choice" + (on ? " choice-on" : "");
-          x.setAttribute("aria-checked", on ? "true" : "false");
-        });
-      }
-    }, el("span", { class: "choice-main", text: b.label }),
-       el("span", { class: "choice-sub", text: b.areas[0] + "–" + b.areas[1] + " Areas" }));
-    add(budgetRow, btn);
-    return btn;
+  const budgetRow = radioGroup({
+    label: "Keyword budget",
+    options: BUDGETS.map(b => ({ id: String(b.keywords), label: b.label, sub: b.areas[0] + "–" + b.areas[1] + " Areas" })),
+    value: String(budget),
+    wrap: false,
+    onChange: id => { budget = Number(id); }
   });
 
   const multi = el("input", { class: "field", type: "text", id: "nr-multi",
@@ -292,7 +295,7 @@ export function newRoomForm(crawlId, onCreated, fromRoom = null) {
       label: label.value.trim() || "Untitled room",
       roomType: typeInput.value.trim(),
       houseAidType: HOUSE_AID && ROOM_TYPES.includes(typeInput.value.trim()),
-      genreNote: "", multiRoomNote: multi.value.trim()
+      multiRoomNote: multi.value.trim()
     };
     // Through the lifecycle boundary, never store.createRoom directly: that
     // boundary is what guarantees a new room starts with no spent search flags.
