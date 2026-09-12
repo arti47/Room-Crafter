@@ -244,6 +244,35 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await page.context().close();
 }
 
+// An in-place action keeps your place; a navigation starts at the top (A-30).
+{
+  const page = await newPage(browser, site, { seed: "stress", width: 390, height: 780 });
+  await goto(page, site, "#/room");
+  // Open the first searched Area's detail fold, scroll it into view, roll.
+  const opened = await page.evaluate(() => {
+    const card = Array.from(document.querySelectorAll(".area-card")).find(c => c.querySelector(".details-block"));
+    if (!card) return null;
+    const fold = card.querySelector(".details-block details");
+    fold.open = true;
+    fold.scrollIntoView({ block: "center" });
+    return { y: Math.round(window.scrollY), folds: document.querySelectorAll("#screen details[open]").length };
+  });
+  r.check("scroll: a searched Area with a detail fold exists in the stress seed", !!opened && opened.y > 200, JSON.stringify(opened));
+  if (opened) {
+    await page.click(".area-card .details-block details[open] .choice:nth-child(2)");   // roll a Sock Drawer detail
+    const after = await until(page, () => document.querySelectorAll(".details-block .find-head").length > 0, 1500);
+    const y2 = await page.evaluate(() => Math.round(window.scrollY));
+    r.check("scroll: rolling a detail does not jump to the top", after && Math.abs(y2 - opened.y) < 80, "before " + opened.y + " after " + y2);
+    const foldsAfter = await page.evaluate(() => document.querySelectorAll("#screen details[open]").length);
+    r.check("scroll: folds that were open stay open through the redraw", foldsAfter >= 1, "open folds after: " + foldsAfter);
+  }
+  await goto(page, site, "#/log");
+  await goto(page, site, "#/room");
+  const yNav = await page.evaluate(() => Math.round(window.scrollY));
+  r.check("scroll: a navigation still starts at the top", yNav === 0, "y=" + yNav);
+  await page.context().close();
+}
+
 // A Random Event is the same roll read twice, never a second question.
 {
   const page = await newPage(browser, site, { seed: "mid-crawl" });

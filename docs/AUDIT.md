@@ -366,6 +366,30 @@ replacing five hand-rolled copies (budget, theme, text size, log filter, odds).
 - Rename leaves the find untouched; move refuses at both edges; the read-aloud
   text follows the new order.
 
+---
+
+## Cycle 4 — first report from play
+
+**A-30 · Every in-place action scrolled to the top.**
+*Reported by the owner:* "When I roll sock drawer or detail, it jumps back to
+the top."
+*Target:* `src/router.js` → `render`.
+*Root cause:* one render path served both navigation and refresh, and ended
+with an unconditional scroll to top. Every screen's `rerender` — detail rolls,
+notes, renames, reorders, another-word, the odds picker — went through it.
+*Fix:* `refresh()` redraws with `keepPlace`: scroll position is restored and
+open `<details>` folds are re-opened (keyed by summary text plus occurrence,
+which is stable across a redraw of the same screen). Navigation still starts
+at the top.
+*Why it mattered:* the harnesses never saw it because none of them scrolled
+before acting — every check clicked from the top of a freshly loaded page. The
+first person to use the app on a phone found it in minutes. The regression
+check now scrolls to a fold before rolling, and was watched go red (before 745,
+after 0) against the old path.
+*Lesson for the harness:* the interaction audit resets state between clicks,
+which is right for isolation and blind to exactly this class — anything that
+depends on where you were. A "from the middle of the page" variant is owed.
+
 ## Cycle 4 — still owed
 
 Three cycles: twelve, four, thirteen. The third was the largest because the

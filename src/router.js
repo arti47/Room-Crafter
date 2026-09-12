@@ -46,7 +46,13 @@ function contextRoom(route) {
   return cur.roomId ? store.room(cur.roomId) : null;
 }
 
-export function render() {
+// A navigation starts at the top. A refresh — the same screen redrawn after an
+// in-place action like a detail roll or a rename — keeps your place and keeps
+// whatever folds you had open (audit A-30).
+export function render(opts = {}) {
+  const keep = !!opts.keepPlace;
+  const y = keep ? window.scrollY : 0;
+  const openFolds = keep ? snapshotFolds() : null;
   const route = parse(location.hash);
   const app = $("#screen");
   const barHost = $("#action-bar-host");
@@ -90,8 +96,43 @@ export function render() {
 
   renderTabs(route);
   document.title = view.title ? view.title + " · Room Crafter" : "Room Crafter";
-  app.scrollTop = 0;
-  window.scrollTo(0, 0);
+  if (keep) {
+    restoreFolds(openFolds);
+    window.scrollTo(0, Math.min(y, document.documentElement.scrollHeight));
+  } else {
+    app.scrollTop = 0;
+    window.scrollTo(0, 0);
+  }
+}
+
+// Open <details> are keyed by their summary text plus how many earlier folds
+// share it, which is stable across a redraw of the same screen.
+function snapshotFolds() {
+  const seen = {};
+  const keys = new Set();
+  for (const d of document.querySelectorAll("#screen details")) {
+    const sum = d.querySelector(":scope > summary");
+    const t = sum ? sum.textContent.trim() : "";
+    seen[t] = (seen[t] || 0) + 1;
+    if (d.open) keys.add(t + "#" + seen[t]);
+  }
+  return keys;
+}
+
+function restoreFolds(keys) {
+  if (!keys || !keys.size) return;
+  const seen = {};
+  for (const d of document.querySelectorAll("#screen details")) {
+    const sum = d.querySelector(":scope > summary");
+    const t = sum ? sum.textContent.trim() : "";
+    seen[t] = (seen[t] || 0) + 1;
+    if (keys.has(t + "#" + seen[t])) d.open = true;
+  }
+}
+
+// What the screens call after an in-place action.
+export function refresh() {
+  render({ keepPlace: true });
 }
 
 function noRoom() {
@@ -126,10 +167,10 @@ function renderTabs(route) {
 }
 
 export function start() {
-  wizard.setRerender(render);
-  sheet.setRerender(render);
-  screens.setRerender(render);
-  window.addEventListener("hashchange", render);
+  wizard.setRerender(refresh);
+  sheet.setRerender(refresh);
+  screens.setRerender(refresh);
+  window.addEventListener("hashchange", () => render());
   store.subscribe(() => renderTabs(parse(location.hash)));
   if (!location.hash) location.replace("#/crawls");
   render();
