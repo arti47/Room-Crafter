@@ -124,7 +124,7 @@ claims the other's copy.
 | `data.js` | Room Descriptors · Sock Drawer · Room Elements · encounter bands · budgets · rules-library entries | ☑ |
 | `data-house-roomtypes.js` | Room-type starter list, `HOUSE_AID = true` | ☑ |
 | `data-mythic.js` | One-Page Mythic: Ask The GM chart, Discover Meaning, Random Event triggers, its own rules-library entries | ☑ |
-| `manifest.json`, `service-worker.js`, `icon.svg` | PWA; `CACHE_VERSION` bumped on any shipped-file change | ☑ |
+| `manifest.json`, `service-worker.js`, `icon.svg` | PWA. The worker is **network-first for everything**, cache as the offline fallback (A-32); `CACHE_VERSION` bumped on any shipped-file change raises the update toast | ☑ |
 | `tests/` + `package.json` | Harnesses A–D, fixtures, probes; dev-only, gitignored `node_modules`, not in the SW app shell | ☑ |
 | `README.md` | Setup + personal-use licensing note | ☑ |
 | `docs/rules/` | Per-subsystem distilled reference the audit reads against the engine | ☑ |
@@ -389,8 +389,8 @@ table** — that is the one part of this milestone still owed.
 - ☑ The §6.7 measurement contract, asserted on every route at every seed
 - ☑ Six guards proven to bite against reintroduced defects
 - ☑ Audit cycles 1–3 (twelve, four, thirteen findings) — `docs/AUDIT.md`
-- ◐ **Cycle 4.** First reports from play fixed (A-30, A-31). The method that found it — using the app from the middle of a page, not the top — is one the harnesses lack; a mid-page variant of the interaction audit is owed.
-- ☐ PWA update-path test (deploy a change, reload, assert the toast)
+- ◐ **Cycle 4.** First reports from play fixed (A-30…A-33). Harness gaps they exposed: mid-page actions, in-modal actions. The method that found it — using the app from the middle of a page, not the top — is one the harnesses lack; a mid-page variant of the interaction audit is owed.
+- ☑ PWA update-path test — `npm run pwa`: network-first serves the new code on one reload, the toast appears, accepting leaves only the new cache, the app boots offline on the new code (A-32)
 
 ## 8. Definition of done — per feature
 
@@ -441,6 +441,8 @@ Template §10 applies in full. The ones this project will actually be tested by:
 | 2026-09-11 | Audit cycle 2: A-13…A-16 and three harness faults | Template §11 | Three more guards watched go red | `rc-v2` |
 | 2026-09-11 | A-13: moved the default odds into the data layer | `"fifty"` was hardcoded in two `src/` modules (§10.2) | `R31` covers the row; `DEFAULT_ODDS` is the only source | `rc-v2` |
 | 2026-09-11 | H-10: the interaction audit now compares markup, not its length | A radiogroup changing selection is a net-zero length change, so nine live controls read as dead — and the same fault would hide any swap-shaped change | 294 controls, 0 findings | — |
+| 2026-09-12 | A-32: service worker network-first for every request; the update path is now tested (`npm run pwa`, in `npm run all`) | The owner was shown a pre-fix build after the fix shipped: cache-first modules served stale code for one reload. The template's named failure, untested until now | Thirteen checks; watched go red (three named failures) against the cache-first worker. H-13/H-14: a page's own reload under an activating worker cannot be followed by this harness — the accept step is driven from a fresh page instead (`docs/AUDIT.md`) | `rc-v6` |
+| 2026-09-12 | A-33: the find modal's secondary action is full-width like its primary | Formatting report | screenshot at 390px dark | `rc-v6` |
 | 2026-09-12 | A-31: the find modal redraws itself after an action inside it; duplicate "obvious idea" line removed | Owner report: "No idea — Discover Meaning" looked dead. The modal body was static; its actions redrew only the sheet behind | `modal:` smoke checks, watched go red against the old path | `rc-v5` |
 | 2026-09-12 | A-30: in-place refreshes keep scroll position and open folds; only navigation starts at the top | Owner report from play: rolling a detail jumped to the top. One render path served navigation and refresh alike | `scroll:` smoke checks, watched go red (before 745 → after 0) against the old path | `rc-v4` |
 | 2026-09-12 | Review round (P13): primary walks the procedure with a skippable encounter question; compact odds picker; two-column tablet layout; Area rename/reorder; free Ask-the-GM questions; uncapped face counter; file export/import + share sheet; radiogroup keyboard behaviour; dead fields removed; wizard trail and header humanised | Flow walk with screenshots at 390/dark/900 found thirteen things (A-17…A-29) | `npm test` 85 · `smoke` 268 · `interact` 342 · `scan` clean; room sheet 3.7→3.3 viewports at mid-crawl | `rc-v3` |

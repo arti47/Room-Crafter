@@ -69,4 +69,4 @@ export function plural(n, one, many) {
   return n + " " + (n === 1 ? one : (many || one + "s"));
 }
 
-export const CACHE_VERSION = "rc-v5";
+export const CACHE_VERSION = "rc-v6";

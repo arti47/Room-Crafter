@@ -518,7 +518,7 @@ function findBlock(room, find, { areaId, redraw = rerender }) {
     (find.sub || []).some(x => x.elementId === "fortunate" || x.elementId === "unfortunate");
   if (swingy && !find.meaning) {
     if (Settings.useMythic()) {
-      add(box, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
+      add(box, el("button", { class: "btn btn-secondary btn-wide", type: "button", onclick: () => {
         find.meaning = mythic.discoverMeaning(room, ["action", "description"], "Fortunate/Unfortunate");
         store.saveRoom(room);
         redraw();

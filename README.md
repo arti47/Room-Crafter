@@ -16,8 +16,10 @@ serve the folder:
 python3 -m http.server 8000     # then open http://localhost:8000
 ```
 
-It installs as a PWA and works offline. Everything is stored in your browser's
-`localStorage` — no account, no server, no network calls at runtime.
+It installs as a PWA and works offline. With a connection, a reload always
+gets the current code; the cache is the offline fallback, not a speed trick.
+Everything is stored in your browser's `localStorage` — no account, no server,
+no network calls at runtime beyond loading the app itself.
 
 ## What it does
 
@@ -88,6 +90,7 @@ npm run smoke       # harness B — every route, every width, the end-to-end wal
 npm run interact    # harness C — clicks every control in isolation
 npm run probe:layout   # prints the measurement contract per route
 npm run probe:flow     # prints tap counts for the common sequences
+npm run pwa         # the update path: deploy, reload, toast, offline boot
 npm run all
 ```
 

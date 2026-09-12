@@ -319,7 +319,7 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
         await action.click();
         const changed = await until(page, b => document.querySelector(".modal-card .find").textContent !== b, 1500, before);
         const after = await page.$eval(".modal-card .find", n => n.textContent);
-        found = { before: before.slice(0, 60), after: after.slice(0, 120), changed };
+        found = { before: before.slice(0, 60), after: after.slice(0, 240), changed };
       }
       await page.click(".modal-actions .btn-primary");
       await until(page, () => !document.querySelector(".modal-backdrop"));
@@ -329,7 +329,8 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   r.check("modal: a result with an action button came up within the sample", !!found, "none in 12 rooms");
   if (found) {
     r.check("modal: the action redraws the modal in place", found.changed, JSON.stringify(found));
-    r.check("modal: the redrawn find shows the Meaning words", /Discover Meaning|Sock Drawer|Room Descriptors/.test(found.after), found.after);
+    r.check("modal: the redrawn find shows the Meaning words",
+      /Discover Meaning|Sock Drawer|Room Descriptors/.test(found.after) && / \/ /.test(found.after), found.after);
     r.check("modal: no duplicated 'use the obvious idea' line",
       (found.before.match(/Use the obvious idea/g) || []).length <= 1 && (found.after.match(/Use the obvious idea/g) || []).length <= 1);
   }

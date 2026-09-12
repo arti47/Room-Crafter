@@ -412,9 +412,55 @@ go red against the old path.
 *Lesson for the harness:* the interaction audit needs to descend into any modal
 it opens and click there too, comparing the modal's markup.
 
+**A-32 · A reload could serve last deploy's modules.**
+*Reported by the owner, indirectly:* a screenshot of the pre-fix build after
+the fix had shipped.
+*Target:* `service-worker.js`.
+*Root cause:* the worker served everything but navigations cache-first with a
+background revalidate. So a reload got a fresh `index.html` and *stale*
+modules — the fix landed on the reload after that. The template names this
+failure outright ("a museum of last month's rules") and says the update path
+cannot be verified by looking at the running app. It had not been tested.
+*Fix:* network-first for every same-origin request, cache as the offline
+fallback. With a connection, one reload is the current code; without one, the
+cached shell boots.
+*Verification:* `tests/update-path.mjs` (`npm run pwa`) — load, deploy a change,
+reload: the new code is served on that reload; the update toast appears;
+accepting it leaves only the new cache; the app then boots offline running the
+new code. Ten checks. Watched go red against the cache-first worker: three
+named failures — the new code not served on reload, not running after
+accepting, and the offline boot running the old code.
+*Harness faults found writing it:*
+- **H-13** `page.waitForFunction` binds to the document it starts in; a page
+  that reloads *itself* leaves it waiting on a context that no longer exists,
+  reported as a timeout. Replaced with a poll that evaluates afresh each time.
+- **H-14** Following the toast's own `location.reload()` under an activating
+  worker is not something this Playwright/Chromium pairing does reliably: the
+  page's CDP target detaches on the first call that reaches it, reported as
+  "Target page, context or browser has been closed". Bisected across seven
+  variants in isolated copies — a CDP click versus an in-page click, a Cache
+  handle held open in the page versus not, a settle pause versus none — and no
+  combination was stable. The app is fine: debug runs render the new code
+  0.3s after that click every time. So the step is driven the way a user's
+  *next load* actually happens: skip-waiting is sent from the harness, the old
+  page is closed, and a fresh page asserts the same three guarantees (only the
+  new cache remains, the new code runs, it boots offline). The toast's Reload
+  button is asserted present, labelled and enabled; its two-line handler is the
+  one thing here that a harness does not click.
+
+**A-33 · The find modal's secondary action did not match its primary.**
+*Fix:* "No idea — Discover Meaning" is full-width like "Good" beneath it. With
+A-31's duplicate line removed, the card reads: die, Element, one blurb, the way
+out, done.
+
 ## Cycle 4 — still owed
 
-Three cycles: twelve, four, thirteen. The third was the largest because the
-method changed. The stopping rule is unmet, and the method that would find the
-next set is the one not yet used: **a real session at a table**, phone in one
-hand, with someone who has not read the rulebook.
+Three cycles: twelve, four, thirteen — and four more from the first hours of
+real use (A-30…A-33). Each of the four was in a place the harnesses did not
+look: mid-page, inside a modal, across a deploy. Harness work owed, in the
+order the findings arrived:
+
+1. A mid-page variant of the interaction audit (A-30).
+2. Descend into any modal the audit opens and click there, comparing the
+   modal's own markup (A-31).
+3. `npm run pwa` is in `npm run all` now (A-32) — keep it there.

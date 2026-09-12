@@ -25,7 +25,12 @@ export function serve(root = process.cwd()) {
     });
     server.listen(0, "127.0.0.1", () => {
       const { port } = server.address();
-      resolve({ url: "http://127.0.0.1:" + port, close: () => server.close() });
+      resolve({ url: "http://127.0.0.1:" + port, close: () => {
+        // Keep-alive sockets from a closed browser would otherwise hold the
+        // process open after the harness is done.
+        if (server.closeAllConnections) server.closeAllConnections();
+        server.close();
+      } });
     });
   });
 }

@@ -1,6 +1,10 @@
-// service-worker.js — app shell cached and versioned; navigation network-first so
-// a stale shell never outlives a deploy. Bump CACHE_VERSION on any shipped file.
-const CACHE_VERSION = "rc-v5";
+// service-worker.js — app shell cached and versioned, and served NETWORK-FIRST
+// for every request: with a connection you always get the current code, and
+// the cache is there for the basement where the game is actually played.
+// (An earlier cache-first version handed a reload stale modules while it
+// revalidated behind — the "museum of last month's rules" failure, audit A-32.)
+// Bump CACHE_VERSION on any shipped file; that is what raises the update toast.
+const CACHE_VERSION = "rc-v6";
 const SHELL = [
   "./",
   "./index.html",
@@ -46,30 +50,20 @@ self.addEventListener("message", e => {
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
 
-  // Navigations: network first, cache as the basement fallback.
-  if (req.mode === "navigate") {
-    e.respondWith(
-      fetch(req).then(res => {
-        const copy = res.clone();
-        caches.open(CACHE_VERSION).then(c => c.put("./index.html", copy));
-        return res;
-      }).catch(() => caches.match("./index.html").then(r => r || caches.match("./")))
-    );
-    return;
-  }
-
-  // Everything else: cache first, revalidate in the background.
   e.respondWith(
-    caches.match(req).then(hit => {
-      const net = fetch(req).then(res => {
-        if (res && res.ok) {
-          const copy = res.clone();
-          caches.open(CACHE_VERSION).then(c => c.put(req, copy));
-        }
-        return res;
-      }).catch(() => hit);
-      return hit || net;
-    })
+    fetch(req).then(res => {
+      if (res && res.ok) {
+        const copy = res.clone();
+        caches.open(CACHE_VERSION).then(c => c.put(req.mode === "navigate" ? "./index.html" : req, copy));
+      }
+      return res;
+    }).catch(() =>
+      caches.match(req.mode === "navigate" ? "./index.html" : req)
+        .then(hit => hit || (req.mode === "navigate" ? caches.match("./") : undefined))
+        .then(hit => hit || new Response("Offline and not cached.", { status: 503, headers: { "content-type": "text/plain" } }))
+    )
   );
 });

@@ -11,7 +11,8 @@
     "probe:layout": "node tests/probe-layout.mjs",
     "probe:flow": "node tests/probe-flow.mjs",
     "scan": "node tests/dead-data.mjs",
-    "all": "npm run test && npm run scan && npm run smoke && npm run interact"
+    "all": "npm run test && npm run scan && npm run smoke && npm run interact && npm run pwa",
+    "pwa": "node tests/update-path.mjs"
   },
   "devDependencies": {
     "playwright-core": "^1.49.0"
