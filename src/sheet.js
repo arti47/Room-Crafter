@@ -1,5 +1,5 @@
 // sheet.js — the room sheet and its persistent header.
-import { el, add } from "./core.js";
+import { el, add, clear } from "./core.js";
 import {
   explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast,
   refuse, ruleLink, emptyState, radioGroup, shareText
@@ -471,7 +471,7 @@ function roomActionsBlock(room) {
 
 // ── Find rendering ───────────────────────────────────────────────────────────
 // A result shows the dice, what they resolved to, and what it means (§6.4).
-function findBlock(room, find, { areaId }) {
+function findBlock(room, find, { areaId, redraw = rerender }) {
   const box = el("div", { class: "find" });
   add(box, el("p", { class: "find-head" },
     el("span", { class: "die", text: String(find.roll) }),
@@ -491,7 +491,7 @@ function findBlock(room, find, { areaId }) {
   }
 
   if (find.meaning) {
-    add(box, meaningBlock(room, find, areaId));
+    add(box, meaningBlock(room, find, areaId, redraw));
   } else if (roller.needsMeaning(find)) {
     add(box, el("p", { class: "prose" }, "Random: choose a Meaning table and roll a pair — ", ruleLink("random", "the rule"), "."));
     const row = el("div", { class: "choice-row choice-wrap" });
@@ -499,38 +499,39 @@ function findBlock(room, find, { areaId }) {
       add(row, el("button", { class: "choice", type: "button", onclick: () => {
         find.meaning = mythic.discoverMeaning(room, ["action", "description"], "Random element");
         store.saveRoom(room);
-        rerender();
+        redraw();
       } }, el("span", { class: "choice-main", text: "Discover Meaning" }),
          el("span", { class: "choice-sub", text: "Action + Description" })));
     }
     for (const t of MEANING_TABLES) {
       add(row, el("button", { class: "choice", type: "button", onclick: () => {
         roller.attachMeaning(room, { find, areaId }, t.id);
-        rerender();
+        redraw();
       } }, el("span", { class: "choice-main", text: t.name })));
     }
     add(box, row);
   }
 
+  // Fortunate and Unfortunate already say "use the obvious idea" in their own
+  // blurb; what they need under it is the way out when you have none.
   const swingy = find.elementId === "fortunate" || find.elementId === "unfortunate" ||
     (find.sub || []).some(x => x.elementId === "fortunate" || x.elementId === "unfortunate");
-  if (swingy) {
-    add(box, el("p", { class: "hint", text: "Use the obvious idea if you have one." }));
-    if (Settings.useMythic() && !find.meaning) {
+  if (swingy && !find.meaning) {
+    if (Settings.useMythic()) {
       add(box, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
         find.meaning = mythic.discoverMeaning(room, ["action", "description"], "Fortunate/Unfortunate");
         store.saveRoom(room);
-        rerender();
+        redraw();
       } }, "No idea — Discover Meaning"));
-    } else if (!Settings.useMythic()) {
-      add(box, el("p", { class: "hint", text: "Otherwise ask a Fate Question or Discover Meaning on your own tables." }));
+    } else {
+      add(box, el("p", { class: "hint", text: "No idea? Ask a Fate Question or Discover Meaning on your own tables." }));
     }
   }
   return box;
 }
 
 // One renderer for a rolled meaning, whichever table produced it.
-function meaningBlock(room, find, areaId) {
+function meaningBlock(room, find, areaId, redraw = rerender) {
   const m = find.meaning;
   const box = el("div", {});
   add(box, el("p", { class: "find-head" },
@@ -547,14 +548,14 @@ function meaningBlock(room, find, areaId) {
       add(row, el("button", { class: "choice choice-sm", type: "button", onclick: () => {
         mythic.anotherWord(room, m, c.id);
         store.saveRoom(room);
-        rerender();
+        redraw();
       } }, el("span", { class: "choice-main", text: "+ " + c.name })));
     }
     add(box, el("p", { class: "hint" }, "Not clear yet? Roll another word — ", ruleLink("mythic-meaning", "the rule"), "."));
   } else {
     add(row, el("button", { class: "choice choice-sm", type: "button", onclick: () => {
       roller.rerollMeaning(room, find, m.tableId, areaId);
-      showToast("Rolled again."); rerender();
+      showToast("Rolled again."); redraw();
     } }, el("span", { class: "choice-main", text: "Roll that pair again" })));
   }
   add(box, row);
@@ -618,9 +619,16 @@ function doGeneral(room) {
 }
 
 function showFind(room, find, label, areaId) {
+  const host = el("div", {});
+  const redraw = () => {
+    clear(host);
+    add(host, findBlock(room, find, { areaId, redraw }));
+    rerender();
+  };
+  add(host, findBlock(room, find, { areaId, redraw }));
   modal({
     title: label,
-    body: findBlock(room, find, { areaId }),
+    body: host,
     actions: [{ label: "Good", onClick: () => { rerender(); } }]
   });
 }

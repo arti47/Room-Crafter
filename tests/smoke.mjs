@@ -273,6 +273,70 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await page.context().close();
 }
 
+// Actions inside the find modal redraw the modal itself (A-31). Search fresh
+// rooms until a result with an action button comes up — Fortunate, Unfortunate
+// or Random, ~30% of searches — then use it and assert the modal changed.
+{
+  const page = await newPage(browser, site, { seed: "fresh" });
+  await goto(page, site, "#/crawls");
+  await page.click("#action-bar-host .btn-primary");
+  await page.fill("#prompt-field", "Modal crawl");
+  await page.click(".modal-actions .btn-primary");
+  await until(page, () => location.hash.startsWith("#/crawl/"));
+
+  async function makeRoom(n) {
+    await page.click("#action-bar-host .btn-primary");
+    await page.fill("#nr-label", "Modal room " + n);
+    await page.click(".choice-row .choice:nth-child(2)");
+    await page.click(".modal-actions .btn-primary");
+    await until(page, () => location.hash.startsWith("#/wizard/"));
+    for (let i = 0; i < 3; i++) {
+      await page.click("#action-bar-host .btn-primary");
+      await until(page, () => !!document.querySelector(".card-keyword"));
+      await page.click("#action-bar-host .btn-primary");
+      await until(page, () => !!document.querySelector("#prompt-field"));
+      await page.fill("#prompt-field", "Area " + i);
+      await page.click(".modal-actions .btn-primary");
+      await until(page, () => !document.querySelector(".modal-backdrop"));
+    }
+    await page.click("#action-bar-host .btn-primary");
+    await until(page, () => location.hash.startsWith("#/room/"));
+    await page.click("#action-bar-host .btn-link");          // skip the encounter question
+    await until(page, () => /^Search:/.test(document.querySelector("#action-bar-host .btn-primary").textContent));
+  }
+
+  let found = null;
+  for (let roomN = 0; roomN < 12 && !found; roomN++) {
+    await makeRoom(roomN);
+    for (let k = 0; k < 4 && !found; k++) {
+      const label = await page.$eval("#action-bar-host .btn-primary", n => n.textContent);
+      if (!/^Search/.test(label)) break;
+      await page.click("#action-bar-host .btn-primary");
+      await until(page, () => !!document.querySelector(".modal-backdrop"));
+      const action = await page.$(".modal-card .find button.btn, .modal-card .find .choice");
+      if (action) {
+        const before = await page.$eval(".modal-card .find", n => n.textContent);
+        await action.click();
+        const changed = await until(page, b => document.querySelector(".modal-card .find").textContent !== b, 1500, before);
+        const after = await page.$eval(".modal-card .find", n => n.textContent);
+        found = { before: before.slice(0, 60), after: after.slice(0, 120), changed };
+      }
+      await page.click(".modal-actions .btn-primary");
+      await until(page, () => !document.querySelector(".modal-backdrop"));
+    }
+    if (!found) { await page.goto(page.url().replace(/#.*$/, "#/crawl/" + (await page.evaluate(() => JSON.parse(localStorage.getItem("rc.current")).crawlId)))); await until(page, () => !!document.querySelector("#screen h1")); }
+  }
+  r.check("modal: a result with an action button came up within the sample", !!found, "none in 12 rooms");
+  if (found) {
+    r.check("modal: the action redraws the modal in place", found.changed, JSON.stringify(found));
+    r.check("modal: the redrawn find shows the Meaning words", /Discover Meaning|Sock Drawer|Room Descriptors/.test(found.after), found.after);
+    r.check("modal: no duplicated 'use the obvious idea' line",
+      (found.before.match(/Use the obvious idea/g) || []).length <= 1 && (found.after.match(/Use the obvious idea/g) || []).length <= 1);
+  }
+  r.check("modal: no console errors", page.__errors.length === 0, page.__errors[0]);
+  await page.context().close();
+}
+
 // A Random Event is the same roll read twice, never a second question.
 {
   const page = await newPage(browser, site, { seed: "mid-crawl" });

@@ -390,6 +390,28 @@ after 0) against the old path.
 which is right for isolation and blind to exactly this class — anything that
 depends on where you were. A "from the middle of the page" variant is owed.
 
+**A-31 · Actions inside the find modal did nothing visible.**
+*Reported by the owner:* "Button doesn't work" — "No idea — Discover Meaning" on
+a Fortunate result.
+*Target:* `src/sheet.js` → `showFind`, `findBlock`, `meaningBlock`.
+*Root cause:* the modal's body was built once. Its buttons mutated the find,
+saved the room and called `rerender()` — which redrew the sheet *behind* the
+modal and left the modal as it was. The data was written; the surface lied.
+The Random table picker and "+ Action / + Description" had the same fault.
+*Fix:* `findBlock` takes a `redraw`; the sheet passes its own rerender, the
+modal passes one that rebuilds the modal body and then the sheet.
+*Also:* the Fortunate/Unfortunate card printed "Use the obvious idea if you
+have one" twice — once in the blurb, once as a hint. The hint is gone.
+*Why the harness missed it:* the interaction audit clicks controls on the
+*screen*, never inside a modal it has opened. Two of its three change signals
+(screen markup, storage) fired anyway — storage changed, so the click "did
+something" — which is exactly the no-op shape the audit exists to catch, one
+layer down. The regression check now searches fresh rooms until a result with
+an action comes up, uses it, and asserts the modal's own text changed; watched
+go red against the old path.
+*Lesson for the harness:* the interaction audit needs to descend into any modal
+it opens and click there too, comparing the modal's markup.
+
 ## Cycle 4 — still owed
 
 Three cycles: twelve, four, thirteen. The third was the largest because the

@@ -52,10 +52,10 @@ export async function goto(page, site, hash) {
 }
 
 // Poll for a change rather than waiting a fixed interval (defect D-15).
-export async function until(page, fn, timeout = 2500) {
+export async function until(page, fn, timeout = 2500, arg = undefined) {
   const start = Date.now();
   for (;;) {
-    if (await page.evaluate(fn)) return true;
+    if (await page.evaluate(fn, arg)) return true;
     if (Date.now() - start > timeout) return false;
     await page.waitForTimeout(25);
   }
