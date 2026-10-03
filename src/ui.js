@@ -24,7 +24,8 @@ export function modal({ title, body, actions = [], onClose, result = false }) {
   const card = el("div", { class: "modal-card" + (result ? " modal-result" : ""), role: "dialog", "aria-modal": "true",
     "aria-label": title || "Dialog" });
   const handle = el("span", { class: "modal-handle", "aria-hidden": "true" });
-  add(card, handle, el("h2", { class: "modal-title", text: title || "" }));
+  const top = el("div", { class: "modal-top" }, handle, el("h2", { class: "modal-title", text: title || "" }));
+  add(card, top);
   const bodyWrap = el("div", { class: "modal-body" });
   add(bodyWrap, body);
   add(card, bodyWrap);
@@ -41,7 +42,7 @@ export function modal({ title, body, actions = [], onClose, result = false }) {
   if (actions.length) add(card, row);
   const closer = el("button", { class: "icon-btn modal-close", type: "button", "aria-label": "Close", onclick: () => closeModal() });
   closer.append(icon("close"));
-  add(card, closer);
+  add(top, closer);
 
   // Drag the sheet down by its handle or title to dismiss it, as a phone expects.
   let startY = null;

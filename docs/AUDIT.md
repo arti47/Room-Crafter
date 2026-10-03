@@ -554,3 +554,12 @@ answers). The same strip under the odds picker shows the row before you ask.
 
 **Not toned, deliberately:** answer bands are shades of ink, never good/bad
 colours — whether a Yes is good news depends on the question.
+
+**A-51 · The several-spaces field read as required** (owner report). R25 is a
+permission most rooms never use, but an always-open text box under a question
+looks like something to answer. *Fix:* a switch with the same question and
+hint, off by default; on reveals the field; off saves no note. Same rule, same
+record. *Guard:* `R25:` smoke checks.
+
+**A-52 · A tall sheet scrolled its own title and ✕ away** (same screenshot).
+*Fix:* handle, title and ✕ sit in a sticky top band inside the sheet.

@@ -273,8 +273,20 @@ export function newRoomForm(crawlId, onCreated, fromRoom = null) {
     onChange: id => { budget = Number(id); }
   });
 
+  // R25 is a permission most rooms never use, so it waits behind a switch:
+  // off, nothing is asked; on, the field to name the spaces appears.
   const multi = el("input", { class: "field", type: "text", id: "nr-multi",
-    placeholder: "living room, kitchen, the bathroom off it" });
+    placeholder: "living room, kitchen, the bathroom off it",
+    "aria-label": "Does this room cover several spaces?" });
+  const multiWrap = el("div", { class: "reveal", hidden: true }, multi);
+  const multiOn = el("input", { type: "checkbox", id: "nr-multi-on", onchange: e => {
+    multiWrap.hidden = !e.target.checked;
+    if (e.target.checked) multi.focus();
+  } });
+  const multiRow = el("label", { class: "toggle", for: "nr-multi-on" }, multiOn,
+    el("span", { class: "toggle-text" },
+      el("span", { class: "toggle-main", text: "Does this room cover several spaces?" }),
+      el("span", { class: "toggle-hint", text: "A simple apartment can be one room if a thirty-second walk shows you all of it. Put the Areas wherever they fit." })));
   const rolled = el("p", { class: "hint" });
   const rollBtn = Settings.showHouseAids()
     ? el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
@@ -293,8 +305,7 @@ export function newRoomForm(crawlId, onCreated, fromRoom = null) {
     Settings.showHouseAids()
       ? el("p", { class: "hint" }, "Suggestions come from an invented list ", houseAidBadge(), " — the article has no room-type table. Type anything.")
       : null,
-    el("label", { class: "field-label", for: "nr-multi", text: "Does this room cover several spaces?" }), multi,
-    el("p", { class: "hint", text: "A simple apartment can be one room if a thirty-second walk shows you all of it. Put the Areas wherever they fit." }),
+    multiRow, multiWrap,
     el("p", { class: "field-label", text: "Keyword budget" }), budgetRow,
     el("p", { class: "hint", text: "Three keywords is the crawl variant: fewer Areas, faster rooms." })
   );
@@ -304,7 +315,7 @@ export function newRoomForm(crawlId, onCreated, fromRoom = null) {
       label: label.value.trim() || "Untitled room",
       roomType: typeInput.value.trim(),
       houseAidType: HOUSE_AID && ROOM_TYPES.includes(typeInput.value.trim()),
-      multiRoomNote: multi.value.trim()
+      multiRoomNote: multiOn.checked ? multi.value.trim() : ""
     };
     // Through the lifecycle boundary, never store.createRoom directly: that
     // boundary is what guarantees a new room starts with no spent search flags.

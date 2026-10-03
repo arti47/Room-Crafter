@@ -303,6 +303,32 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await page.context().close();
 }
 
+// R25: the several-spaces note waits behind a switch; off, nothing is saved,
+// on, the note is kept on the record.
+{
+  const page = await newPage(browser, site, { seed: "fresh" });
+  await goto(page, site, "#/crawls");
+  await page.click("#action-bar-host .btn-primary");
+  await page.fill("#prompt-field", "R25 crawl");
+  await page.click(".modal-actions .btn-primary");
+  await until(page, () => !!document.querySelector("#action-bar-host .btn-primary") && location.hash.startsWith("#/crawl/"));
+  await page.click("#action-bar-host .btn-primary");
+  await until(page, () => !!document.querySelector("#nr-label"));
+  r.check("R25: the several-spaces field is hidden until the switch is on",
+    await page.evaluate(() => document.getElementById("nr-multi").offsetParent === null));
+  await page.click('label[for="nr-multi-on"]');
+  r.check("R25: the switch reveals the field",
+    await until(page, () => document.getElementById("nr-multi").offsetParent !== null));
+  await page.fill("#nr-label", "Flat");
+  await page.fill("#nr-multi", "living room, kitchen");
+  await page.click(".modal-actions .btn-primary");
+  await until(page, () => location.hash.startsWith("#/wizard/"));
+  const note = await page.evaluate(() => JSON.parse(localStorage.getItem("rc.rooms")).find(r => r.context.label === "Flat").context.multiRoomNote);
+  r.check("R25: the note is kept on the record", note === "living room, kitchen", note);
+  r.check("R25: no console errors", page.__errors.length === 0, page.__errors[0]);
+  await page.context().close();
+}
+
 // Tablet width adds density: two real columns on the room sheet and the wizard.
 {
   const page = await newPage(browser, site, { seed: "mid-crawl", width: 900, height: 1000 });
