@@ -266,6 +266,43 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await page.context().close();
 }
 
+// Print: a room and a crawl as records, reached from the sheet and the crawl,
+// with no app chrome and no controls on paper.
+{
+  const page = await newPage(browser, site, { seed: "mid-crawl" });
+  await goto(page, site, "#/room");
+  const href = await page.$eval('#screen a[href^="#/print/room/"]', n => n.getAttribute("href")).catch(() => null);
+  r.check("print: the room sheet links to its print record", !!href);
+  if (href) {
+    await goto(page, site, href);
+    const rec = await page.evaluate(() => ({
+      areas: document.querySelectorAll(".pr-room .pr-areas > li").length,
+      general: /General Area/.test(document.querySelector(".pr-room").textContent),
+      tabbar: getComputedStyle(document.querySelector(".tabbar")).display
+    }));
+    r.check("print: the record lists every Area and the General Area", rec.areas >= 1 && rec.general, JSON.stringify(rec));
+    r.check("print: no app frame around the record", rec.tabbar === "none", rec.tabbar);
+    await page.emulateMedia({ media: "print" });
+    const visibleButtons = await page.evaluate(() => Array.from(document.querySelectorAll("button, .btn"))
+      .filter(b => b.getBoundingClientRect().width > 0).length);
+    r.check("print: no controls on paper", visibleButtons === 0, visibleButtons + " visible");
+    await page.emulateMedia({ media: "screen" });
+  }
+  await goto(page, site, "#/crawls");
+  await page.click(".row-card");
+  await until(page, () => !!document.querySelector('#screen a[href^="#/print/crawl/"]'));
+  const chref = await page.$eval('#screen a[href^="#/print/crawl/"]', n => n.getAttribute("href")).catch(() => null);
+  r.check("print: the crawl links to its print record", !!chref);
+  if (chref) {
+    await goto(page, site, chref);
+    const n = await page.evaluate(() => document.querySelectorAll(".pr-room").length);
+    const expected = await page.evaluate(id => JSON.parse(localStorage.getItem("rc.rooms")).filter(r => r.crawlId === id).length, chref.split("/").pop());
+    r.check("print: the crawl record has one record per room", n === expected && n > 1, n + " of " + expected);
+  }
+  r.check("print: no console errors", page.__errors.length === 0, page.__errors[0]);
+  await page.context().close();
+}
+
 // Tablet width adds density: two real columns on the room sheet and the wizard.
 {
   const page = await newPage(browser, site, { seed: "mid-crawl", width: 900, height: 1000 });

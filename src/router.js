@@ -6,6 +6,7 @@ import * as screens from "./screens.js";
 import * as wizard from "./wizard.js";
 import * as sheet from "./sheet.js";
 import * as tutorial from "./tutorial.js";
+import * as print from "./print.js";
 import { searchState, areaCount, searchedAreas } from "./derived.js";
 
 const TABS = [
@@ -31,13 +32,14 @@ export function parse(hash) {
     case "learn": return parts[1] === "tutorial"
       ? { name: "tutorial", params: {} } : { name: "rules", params: {} };
     case "settings": return { name: "settings", params: {} };
+    case "print": return { name: "print", params: { kind: parts[1] === "crawl" ? "crawl" : "room", id: parts[2] } };
     default: return { name: "crawls", params: {} };
   }
 }
 
 const TAB_OF = {
   crawls: "crawls", crawl: "crawls", wizard: "room", room: "room",
-  log: "log", distribution: "log", rules: "learn", tutorial: "learn", settings: "settings"
+  log: "log", distribution: "log", rules: "learn", tutorial: "learn", settings: "settings", print: "crawls"
 };
 
 // The room the app is currently "in" — the header follows it (§6.2).
@@ -82,9 +84,12 @@ export function render(opts = {}) {
     case "rules": view = screens.rules(route.params); break;
     case "tutorial": view = tutorial.render(); break;
     case "settings": view = screens.settingsScreen(); break;
+    case "print": view = print.render(route.params); break;
     default: view = screens.crawls();
   }
 
+  // The print view is a page of paper: no frame around it.
+  document.body.classList.toggle("print-view", route.name === "print");
   clear(app);
   add(app, view.content);
 

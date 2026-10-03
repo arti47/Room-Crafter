@@ -104,6 +104,7 @@ export function crawl(params) {
           store.updateCrawl(c.id, { name: v || c.name }); rerender();
         } });
       } }, "Rename"),
+      rooms.length ? el("a", { class: "btn btn-quiet btn-wide", href: "#/print/crawl/" + c.id }, icon("print"), "Print the crawl") : null,
       el("button", { class: "btn btn-danger btn-wide", type: "button", onclick: () => {
         confirmModal({
           title: "Delete this crawl?",

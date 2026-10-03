@@ -752,7 +752,8 @@ body { background: transparent; }
 .plan-floor { fill: var(--card); stroke: var(--ink-3); stroke-width: 1.5; stroke-dasharray: 6 4; }
 .plan-room.done .plan-floor { stroke-dasharray: none; stroke-width: 2.5; stroke: var(--accent);
   fill: color-mix(in srgb, var(--accent-soft) 45%, var(--card)); }
-.plan-door { stroke: var(--paper); stroke-width: 5; }
+.plan-door { stroke: var(--card); stroke-width: 3.5; }
+.plan-room.done .plan-door { stroke: color-mix(in srgb, var(--accent-soft) 45%, var(--card)); }
 
 .plan-area rect { fill: var(--paper); stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 4 3; }
 .plan-area text { font: 700 6.5px var(--font); fill: var(--ink-3); text-anchor: middle; }
@@ -874,3 +875,60 @@ body { background: transparent; }
 /* The result dialog: the keyword card's glow, borrowed */
 .modal-result { background:
   radial-gradient(140% 60% at 50% 0%, var(--accent-soft), transparent 55%), var(--paper); }
+
+/* ══ Print record (#/print/room/:id, #/print/crawl/:id) ═══════════════════ */
+.btn-span { grid-column: 1 / -1; }
+.btn .ico { width: 18px; height: 18px; }
+body.print-view .app-header, body.print-view #room-header-host,
+body.print-view .tabbar, body.print-view #action-bar-host { display: none; }
+body.print-view main#screen { padding-top: 12px; padding-bottom: 32px; max-width: 780px; }
+.print-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.print-bar .crumb { margin: 0; }
+.pr-crawl { margin: 0 0 8px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); }
+.pr-room { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; margin: 14px 0; box-shadow: var(--shadow); }
+.pr-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 10px; }
+.pr-title { margin: 0; font-size: 1.4em; line-height: 1.2; }
+.pr-head .meta { margin: 0; }
+.pr-top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+@media (min-width: 560px) { .pr-top { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: start; } }
+.pr-plan .room-plan { margin: 0; }
+.pr-cap { margin: 4px 0 0; font-size: .8em; color: var(--ink-3); text-align: center; }
+.pr-h { font-size: .95em; margin: 16px 0 6px; font-variant: all-small-caps; letter-spacing: .08em; color: var(--accent); }
+.pr-areas { list-style: none; margin: 0; padding: 0; }
+.pr-areas > li { display: flex; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); break-inside: avoid; }
+.pr-areas > li.done .area-num { border: 0; background: var(--accent); color: var(--accent-ink); }
+.pr-areas > li.done.tone-unfortunate .area-num { background: var(--danger); }
+.pr-areas > li.done.tone-fortunate .area-num { background: var(--good); }
+.pr-name { margin: 0 0 2px; }
+.pr-find { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 2px 0; }
+.pr-find.tone-unfortunate b { color: var(--danger); }
+.pr-find.tone-fortunate b { color: var(--good); }
+.pr-plus { color: var(--ink-3); }
+.pr-sub { margin: 2px 0; color: var(--ink-2); font-size: .92em; }
+.pr-block { display: block; }
+.pr-line { margin: 6px 0; }
+.pr-k { font-variant: all-small-caps; letter-spacing: .06em; color: var(--ink-3); margin-right: 6px; font-weight: 700; }
+.pr-list { margin: 0; padding-left: 18px; }
+.pr-general { padding: 4px 0; }
+.pr-foot { margin-top: 18px; text-align: center; color: var(--ink-3); font-size: .8em; }
+
+@media print {
+  @page { margin: 14mm; }
+  :root, :root[data-theme="dark"] {
+    color-scheme: light;
+    --paper: #fff; --paper-2: #f2efe8; --card: #fff; --ink: #000; --ink-2: #333; --ink-3: #555;
+    --line: #ccc; --line-strong: #888; --accent: #6b4119; --accent-soft: #f3e6d4; --accent-ink: #fff;
+    --danger: #8f2f22; --danger-soft: #f8e4df; --good: #2f5a33; --good-soft: #e2eedf; --shadow: none;
+  }
+  html, body { background: #fff !important; background-image: none !important; }
+  body { font-size: 10.5pt; }
+  .app-header, #room-header-host, .tabbar, #action-bar-host, .toast-host, .no-print,
+  .section-nav, .explain, .skip-link, .action-bar-spacer, .modal-backdrop,
+  #screen button, .btn, .crumb, .pager, .danger-row, .btn-edit { display: none !important; }
+  main#screen { max-width: none; padding: 0; }
+  .pr-room { border: 0; box-shadow: none; padding: 0; margin: 0 0 10mm; break-inside: auto; }
+  .print-page .pr-room + .pr-room { break-before: page; }
+  .card, .chart, .heat, .panel { box-shadow: none; }
+  .sheet-cols > .col-areas { position: static; max-height: none; overflow: visible; }
+  a { color: inherit; text-decoration: none; }
+}

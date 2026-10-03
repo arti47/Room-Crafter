@@ -27,3 +27,12 @@ if ("serviceWorker" in navigator) {
 }
 
 document.documentElement.dataset.build = CACHE_VERSION;
+
+// Printing any screen prints its folds open — a closed <details> would leave
+// notes and hidden searches off the paper — and closes them again afterwards.
+let opened = [];
+window.addEventListener("beforeprint", () => {
+  opened = Array.from(document.querySelectorAll("#screen details:not([open])"));
+  opened.forEach(d => { d.open = true; });
+});
+window.addEventListener("afterprint", () => { opened.forEach(d => { d.open = false; }); opened = []; });

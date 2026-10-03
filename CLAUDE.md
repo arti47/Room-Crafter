@@ -40,7 +40,7 @@ the **Room** as the tracked entity. Signed off at Stage B.
 | Dice engine | Table roller (d100 over three tables) |
 | Persistent resource header | Persistent room header — name · Areas searched N/M · General Area used · budget |
 | Roll log + distribution | Kept, mandatory |
-| JSON export/import | Kept, mandatory; plus a **read-aloud export** (§14.1.7 — arguably this app's primary output) |
+| JSON export/import | Kept, mandatory; plus a **read-aloud export** (§14.1.7 — arguably this app's primary output) and a **print record** of a room or a whole crawl (template §16: printing complaints) |
 | Lifecycle engine | Room lifecycle (clears the once-per flags) + crawl boundaries, with summary and one-step undo |
 | Rules library · per-screen `explain()` · tutorial | Kept, mandatory |
 | Inventory & resources | **Omitted** — the system has none |
@@ -156,9 +156,10 @@ rules; `gm.js` — no second seat (A15); `power-automation.js` — no powers.
 | `sheet.js` | Room sheet, Area cards, persistent room header, General Area, notes |
 | `lifecycle.js` | Room boundaries (the once-per flag clearer), crawl boundaries, encounter check, confirmation summaries + undo |
 | `screens.js` | Home/crawl list, rules library, settings, roll log + distribution view |
+| `print.js` | Print records: one room (`#/print/room/:id`) or a whole crawl (`#/print/crawl/:id`, one room per page) — the read-aloud export's facts and wording, laid out for paper with the plan; no frame, no controls on paper |
 | `tutorial.js` | First-session walkthrough + neutral demo rooms |
 | `router.js` | Bottom-nav routing + section nav + live-state badges; measures the frame into `--head-h` / `--bar-live`; keeps page and column scroll on refresh |
-| `main.js` | Entry point / boot |
+| `main.js` | Entry point / boot; opens every fold for printing and closes them after |
 
 Adding or moving a `src/` file updates this table **and** the service-worker app
 shell, and bumps `CACHE_VERSION`, in the same change.
@@ -385,7 +386,7 @@ table** — that is the one part of this milestone still owed.
 - ☑ Dead fields removed; wizard trail and header humanised; one label for finishing a room
 
 **Phase 8 — Hardening** ◐
-- ☑ Harness A (`npm test`, 86 checks), B (`npm run smoke`, 290), C (`npm run interact`, 324), D (fixtures fresh/mid-crawl/stress + both probes)
+- ☑ Harness A (`npm test`, 87 checks), B (`npm run smoke`, 297), C (`npm run interact`, 324), D (fixtures fresh/mid-crawl/stress + both probes)
 - ☑ Dead-data scan (`npm run scan`), clean
 - ☑ Accessibility: focus trap, `aria-live`, `aria-current`, labelled controls, 16px inputs, 40px+ targets, reduced motion, skip link
 - ☑ The §6.7 measurement contract, asserted on every route at every seed
@@ -394,6 +395,7 @@ table** — that is the one part of this milestone still owed.
 - ◐ **Cycle 4.** First reports from play fixed (A-30…A-33). Harness gaps they exposed: mid-page actions, in-modal actions. The method that found it — using the app from the middle of a page, not the top — is one the harnesses lack; a mid-page variant of the interaction audit is owed.
 - ☑ **Cycle 5 — UX/visual pass** (A-34…A-43): article order on the phone sheet, compact room header with a segmented meter, tab icons, bottom-sheet results with a large die, Edit mode for Areas, 2×2 room lifecycle grid, wizard step strip and timeline trail, grouped roll log, expected line on the distribution, inset Settings panels, AA contrast tokens, bundled serif
 - ☑ **Cycle 6 — drawn elements + linkage** (A-44…A-50): room plan, band-strip working on every result dialog and the odds picker, Element glyphs, section icons, Area medallions, crawl strip and chain, face grid, empty-state drawings, paper grain / lamplight, stamp, tutorial stations, theme swatches; breadcrumbs, room pager, log→room, rules Back, Settings→Tutorial/Rules
+- ☑ **Print records** — a room or a whole crawl, from the sheet ("Print this room") and the crawl ("Print the crawl"); `@media print` strips the frame and controls on every screen and prints folds open
 - ☑ PWA update-path test — `npm run pwa`: network-first serves the new code on one reload, the toast appears, accepting leaves only the new cache, the app boots offline on the new code (A-32)
 
 ## 8. Definition of done — per feature
@@ -445,6 +447,7 @@ Template §10 applies in full. The ones this project will actually be tested by:
 | 2026-09-11 | Audit cycle 2: A-13…A-16 and three harness faults | Template §11 | Three more guards watched go red | `rc-v2` |
 | 2026-09-11 | A-13: moved the default odds into the data layer | `"fifty"` was hardcoded in two `src/` modules (§10.2) | `R31` covers the row; `DEFAULT_ODDS` is the only source | `rc-v2` |
 | 2026-09-11 | H-10: the interaction audit now compares markup, not its length | A radiogroup changing selection is a net-zero length change, so nine live controls read as dead — and the same fault would hide any swap-shaped change | 294 controls, 0 findings | — |
+| 2026-10-03 | Print records: `src/print.js`, routes `#/print/room/:id` and `#/print/crawl/:id`, entry points on the room sheet and the crawl; `@media print` for every screen (light palette, no chrome, no controls, folds opened by `beforeprint`, one room per page in a crawl) | Owner asked for a one-page record of a finished room or crawl. Wording is the read-aloud export's, so nothing new is said | `npm test` 87 · `scan` clean · `smoke` 297 (six print checks) · `interact` 324 · `pwa` 13; A4 PDF of the stress crawl rendered and read | `rc-v9` |
 | 2026-10-03 | Cycle 6 — drawn elements and linkage (A-44…A-50). New `src/graphics.js`. Room plan on the sheet (General Area as the outline, one numbered block per Area, tap to jump); band strip on every find and answer dialog and under the odds picker; Element glyphs; section icons; Area medallions; crawl strip on the crawl list and the crawl as a numbered chain; 10×10 face grid on the distribution; drawn empty states; paper grain / lamplight; "Fully explored" stamp; tutorial as numbered stations; theme swatches and type samples; new doorway mark. Linkage: breadcrumbs on crawl, wizard and room; Earlier/Later room pager; log room headings link to the room; Back on a rule opened from a link; Settings links to the tutorial and rules; `EXPLAIN.wizard` made the single source of the wizard note (screen text unchanged) | Owner asked for graphics and a linkage audit, content unchanged. Root causes: §6.6.3 (tutorial from Settings) and §6.3.9 (the way back) never asserted; the wizard note duplicated in a module | `npm test` 86 · `scan` clean · `smoke` 290 (eleven new link/working/plan checks; the Settings→Tutorial check watched go red) · `interact` 324 · `pwa` 13; screenshots 390/390-dark/900 | `rc-v8` |
 | 2026-10-03 | Cycle 5 UX/visual pass (A-34…A-43): R19 phone order restored; jump targets clear the sticky headers; AA text and 3:1 control-edge tokens; danger/good tone on Unfortunate/Fortunate finds; toast clears the pinned bar; top safe-area; build-time tab badge; tab icons + SVG theme toggle; `theme-color` follows the override; compact room header with segmented meter; result dialogs as bottom sheets with a large die and ✕; Area tools behind an Edit toggle; room lifecycle as a 2×2 grid with delete apart; wizard step strip + open timeline on tablet; roll log grouped by room; expected line on the distribution; rules groups as small-caps heads; Settings in inset panels with switches; Source Serif 4 bundled; tablet Areas column scrolls on its own and keeps its place | Owner asked for a UX/UI/aesthetic overhaul with content unchanged. Root causes: the two-column DOM stacked the wrong way on a phone; no frame measurements for sticky offsets; palette tokens never contrast-checked | `npm test` 85 · `scan` clean · `smoke` 279 · `interact` 324 · `pwa` 13; new R19 order guard watched go red against the old order; contrast computed per token pair; screenshots 320/390/390-dark/900. Zoom lock, app header and tab bar kept (§6.2 LOCKED) | `rc-v7` |
 | 2026-09-12 | A-32: service worker network-first for every request; the update path is now tested (`npm run pwa`, in `npm run all`) | The owner was shown a pre-fix build after the fix shipped: cache-first modules served stale code for one reload. The template's named failure, untested until now | Thirteen checks; watched go red (three named failures) against the cache-first worker. H-13/H-14: a page's own reload under an activating worker cannot be followed by this harness — the accept step is driven from a fresh page instead (`docs/AUDIT.md`) | `rc-v6` |
