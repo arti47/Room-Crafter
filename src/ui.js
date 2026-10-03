@@ -271,11 +271,19 @@ export async function shareText(title, text) {
   return "unsupported";
 }
 
-export function emptyState(message, actionLabel, href) {
-  const box = el("div", { class: "empty" });
+// `art` names a drawing from graphics.illustration; without one the box keeps
+// its plain dashed frame.
+export function emptyState(message, actionLabel, href, art = null) {
+  const box = el("div", { class: "empty" + (art ? " empty-art" : "") });
+  if (art) add(box, art);
   add(box, el("p", { class: "prose", text: message }));
   if (actionLabel && href) add(box, el("a", { class: "btn btn-primary", href }, actionLabel));
   return box;
+}
+
+// A block heading with its icon. The words are the heading; the icon is decoration.
+export function iconTitle(tag, cls, iconName, text, ...extra) {
+  return el(tag, { class: cls + " has-ico" }, icon(iconName), el("span", { class: "title-text", text }), ...extra);
 }
 
 // A link into the rules library from an automated surface (§6.6 layer 2).

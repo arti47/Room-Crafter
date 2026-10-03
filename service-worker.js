@@ -4,7 +4,7 @@
 // (An earlier cache-first version handed a reload stale modules while it
 // revalidated behind — the "museum of last month's rules" failure, audit A-32.)
 // Bump CACHE_VERSION on any shipped file; that is what raises the update toast.
-const CACHE_VERSION = "rc-v7";
+const CACHE_VERSION = "rc-v8";
 const SHELL = [
   "./",
   "./index.html",
@@ -17,6 +17,7 @@ const SHELL = [
   "./data-mythic.js",
   "./src/core.js",
   "./src/ui.js",
+  "./src/graphics.js",
   "./src/rules.js",
   "./src/derived.js",
   "./src/settings.js",

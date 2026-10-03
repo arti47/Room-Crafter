@@ -518,3 +518,39 @@ header or its theme toggle; replacing the tab bar with a side rail on tablet.
 The room header was compacted instead (two lines with a segmented meter), and
 the frame at 320px went from 288px to 270px with the skip link showing, ~235px
 without.
+
+## Cycle 6 — drawn elements and linkage (2026-10-03)
+
+Six rounds: a route-by-route link map (every tab, section nav, crumb, rule
+link, onward and back route), then the visual pass at 390/390-dark/900.
+
+**A-44 · Settings did not link to the tutorial.** Template §6.6.3: "linked from
+the home screen while no character exists and permanently from Settings."
+*Fix:* Tutorial and Rules links in the About panel. *Guard:* `link: Settings
+links to the tutorial` — watched go red with the link broken.
+
+**A-45 · Screens you go into had no way back up but the tab bar** (§6.3.9).
+The wizard had no route to its crawl at all; the room sheet's was at the foot.
+*Fix:* breadcrumbs on the crawl (→ Crawls), the wizard and the room (→ crawl).
+
+**A-46 · A rule opened from a surface could not return to it.** *Fix:* a Back
+crumb on the rules screen whenever it was reached through a rule link.
+
+**A-47 · The roll log named rooms it could not open.** *Fix:* each room heading
+links to that room (sheet or wizard), while the room exists.
+
+**A-48 · A crawl's rooms could only be walked through the crawl list.** *Fix:*
+Earlier/Later room pager on the sheet, in crawl order (R28).
+
+**A-49 · The wizard's explain note lived in `wizard.js`, not `EXPLAIN`** (§10.2,
+single source). `EXPLAIN.wizard` was dead copy with different wording. *Fix:*
+the data entry now carries the on-screen wording and the wizard reads it; the
+screen text is unchanged.
+
+**A-50 · Result dialogs showed the die and the result, not where it fell.**
+§6.4 asks for the working. *Fix:* the table as a strip with the roll marked and
+the band named in text (Room Elements for finds; the asked odds row for
+answers). The same strip under the odds picker shows the row before you ask.
+
+**Not toned, deliberately:** answer bands are shades of ink, never good/bad
+colours — whether a Yes is good news depends on the question.

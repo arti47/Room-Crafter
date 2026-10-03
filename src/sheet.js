@@ -2,8 +2,9 @@
 import { el, add, clear } from "./core.js";
 import {
   explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast,
-  refuse, ruleLink, emptyState, radioGroup, shareText
+  refuse, ruleLink, emptyState, radioGroup, shareText, iconTitle, icon
 } from "./ui.js";
+import { roomPlan, bandStrip, elementBands, oddsBands, elementGlyph, illustration } from "./graphics.js";
 import { EXPLAIN, MEANING_TABLES, ENCOUNTER_ANSWERS, ROOM_ELEMENTS } from "../data.js";
 import * as store from "./store.js";
 import * as roller from "./roller.js";
@@ -64,18 +65,21 @@ function meter(segs, complete = false) {
 export function render(params) {
   const room = store.room(params.roomId);
   if (!room) {
-    return { title: "Room", content: emptyState("That room is gone.", "Back to crawls", "#/crawls") };
+    return { title: "Room", content: emptyState("That room is gone.", "Back to crawls", "#/crawls", illustration("door")) };
   }
   if (!isWalkDone(room)) {
     return {
       title: "Room",
       content: emptyState("This room is still being made — its keywords are not finished.",
-        "Continue the keyword walk", "#/wizard/" + room.id)
+        "Continue the keyword walk", "#/wizard/" + room.id, illustration("plan"))
     };
   }
 
   const content = el("div", {});
+  const crawl = store.crawl(room.crawlId);
   add(content,
+    crawl ? crumb("#/crawl/" + crawl.id, crawl.name) : null,
+    isComplete(room) ? el("p", { class: "stamp", "aria-hidden": "true", text: STATE_LABEL.complete }) : null,
     el("h1", { class: "screen-title", text: room.context.label || "Untitled room" }),
     room.context.roomType ? el("p", { class: "meta", text: room.context.roomType }) : null,
     room.context.multiRoomNote
@@ -100,6 +104,11 @@ export function render(params) {
   const [bar, spacer] = actionBar(primaryAction(room));
   add(content, spacer);
   return { title: "Room", content, bar };
+}
+
+// The way back up: the crawl this room belongs to (§6.3.9).
+export function crumb(href, label) {
+  return el("a", { class: "crumb", href }, icon("chev-l"), el("span", { text: label }));
 }
 
 function isWalkDone(room) {
@@ -162,7 +171,7 @@ function jumpRow() {
 // ── Blocks ───────────────────────────────────────────────────────────────────
 function descriptionBlock(room) {
   const box = el("section", { class: "block", id: "sec-room" });
-  add(box, el("h2", { class: "block-title", text: "The room" }));
+  add(box, iconTitle("h2", "block-title", "door", "The room"));
   if (room.description) {
     add(box, el("p", { class: "prose prose-read", text: room.description }));
   } else {
@@ -183,7 +192,7 @@ function descriptionBlock(room) {
 
 function encounterBlock(room) {
   const box = el("section", { class: "block", id: "sec-encounter" });
-  add(box, el("h2", { class: "block-title", text: "Is there an encounter?" }));
+  add(box, iconTitle("h2", "block-title", "eye", "Is there an encounter?"));
 
   if (room.encounter) {
     add(box, answerCard(room.encounter));
@@ -252,20 +261,27 @@ function oddsAsker(room, question, onAsk, { buttonLabel = "Ask" } = {}) {
     options: QUICK_ODDS.map(id => mythic.oddsById(id)).map(o => ({ id: o.id, label: o.name })),
     value: odds,
     compact: true, wrap: false,
-    onChange: id => { odds = id; full.setValue(id); }
+    onChange: id => { odds = id; full.setValue(id); drawGauge(); }
   });
   const full = radioGroup({
     label: "All odds",
     options: mythic.ODDS.map(o => ({ id: o.id, label: o.name })),
     value: odds,
     compact: true,
-    onChange: id => { odds = id; quick.setValue(QUICK_ODDS.includes(id) ? id : "__none"); }
+    onChange: id => { odds = id; quick.setValue(QUICK_ODDS.includes(id) ? id : "__none"); drawGauge(); }
   });
   const more = el("details", { class: "fold fold-tight" });
   add(more, el("summary", { text: "More odds" }), full);
+  // The chosen odds row of the chart, drawn: how much of the d100 is a Yes.
+  const gauge = el("div", { class: "odds-gauge" });
+  const drawGauge = () => {
+    gauge.replaceChildren(bandStrip(oddsBands(mythic.oddsById(odds), mythic.ANSWERS), null,
+      { label: "The chart at " + mythic.oddsById(odds).name }));
+  };
+  drawGauge();
   add(wrap,
     el("p", { class: "field-label", text: "How likely is a Yes?" }),
-    quick, more,
+    quick, gauge, more,
     el("button", { class: "btn btn-secondary btn-wide", type: "button", onclick: () => onAsk(odds) }, buttonLabel),
     el("p", { class: "hint", text: mythic.MYTHIC_EXPLAIN.ask })
   );
@@ -273,12 +289,16 @@ function oddsAsker(room, question, onAsk, { buttonLabel = "Ask" } = {}) {
 }
 
 // One renderer for a Mythic answer, wherever it is shown.
-function answerCard(rec) {
+function answerCard(rec, { working = false } = {}) {
   const box = el("div", { class: "find" });
   add(box, el("p", { class: "find-head" },
     rec.roll ? el("span", { class: "die", text: String(rec.roll) }) : null,
     el("b", { text: rec.answerName }),
     rec.oddsName ? el("span", { class: "list-sub", text: " at " + rec.oddsName }) : null));
+  if (working && rec.roll && rec.odds) {
+    const row = mythic.oddsById(rec.odds);
+    add(box, workingStrip(row, r => oddsBands(r, mythic.ANSWERS), rec.roll, rec.answerName));
+  }
   if (rec.answerBlurb) add(box, el("p", { class: "prose", text: rec.answerBlurb }));
   if (rec.note) add(box, el("p", { class: "prose prose-read", text: rec.note }));
   if (rec.event) {
@@ -295,7 +315,7 @@ function answerCard(rec) {
 function showAnswer(res, question) {
   modal({
     title: question || "Ask The Game Master",
-    body: answerCard(res),
+    body: answerCard(res, { working: true }),
     result: true,
     actions: [{ label: "Good", onClick: () => rerender() }]
   });
@@ -307,7 +327,7 @@ function showAnswer(res, question) {
 function askBlock(room) {
   const d = el("details", { class: "fold", id: "sec-ask" });
   const n = (room.questions || []).length;
-  add(d, el("summary", { text: "Ask the GM" + (n ? " (" + n + ")" : "") }));
+  add(d, el("summary", { class: "has-ico" }, icon("ask"), el("span", { text: "Ask the GM" + (n ? " (" + n + ")" : "") })));
   add(d, el("p", { class: "prose" },
     "Any yes/no question about this room. Decide how likely a Yes is and roll it — ",
     ruleLink("mythic-ask", "the rule"), "."));
@@ -338,7 +358,7 @@ let editingAreas = false;
 
 function areasBlock(room) {
   const box = el("section", { class: "block", id: "sec-areas" });
-  add(box, el("h2", { class: "block-title", text: "Explorable Areas" },
+  add(box, iconTitle("h2", "block-title", "grid", "Explorable Areas",
     el("span", { class: "count", text: searchedAreas(room) + "/" + areaCount(room) }),
     areaCount(room) ? el("button", { class: "btn btn-quiet btn-edit", type: "button",
       "aria-pressed": editingAreas ? "true" : "false",
@@ -348,13 +368,18 @@ function areasBlock(room) {
     return box;
   }
   const list = [...room.areas].sort((a, b) => a.order - b.order);
+  // The plan: tap a block to go to its card, the outline for the General Area.
+  add(box, roomPlan(room, { toneOf, onPick: id => {
+    const t = document.getElementById(id === "__general" ? "sec-general" : "area-" + id);
+    if (t) t.scrollIntoView({ block: "start" });
+  } }));
   list.forEach((a, i) => add(box, areaCard(room, a, i, list.length)));
   return box;
 }
 
 function areaCard(room, area, index, count) {
   const done = !!area.search;
-  const card = el("article", { class: "card area-card " + (done ? "card-done " + toneOf(area.search) : "card-open") });
+  const card = el("article", { class: "card area-card " + (done ? "card-done " + toneOf(area.search) : "card-open"), id: "area-" + area.id });
   const words = (area.fromKeywords || []).map(n => {
     const k = (room.keywords || []).find(x => x.n === n);
     return k ? k.word : null;
@@ -362,6 +387,7 @@ function areaCard(room, area, index, count) {
 
   const head = el("div", { class: "card-head" });
   add(head,
+    el("span", { class: "area-num", "aria-hidden": "true", text: String(index + 1) }),
     el("div", { class: "card-head-text" },
       el("h3", { class: "card-title", text: area.name }),
       words.length ? el("p", { class: "meta", text: "from " + words.join(" + ") }) : null),
@@ -395,7 +421,7 @@ function areaCard(room, area, index, count) {
 
 function generalBlock(room) {
   const box = el("section", { class: "block", id: "sec-general" });
-  add(box, el("h2", { class: "block-title", text: "The General Area" }));
+  add(box, iconTitle("h2", "block-title", "frame", "The General Area"));
   add(box, el("p", { class: "prose", text: "The room itself — everything not immediately noticeable. One roll, at any budget: it is what makes " +
     areaCount(room) + " Areas into " + totalExplorable(room) + " explorable places." }));
   const card = el("article", { class: "card area-card " + (generalDone(room) ? "card-done " + toneOf(room.generalArea) : "card-open") });
@@ -412,7 +438,7 @@ function generalBlock(room) {
 
 function hiddenBlock(room) {
   const d = el("details", { class: "fold", id: "sec-hidden" });
-  add(d, el("summary", { text: "Hidden things" + ((room.hidden || []).length ? " (" + room.hidden.length + ")" : "") }));
+  add(d, el("summary", { class: "has-ico" }, icon("search"), el("span", { text: "Hidden things" + ((room.hidden || []).length ? " (" + room.hidden.length + ")" : "") })));
   add(d, el("p", { class: "prose" },
     "Room Crafter reports what is apparent. For a secret door or a stash, use your own game's search mechanic first, then ask — ",
     ruleLink("hidden", "the rule"), "."));
@@ -456,7 +482,7 @@ function hiddenBlock(room) {
 
 function notesBlock(room) {
   const d = el("details", { class: "fold", id: "sec-notes" });
-  add(d, el("summary", { text: "Notes" }));
+  add(d, el("summary", { class: "has-ico" }, icon("quill"), el("span", { text: "Notes" })));
   add(d, room.notes ? el("p", { class: "prose prose-read", text: room.notes }) : el("p", { class: "hint", text: "Nothing yet." }));
   add(d, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
     promptModal({ title: "Notes", label: "Anything you want to keep", value: room.notes, multiline: true,
@@ -468,7 +494,7 @@ function notesBlock(room) {
 // Destructive controls live at the end of the scroll, out of the thumb's arc (§6.3.11).
 function roomActionsBlock(room) {
   const box = el("section", { class: "block block-end" });
-  add(box, el("h2", { class: "block-title", text: "This room" }));
+  add(box, iconTitle("h2", "block-title", "flag", "This room"));
   add(box,
     el("div", { class: "action-grid" },
       el("button", { class: "btn btn-quiet", type: "button", onclick: () => finishRoom(room) }, "Finish this room"),
@@ -476,6 +502,7 @@ function roomActionsBlock(room) {
       el("button", { class: "btn btn-quiet", type: "button", onclick: () => nextRoomFlow(room) }, "Next room in this crawl"),
       el("a", { class: "btn btn-quiet", href: "#/crawl/" + room.crawlId }, "Back to the crawl")),
     el("p", { class: "hint" }, "Searching is optional — a room you only looked at is a finished room. ", ruleLink("complete", "The rule"), "."),
+    pager(room),
     el("div", { class: "danger-row" },
     el("button", { class: "btn btn-danger", type: "button", onclick: () => {
       confirmModal({
@@ -494,13 +521,31 @@ function roomActionsBlock(room) {
   return box;
 }
 
+// The rooms either side of this one in the crawl's order (R28), so a finished
+// crawl reads like a book and nothing needs the crawl list in between.
+function pager(room) {
+  const list = store.rooms(room.crawlId);
+  const i = list.findIndex(r => r.id === room.id);
+  if (i < 0 || list.length < 2) return null;
+  const href = r => (isWalkDone(r) ? "#/room/" : "#/wizard/") + r.id;
+  const prev = list[i - 1], next = list[i + 1];
+  return el("nav", { class: "pager", "aria-label": "Rooms in this crawl" },
+    prev ? el("a", { class: "pager-link pager-prev", href: href(prev) },
+      icon("chev-l"), el("span", {}, el("small", { text: "Earlier room" }), el("b", { text: prev.context.label || "Untitled room" }))) : el("span"),
+    next ? el("a", { class: "pager-link pager-next", href: href(next) },
+      el("span", {}, el("small", { text: "Later room" }), el("b", { text: next.context.label || "Untitled room" })), icon("chev-r")) : el("span"));
+}
+
 // ── Find rendering ───────────────────────────────────────────────────────────
 // A result shows the dice, what they resolved to, and what it means (§6.4).
-function findBlock(room, find, { areaId, redraw = rerender }) {
+function findBlock(room, find, { areaId, redraw = rerender, working = false }) {
   const box = el("div", { class: "find" });
   add(box, el("p", { class: "find-head tone-" + find.elementId },
     el("span", { class: "die", text: String(find.roll) }),
+    elementGlyph(find.elementId),
     el("b", { text: find.elementName })));
+  // In the result dialog, the working: where the die fell on Room Elements.
+  if (working) add(box, workingStrip(ROOM_ELEMENTS, elementBands, find.roll, find.elementName));
   add(box, el("p", { class: "prose", text: elementBlurb(find.elementId) }));
   if (["expected", "enhanced", "minimized"].includes(find.elementId)) {
     add(box, el("p", { class: "hint" },
@@ -510,6 +555,7 @@ function findBlock(room, find, { areaId, redraw = rerender }) {
   for (const s of find.sub || []) {
     add(box, el("p", { class: "find-head find-sub tone-" + s.elementId },
       el("span", { class: "die", text: String(s.roll) }),
+      elementGlyph(s.elementId),
       el("b", { text: s.elementName }),
       s.substituted ? el("span", { class: "list-sub", text: " (" + s.substituted + " became Expected)" }) : null));
     add(box, el("p", { class: "prose", text: elementBlurb(s.elementId) }));
@@ -590,6 +636,17 @@ function meaningBlock(room, find, areaId, redraw = rerender) {
 // The colour channel for a find: the danger hue for the loss side, the good hue
 // for the fortunate side (theme, §1). Answers are never toned — whether a Yes is
 // good news depends on the question.
+// A d100 table drawn as a strip with the roll marked, and the band's range in
+// words beneath it, so the picture never carries the reading alone.
+function workingStrip(table, toBands, roll, name) {
+  const bands = toBands(table);
+  const hit = bands.find(b => roll >= b.min && roll <= b.max);
+  const wrap = el("div", { class: "working" });
+  wrap.append(bandStrip(bands, roll, { label: "Rolled " + roll + " — " + name + (hit ? ", " + hit.min + "–" + hit.max : "") }));
+  if (hit) wrap.append(el("p", { class: "working-cap", "aria-hidden": "true", text: hit.min + "–" + hit.max + " · " + name }));
+  return wrap;
+}
+
 function toneOf(find) {
   if (!find) return "";
   const ids = [find.elementId, ...(find.sub || []).map(x => x.elementId)];
@@ -658,10 +715,10 @@ function showFind(room, find, label, areaId) {
   const host = el("div", {});
   const redraw = () => {
     clear(host);
-    add(host, findBlock(room, find, { areaId, redraw }));
+    add(host, findBlock(room, find, { areaId, redraw, working: true }));
     rerender();
   };
-  add(host, findBlock(room, find, { areaId, redraw }));
+  add(host, findBlock(room, find, { areaId, redraw, working: true }));
   modal({
     title: label,
     body: host,

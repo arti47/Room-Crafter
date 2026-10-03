@@ -344,7 +344,7 @@ a { color: var(--accent); text-underline-offset: 3px; }
 .log-row .list-sub { grid-column: 2; }
 .log-group {
   position: sticky; top: var(--head-h); z-index: 2;
-  margin: 18px -16px 0; padding: 6px 16px; background: var(--paper);
+  margin: 18px -16px 0; padding: 2px 16px; background: var(--paper);
   font-size: .95em; font-weight: 650; border-bottom: 1px solid var(--line);
   display: flex; align-items: baseline; gap: 8px;
 }
@@ -671,3 +671,206 @@ a { color: var(--accent); text-underline-offset: 3px; }
 .choice-scroll .choice { flex: 0 0 auto; }
 .choice-wrap .choice { min-width: 0; flex: 1 1 96px; }
 .choice-wrap .choice-main { white-space: normal; text-align: center; }
+
+/* ══ Cycle 6 — drawn elements ═════════════════════════════════════════════ */
+
+/* Paper grain in daylight, a lamp overhead at night. Decoration only. On the
+   root, so it covers the whole canvas however short the page. */
+html {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+}
+body { background: transparent; }
+:root[data-theme="dark"] {
+  background-image: radial-gradient(120% 60% at 50% -10%, rgba(220, 160, 99, .09), transparent 60%);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    background-image: radial-gradient(120% 60% at 50% -10%, rgba(220, 160, 99, .09), transparent 60%);
+  }
+}
+.app-header, .tabbar, .log-group { background-color: var(--paper); }
+
+.gfx { display: inline-flex; line-height: 0; }
+.gfx svg { display: block; }
+.brand-mark { width: 24px; height: 24px; color: var(--accent); }
+
+/* Headings with icons */
+.has-ico { gap: 10px; }
+.has-ico > .ico { width: 20px; height: 20px; color: var(--accent); align-self: center; flex: 0 0 auto; }
+.fold > summary.has-ico > .ico { color: var(--ink-3); }
+.block-title.has-ico { align-items: center; }
+
+/* Breadcrumb: the way back up */
+.crumb {
+  display: inline-flex; align-items: center; gap: 2px; min-height: 40px; margin: -6px 0 0 -8px; padding: 0 10px 0 2px;
+  color: var(--ink-2); text-decoration: none; font-size: .88em; font-weight: 600; border-radius: 999px;
+  background: none; border: 0; font-family: inherit; cursor: pointer; max-width: 100%;
+}
+.crumb span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crumb .ico { width: 18px; height: 18px; }
+.crumb:active { background: var(--paper-2); }
+
+/* The "fully explored" stamp: an ink stamp, slightly askew. */
+.stamp {
+  float: right; margin: 4px 0 0 8px; padding: 4px 10px; transform: rotate(-6deg);
+  border: 2.5px double var(--good); border-radius: 6px; color: var(--good);
+  font-variant: all-small-caps; letter-spacing: .1em; font-weight: 800; font-size: .9em;
+  opacity: .9; background: color-mix(in srgb, var(--good-soft) 60%, transparent);
+}
+
+/* Element glyphs beside a find's name */
+.glyph .ico { width: 20px; height: 20px; stroke-width: 2; color: var(--ink-2); }
+.tone-fortunate .glyph .ico { color: var(--good); }
+.tone-unfortunate .glyph .ico { color: var(--danger); }
+.find-head .glyph { margin-right: -4px; }
+
+/* Band strips: a d100 table with the roll marked */
+.working { margin: 10px 0 6px; }
+.band-strip { display: block; width: 100%; }
+.band-strip svg { width: 100%; height: auto; overflow: visible; }
+.band-strip .seg { fill: var(--paper-2); stroke: var(--line-strong); stroke-width: .6; }
+.band-strip .seg-good { fill: var(--good-soft); stroke: var(--good); }
+.band-strip .seg-danger { fill: var(--danger-soft); stroke: var(--danger); }
+.band-strip .seg-ans0 { fill: color-mix(in srgb, var(--ink) 40%, var(--paper-2)); }
+.band-strip .seg-ans1 { fill: color-mix(in srgb, var(--ink) 18%, var(--paper-2)); }
+.band-strip .seg-ans2 { fill: var(--paper-2); }
+.band-strip .seg-ans3 { fill: color-mix(in srgb, var(--paper-2) 40%, var(--card)); stroke-dasharray: 2 1.5; }
+.band-strip .seg-hit { stroke: var(--accent); stroke-width: 1.6; }
+.band-strip .seg-num { font: 600 7px var(--font); fill: var(--ink-3); }
+.band-strip .mark { fill: var(--accent); }
+.band-strip .mark-line { stroke: var(--accent); stroke-width: 1.6; }
+.working-cap { margin: 2px 0 0; font-size: .82em; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.odds-gauge { margin: 0 2px; }
+.odds-gauge .band-strip svg { margin-top: -10px; }
+
+/* The room plan */
+.room-plan { display: block; width: 100%; margin: 2px 0 12px; }
+.room-plan svg { width: 100%; height: auto; max-height: 200px; overflow: visible; }
+.room-plan rect, .room-plan path { vector-effect: non-scaling-stroke; }
+.plan-floor { fill: var(--card); stroke: var(--ink-3); stroke-width: 1.5; stroke-dasharray: 6 4; }
+.plan-room.done .plan-floor { stroke-dasharray: none; stroke-width: 2.5; stroke: var(--accent);
+  fill: color-mix(in srgb, var(--accent-soft) 45%, var(--card)); }
+.plan-door { stroke: var(--paper); stroke-width: 5; }
+
+.plan-area rect { fill: var(--paper); stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.plan-area text { font: 700 6.5px var(--font); fill: var(--ink-3); text-anchor: middle; }
+.plan-area.done rect { fill: var(--accent); stroke: var(--accent); stroke-dasharray: none; }
+.plan-area.done text { fill: var(--accent-ink); }
+.plan-area.done.tone-unfortunate rect { fill: var(--danger); stroke: var(--danger); }
+.plan-area.done.tone-fortunate rect { fill: var(--good); stroke: var(--good); }
+.plan-area, .plan-room { cursor: pointer; }
+.plan-area:focus-visible rect, .plan-room:focus-visible .plan-floor { outline: none; stroke: var(--focus); stroke-width: 2; }
+
+/* Area number medallion, matching the plan */
+.area-num {
+  flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%; margin-top: 1px;
+  display: inline-grid; place-items: center; font-weight: 750; font-size: .85em;
+  border: 1.5px dashed var(--line-strong); color: var(--ink-3); font-variant-numeric: lining-nums;
+}
+.card-done .area-num { border: 0; background: var(--accent); color: var(--accent-ink); }
+.card-done.tone-unfortunate .area-num { background: var(--danger); }
+.card-done.tone-fortunate .area-num { background: var(--good); }
+.area-card[id] { scroll-margin-top: calc(var(--head-h) + 12px); }
+
+/* Crawl strip on the crawl list */
+.crawl-strip { grid-column: 1 / -1; margin-top: 6px; }
+.crawl-strip svg { max-width: 100%; height: 16px; width: auto; }
+.cs { fill: transparent; stroke: var(--line-strong); stroke-width: 1; stroke-dasharray: 2 1.5; }
+.cs-described { fill: var(--paper-2); stroke-dasharray: none; }
+.cs-searching { fill: var(--accent-soft); stroke: var(--accent); stroke-dasharray: none; }
+.cs-complete { fill: var(--good); stroke: var(--good); stroke-dasharray: none; }
+
+/* The crawl's rooms as a chain */
+.chain { counter-reset: room; position: relative; }
+.chain > li { position: relative; padding-left: 40px; counter-increment: room; }
+.chain > li::before {
+  content: counter(room); position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; z-index: 1;
+  background: var(--paper); border: 1.5px solid var(--line-strong); color: var(--ink-2);
+  font-weight: 750; font-size: .85em;
+}
+.chain > li::after {
+  content: ""; position: absolute; left: 13px; top: 0; bottom: 0; width: 2px; background: var(--line);
+}
+.chain > li:first-child::after { top: 50%; }
+.chain > li:last-child::after { bottom: 50%; }
+.chain > li:only-child::after { display: none; }
+@media (min-width: 760px) { .list-cards.chain { display: block; max-width: 640px; } }
+
+/* Earlier / later room */
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 0 0; }
+.pager-link {
+  display: flex; align-items: center; gap: 6px; min-height: 56px; padding: 8px 10px;
+  border: 1px solid var(--line); border-radius: var(--r); text-decoration: none; color: var(--ink);
+  background: var(--card); min-width: 0;
+}
+.pager-link > span { display: flex; flex-direction: column; min-width: 0; }
+.pager-link small { color: var(--ink-3); font-variant: all-small-caps; letter-spacing: .06em; font-size: .85em; }
+.pager-link b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 650; font-size: .95em; }
+.pager-next { justify-content: flex-end; text-align: right; }
+.pager-link .ico { width: 18px; height: 18px; color: var(--accent); flex: 0 0 auto; }
+
+/* Roll log: the room heading leads to the room */
+.log-room { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 2px; min-height: 40px; }
+.log-room .ico { width: 16px; height: 16px; color: var(--accent); }
+
+/* Distribution: every face */
+.heat { margin: 14px 0 0; padding: 14px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); }
+.heat-grid { display: block; max-width: 240px; margin: 0 auto; }
+.heat-grid svg { width: 100%; height: auto; }
+.hc { fill: var(--accent); }
+.hc-zero { fill: var(--paper-2); }
+.heat-axis { display: flex; justify-content: space-between; max-width: 240px; margin: 6px auto 0; font-size: .78em; color: var(--ink-3); }
+
+/* Empty states with a drawing */
+.empty-art::before { display: none; }
+.illo { display: block; width: 120px; margin: 0 auto 8px; }
+.illo svg { width: 100%; height: auto; stroke: var(--ink-3); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.illo .a-fill { fill: var(--accent-soft); stroke: var(--accent); }
+.illo .a-dot { fill: var(--accent); stroke: none; }
+.illo .a-route { stroke: var(--accent); stroke-dasharray: 3 4; }
+
+/* Ornament at the end of a long list */
+.fleuron { display: flex; justify-content: center; margin: 28px auto 8px; color: var(--line-strong); }
+.fleuron .ico { width: 64px; height: 16px; stroke-width: 1.2; }
+
+/* Tutorial: numbered stations on one line */
+.tut-steps { counter-reset: step; position: relative; }
+.tut-step { border-top: 0; margin: 0; position: relative; }
+.tut-step::before { content: ""; position: absolute; left: 15px; top: 0; bottom: 0; width: 2px; background: var(--line); }
+.tut-step:first-child::before { top: 24px; }
+.tut-step:last-child::before { bottom: calc(100% - 24px); }
+.tut-step > summary { position: relative; }
+.tut-num {
+  counter-increment: step; flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--paper); border: 2px solid var(--accent);
+  color: var(--accent); font-weight: 750; font-size: .9em; z-index: 1;
+}
+.tut-num::before { content: counter(step); }
+.tut-step[open] .tut-num { background: var(--accent); color: var(--accent-ink); }
+.tut-step > .prose { margin: 0 0 12px 44px; color: var(--ink-2); }
+.demo-card { text-align: left; }
+.demo-card > .illo { width: 96px; margin: 0 0 4px; }
+
+/* Settings: theme swatches and type samples */
+.theme-row .choice::before, .size-row .choice::before { display: block; margin-bottom: 4px; }
+.theme-row .choice::before {
+  content: ""; width: 40px; height: 24px; border-radius: 6px; border: 1px solid var(--line-strong);
+}
+.theme-row .choice:nth-child(1)::before { background: linear-gradient(135deg, #f3ede1 50%, #14151a 50%); }
+.theme-row .choice:nth-child(2)::before { background: #f3ede1; box-shadow: inset 0 -6px 0 #7a4b1e; }
+.theme-row .choice:nth-child(3)::before { background: #14151a; box-shadow: inset 0 -6px 0 #dca063; }
+.theme-row .choice, .size-row .choice { min-height: 76px; }
+.size-row .choice::before { content: "Aa"; font-weight: 700; line-height: 1; color: var(--ink-2); }
+.size-row .choice:nth-child(1)::before { font-size: 1em; }
+.size-row .choice:nth-child(2)::before { font-size: 1.15em; }
+.size-row .choice:nth-child(3)::before { font-size: 1.3em; }
+.size-row .choice-on::before { color: var(--accent); }
+.learn-links { margin-top: 12px; }
+.learn-links .ico { width: 18px; height: 18px; }
+
+/* The result dialog: the keyword card's glow, borrowed */
+.modal-result { background:
+  radial-gradient(140% 60% at 50% 0%, var(--accent-soft), transparent 55%), var(--paper); }

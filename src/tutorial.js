@@ -7,6 +7,7 @@ import { DEMO_ROOMS, HOUSE_AID } from "../data-house-roomtypes.js";
 import * as store from "./store.js";
 import { uid } from "./core.js";
 import { houseAidBadge } from "./ui.js";
+import { illustration, fleuron } from "./graphics.js";
 
 export function render() {
   const content = el("div", {});
@@ -19,20 +20,25 @@ export function render() {
     explain(EXPLAIN.tutorial)
   );
 
-  TUTORIAL.forEach((step, i) => {
-    const d = el("details", { class: "fold" });
-    add(d, el("summary", { text: (i + 1) + ". " + step.title }), el("p", { class: "prose", text: step.body }));
-    add(content, d);
+  // Numbered stations on one line, top to bottom: the order is the lesson.
+  const steps = el("div", { class: "tut-steps" });
+  TUTORIAL.forEach(step => {
+    const d = el("details", { class: "fold tut-step" });
+    add(d, el("summary", {}, el("span", { class: "tut-num" }), el("span", { text: step.title })),
+      el("p", { class: "prose", text: step.body }));
+    add(steps, d);
   });
+  add(content, steps);
 
-  add(content, el("section", { class: "block block-end" },
+  add(content, el("section", { class: "block block-end demo-card" },
+    illustration("door"),
     el("h2", { class: "block-title", text: "Or look at a finished one" }),
     el("p", { class: "prose" }, "Two example rooms, written for this app ", houseAidBadge(),
       " — not the article's own examples, which are fiction. They load into a crawl called Examples."),
     el("button", { class: "btn btn-secondary btn-wide", type: "button", onclick: loadDemos }, "Load the example rooms")
   ));
 
-  add(content, el("p", { class: "hint" }, "Ready? ", el("a", { class: "rule-link", href: "#/crawls" }, "Start a crawl"), "."));
+  add(content, el("p", { class: "hint" }, "Ready? ", el("a", { class: "rule-link", href: "#/crawls" }, "Start a crawl"), "."), fleuron());
   return { title: "Tutorial", content };
 }
 

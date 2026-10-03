@@ -2,8 +2,8 @@
 // The app enforces the order, the cap and the count. The interpretation is yours
 // — that is the one thing this tool exists to leave alone.
 import { el, add, clear, uid } from "./core.js";
-import { explain, actionBar, promptModal, showToast, refuse, ruleLink, houseAidBadge, radioGroup } from "./ui.js";
-import { MAX_COMBINE, BUDGETS } from "../data.js";
+import { explain, actionBar, promptModal, showToast, refuse, ruleLink, houseAidBadge, radioGroup, icon } from "./ui.js";
+import { MAX_COMBINE, BUDGETS, EXPLAIN } from "../data.js";
 import { ROOM_TYPES, HOUSE_AID } from "../data-house-roomtypes.js";
 import * as store from "./store.js";
 import * as lifecycle from "./lifecycle.js";
@@ -91,9 +91,11 @@ export function render(params) {
   const info = budgetInfo(room);
   const pend = pending(room);
 
+  const crawl = store.crawl(room.crawlId);
   add(content,
+    crawl ? el("a", { class: "crumb", href: "#/crawl/" + crawl.id }, icon("chev-l"), el("span", { text: crawl.name })) : null,
     el("h1", { class: "screen-title", text: room.context.label || "New room" }),
-    explain(getExplain()),
+    explain(EXPLAIN.wizard),
     el("p", { class: "meta" },
       info.label + " · " + rolledCount(room) + " of " + room.budget + " rolled · " +
       (room.areas || []).length + " Area" + ((room.areas || []).length === 1 ? "" : "s") +
@@ -253,10 +255,6 @@ function keywordTrail(room) {
   }
   add(d, ul);
   return d;
-}
-
-function getExplain() {
-  return "Keywords arrive one at a time. Take one that inspires you and make it an Area; carry one that does not and combine it with the next. The app enforces the order, the two-keyword cap and the count — the interpretation is yours.";
 }
 
 // ── New-room flow ────────────────────────────────────────────────────────────

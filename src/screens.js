@@ -1,6 +1,7 @@
 // screens.js — home/crawls, crawl detail, roll log, distribution, rules, settings.
 import { el, add, when, plural } from "./core.js";
-import { explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast, emptyState, sectionNav, houseAidBadge, radioGroup, downloadText, pickFile } from "./ui.js";
+import { explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast, emptyState, sectionNav, houseAidBadge, radioGroup, downloadText, pickFile, icon } from "./ui.js";
+import { crawlStrip, heatGrid, illustration, fleuron } from "./graphics.js";
 import { EXPLAIN, RULES_LIBRARY, ROLL_LOG_CAP } from "../data.js";
 import { MYTHIC_RULES, MYTHIC } from "../data-mythic.js";
 import * as store from "./store.js";
@@ -16,7 +17,7 @@ export function crawls() {
   const list = store.crawls();
 
   if (!list.length) {
-    add(content, emptyState("Nothing here yet. A crawl is a run of rooms — a dungeon, a house, one evening's exploring. One room is a perfectly good crawl.", null, null));
+    add(content, emptyState("Nothing here yet. A crawl is a run of rooms — a dungeon, a house, one evening's exploring. One room is a perfectly good crawl.", null, null, illustration("map")));
     add(content, el("p", { class: "hint" }, "New to this? ", el("a", { class: "rule-link", href: "#/learn/tutorial" }, "Walk through a first room"), "."));
   } else {
     const ul = el("ul", { class: "list list-cards" });
@@ -25,7 +26,8 @@ export function crawls() {
       add(ul, el("li", {}, el("a", { class: "row-card", href: "#/crawl/" + c.id },
         el("span", { class: "row-main", text: c.name }),
         el("span", { class: "row-sub", text: plural(s.rooms, "room") + " · " + s.complete + " fully explored · " + when(c.lastOpenedAt) }),
-        rowMeter(s.complete, s.rooms)
+        // One square per room, in crawl order, shaded by how far it was searched.
+        crawlStrip(store.rooms(c.id).map(r => roomWalkDone(r) ? searchState(r) : "building")) || rowMeter(0, 0)
       )));
     }
     add(content, ul);
@@ -40,6 +42,10 @@ export function crawls() {
 
 // A thin progress line under a list row. Decorative: the row's own text
 // already carries the numbers.
+function roomWalkDone(r) {
+  return (r.keywords || []).length >= r.budget && !(r.keywords || []).some(k => k.use === "pending");
+}
+
 function rowMeter(done, total) {
   const pct = total ? Math.round(done / total * 100) : 0;
   return el("span", { class: "row-meter" + (total && done >= total ? " meter-complete" : ""), "aria-hidden": "true" },
@@ -60,20 +66,22 @@ function newCrawl() {
 // ── One crawl ────────────────────────────────────────────────────────────────
 export function crawl(params) {
   const c = store.crawl(params.crawlId);
-  if (!c) return { title: "Crawl", content: emptyState("That crawl is gone.", "Back to crawls", "#/crawls") };
+  if (!c) return { title: "Crawl", content: emptyState("That crawl is gone.", "Back to crawls", "#/crawls", illustration("map")) };
   store.touchCrawl(c.id);
   const rooms = store.rooms(c.id);
   const content = el("div", {});
   add(content,
+    el("a", { class: "crumb", href: "#/crawls" }, icon("chev-l"), el("span", { text: "Crawls" })),
     el("h1", { class: "screen-title", text: c.name }),
     explain(EXPLAIN.crawl),
     el("p", { class: "meta", text: crawlSummary(c.id).lines.join(" · ") })
   );
 
   if (!rooms.length) {
-    add(content, emptyState("No rooms yet. Start the first one — six keywords, or three if you are making a lot of them.", null, null));
+    add(content, emptyState("No rooms yet. Start the first one — six keywords, or three if you are making a lot of them.", null, null, illustration("plan")));
   } else {
-    const ul = el("ul", { class: "list list-cards" });
+    // The rooms as a chain, in the order they were made (R28).
+    const ul = el("ul", { class: "list list-cards chain" });
     for (const r of rooms) {
       const st = searchState(r);
       const walkDone = (r.keywords || []).length >= r.budget && !(r.keywords || []).some(k => k.use === "pending");
@@ -159,7 +167,7 @@ export function log() {
 
   const rows = logFilter === "all" ? all : all.filter(r => r.table === logFilter);
   if (!rows.length) {
-    add(content, emptyState("No rolls yet. Everything this app rolls lands here, with the table it came from.", null, null));
+    add(content, emptyState("No rolls yet. Everything this app rolls lands here, with the table it came from.", null, null, illustration("dice")));
     return { title: "Roll log", content };
   }
 
@@ -175,7 +183,12 @@ export function log() {
   }
   const wrap = el("div", { "aria-live": "polite" });
   for (const run of runs) {
-    add(wrap, el("h2", { class: "log-group" }, run.name, el("span", { class: "count", text: String(run.rows.length) })));
+    // The room heading leads back to the room, while it still exists.
+    const rid = run.rows[0].roomId;
+    const target = rid ? store.room(rid) : null;
+    add(wrap, el("h2", { class: "log-group" },
+      target ? el("a", { class: "log-room", href: (roomWalkDone(target) ? "#/room/" : "#/wizard/") + target.id }, run.name, icon("chev-r")) : run.name,
+      el("span", { class: "count", text: String(run.rows.length) })));
     const ul = el("ul", { class: "list" });
     for (const r of run.rows) {
       add(ul, el("li", { class: "list-row log-row" },
@@ -195,7 +208,7 @@ export function log() {
       onclick: () => { logShown += LOG_PAGE; rerender(); } },
       "Show " + Math.min(LOG_PAGE, rows.length - logShown) + " more (" + (rows.length - logShown) + " left)"));
   }
-  add(content, el("p", { class: "hint", text: "The log keeps the last " + ROLL_LOG_CAP + " rolls." }));
+  add(content, el("p", { class: "hint", text: "The log keeps the last " + ROLL_LOG_CAP + " rolls." }), fleuron());
   add(content, el("section", { class: "block block-end" },
     el("button", { class: "btn btn-danger btn-wide", type: "button", onclick: () => {
       confirmModal({
@@ -225,7 +238,7 @@ export function distribution() {
   );
   const { counts, total } = store.distribution();
   if (!total) {
-    add(content, emptyState("Nothing rolled yet. Once there is a history, every face shows up here.", null, null));
+    add(content, emptyState("Nothing rolled yet. Once there is a history, every face shows up here.", null, null, illustration("dice")));
     return { title: "Distribution", content };
   }
   const buckets = [];
@@ -250,6 +263,9 @@ export function distribution() {
   add(chart, el("p", { class: "chart-legend", "aria-hidden": "true" }, el("i", {}), "expected"));
   add(content, chart);
   add(content, el("p", { class: "meta", text: total + " rolls · expected " + (total / 10).toFixed(1) + " per band" }));
+  // Every face, 1 to 100 in rows of ten: darker means rolled more often.
+  add(content, el("div", { class: "heat" }, heatGrid(counts),
+    el("p", { class: "heat-axis", "aria-hidden": "true" }, el("span", { text: "1" }), el("span", { text: "100" }))));
   return { title: "Distribution", content };
 }
 
@@ -264,6 +280,12 @@ export function rules(params) {
     el("h1", { class: "screen-title", text: "The rules" }),
     explain(EXPLAIN.rules)
   );
+
+  // Arrived from a rule link: offer the way back to where you were (§6.3.9).
+  if (params && params.ruleId && history.length > 1) {
+    content.insertBefore(el("button", { class: "crumb crumb-btn", type: "button", onclick: () => history.back() },
+      icon("chev-l"), el("span", { text: "Back" })), content.firstChild);
+  }
 
   const search = el("input", { class: "field", type: "search", id: "rules-search", placeholder: "Search the rules" });
   add(content, el("label", { class: "sr-only", for: "rules-search", text: "Search the rules" }), search);
@@ -292,7 +314,7 @@ export function rules(params) {
       add(host, d);
     }
   }
-  add(content, host);
+  add(content, host, fleuron());
 
   search.addEventListener("input", () => {
     const q = search.value.trim().toLowerCase();
@@ -326,10 +348,10 @@ export function settingsScreen() {
     el("h2", { class: "block-title", text: "Appearance" }),
     choiceRow("Theme", [
       { id: "system", label: "System" }, { id: "light", label: "Light" }, { id: "dark", label: "Dark" }
-    ], settings.get("theme"), v => { settings.set("theme", v); rerender(); }),
+    ], settings.get("theme"), v => { settings.set("theme", v); rerender(); }, "theme-row"),
     choiceRow("Text size", [
       { id: "1", label: "Normal" }, { id: "1.15", label: "Larger" }, { id: "1.3", label: "Largest" }
-    ], String(settings.get("textScale")), v => { settings.set("textScale", Number(v)); rerender(); })
+    ], String(settings.get("textScale")), v => { settings.set("textScale", Number(v)); rerender(); }, "size-row")
   ));
 
   add(left, el("section", { class: "block panel" },
@@ -387,14 +409,18 @@ export function settingsScreen() {
   add(content, el("section", { class: "block block-end panel" },
     el("h2", { class: "block-title", text: "About" }),
     el("p", { class: "prose", text: "A personal play aid for The Room Crafter, the room-exploration variation from Mythic Magazine Vol. 69, with One-Page Mythic underneath it for the questions the article defers to an emulator. Rules paraphrased; the tables belong to their publisher. Built for one person's own use from their own copies." }),
-    el("p", { class: "hint" }, "The room-type list is an invented convenience ", houseAidBadge(), ", not part of the article.")
+    el("p", { class: "hint" }, "The room-type list is an invented convenience ", houseAidBadge(), ", not part of the article."),
+    // The tutorial is linked from Settings permanently (§6.6.3), and the rules with it.
+    el("div", { class: "action-grid learn-links" },
+      el("a", { class: "btn btn-quiet", href: "#/learn/tutorial" }, icon("learn"), "Tutorial"),
+      el("a", { class: "btn btn-quiet", href: "#/rules" }, icon("door"), "The rules"))
   ));
 
   return { title: "Settings", content };
 }
 
-function choiceRow(label, options, currentId, onPick) {
-  const wrap = el("div", { class: "setting" });
+function choiceRow(label, options, currentId, onPick, cls = "") {
+  const wrap = el("div", { class: "setting " + cls });
   add(wrap, el("p", { class: "field-label", text: label }));
   add(wrap, radioGroup({ label, options, value: currentId, wrap: false, onChange: onPick }));
   return wrap;

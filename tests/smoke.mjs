@@ -228,6 +228,44 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await page.context().close();
 }
 
+// Linkage (§6.3.6–6.3.9, §6.6.3): every screen you go into shows the way back
+// up, the tutorial is reachable from Settings, the log leads to its rooms, and
+// a room leads to its neighbours in the crawl.
+{
+  const page = await newPage(browser, site, { seed: "mid-crawl" });
+  await goto(page, site, "#/settings");
+  r.check("link: Settings links to the tutorial", !!(await page.$('#screen a[href="#/learn/tutorial"]')));
+  r.check("link: Settings links to the rules", !!(await page.$('#screen a[href="#/rules"]')));
+  await goto(page, site, "#/room");
+  r.check("link: the room sheet leads back to its crawl", !!(await page.$('#screen a.crumb[href^="#/crawl/"]')));
+  r.check("link: the room sheet leads to its neighbours in the crawl", (await page.$$("#screen .pager a")).length >= 1);
+  const crawlHref = await page.$eval("#screen a.crumb", n => n.getAttribute("href"));
+  await goto(page, site, crawlHref);
+  r.check("link: the crawl leads back to the crawl list", !!(await page.$('#screen a.crumb[href="#/crawls"]')));
+  await goto(page, site, "#/log");
+  r.check("link: a roll-log room heading leads to its room", (await page.$$('#screen .log-group a[href^="#/room/"], #screen .log-group a[href^="#/wizard/"]')).length >= 1);
+  const wiz = await page.evaluate(() => JSON.parse(localStorage.getItem("rc.rooms")).find(r => r.keywords.length < r.budget || r.keywords.some(k => k.use === "pending")).id);
+  await goto(page, site, "#/wizard/" + wiz);
+  r.check("link: the keyword walk leads back to its crawl", !!(await page.$('#screen a.crumb[href^="#/crawl/"]')));
+
+  // A result dialog shows its working: the table as a strip, the roll marked.
+  await goto(page, site, "#/room");
+  await page.click("#action-bar-host .btn-primary");
+  await until(page, () => !!document.querySelector(".modal-backdrop"));
+  r.check("working: the answer dialog draws the odds row with the roll marked",
+    !!(await page.$(".modal-card .band-strip .mark")) && !!(await page.$(".modal-card .band-strip .seg-hit")));
+  await page.click(".modal-actions .btn-primary");
+  await until(page, () => !document.querySelector(".modal-backdrop"));
+  await page.click("#action-bar-host .btn-primary");
+  await until(page, () => !!document.querySelector(".modal-backdrop"));
+  const cap = await page.$eval(".modal-card .working-cap", n => n.textContent).catch(() => "");
+  r.check("working: the find dialog names the band the roll fell in", /^\d+–\d+ · /.test(cap), cap);
+  r.check("plan: the room plan draws one block per Area",
+    await page.evaluate(() => document.querySelectorAll("#sec-areas .plan-area").length === document.querySelectorAll("#sec-areas .area-card").length));
+  r.check("link: no console errors", page.__errors.length === 0, page.__errors[0]);
+  await page.context().close();
+}
+
 // Tablet width adds density: two real columns on the room sheet and the wizard.
 {
   const page = await newPage(browser, site, { seed: "mid-crawl", width: 900, height: 1000 });

@@ -135,7 +135,7 @@ export const RULES_LIBRARY = [
 export const EXPLAIN = {
   crawls: "A crawl is a run of rooms — a dungeon, a house, an evening's exploring. Everything you generate lands in one, and finished crawls stay here to read back.",
   crawl: "The rooms of this crawl, in the order you made them. Open one to search it, or add the next.",
-  wizard: "Keywords arrive one at a time. Take one that inspires you and make it an Area; carry one that does not and combine it with the next. The app enforces the order, the cap and the count — the interpretation is yours.",
+  wizard: "Keywords arrive one at a time. Take one that inspires you and make it an Area; carry one that does not and combine it with the next. The app enforces the order, the two-keyword cap and the count — the interpretation is yours.",
   room: "This is the room: its Areas, its description, and what searching turned up. Each Area gets exactly one roll on Room Elements, plus one for the General Area — the room itself.",
   log: "Every d100 this app has rolled, newest first, with the table it came from and the room it belonged to. Nothing is rolled twice and nothing is rolled unseen.",
   distribution: "How often each face has come up across every roll. It is here so you can check the dice rather than argue about them.",
