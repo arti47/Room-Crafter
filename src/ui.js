@@ -3,13 +3,28 @@ import { el, add, clear, $ } from "./core.js";
 
 let openModal = null;
 
-export function modal({ title, body, actions = [], onClose }) {
+// An icon from the sprite in index.html. SVG needs its own namespace.
+export function icon(name) {
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("class", "ico");
+  svg.setAttribute("aria-hidden", "true");
+  const use = document.createElementNS(NS, "use");
+  use.setAttribute("href", "#i-" + name);
+  svg.append(use);
+  return svg;
+}
+
+// `result` marks a dialog that reveals a roll: the die is drawn large, and a
+// phone that can buzz gives one short tick. Nothing about the roll changes.
+export function modal({ title, body, actions = [], onClose, result = false }) {
   closeModal();
   const prevFocus = document.activeElement;
 
-  const card = el("div", { class: "modal-card", role: "dialog", "aria-modal": "true",
+  const card = el("div", { class: "modal-card" + (result ? " modal-result" : ""), role: "dialog", "aria-modal": "true",
     "aria-label": title || "Dialog" });
-  add(card, el("h2", { class: "modal-title", text: title || "" }));
+  const handle = el("span", { class: "modal-handle", "aria-hidden": "true" });
+  add(card, handle, el("h2", { class: "modal-title", text: title || "" }));
   const bodyWrap = el("div", { class: "modal-body" });
   add(bodyWrap, body);
   add(card, bodyWrap);
@@ -24,6 +39,30 @@ export function modal({ title, body, actions = [], onClose }) {
     }, a.label));
   });
   if (actions.length) add(card, row);
+  const closer = el("button", { class: "icon-btn modal-close", type: "button", "aria-label": "Close", onclick: () => closeModal() });
+  closer.append(icon("close"));
+  add(card, closer);
+
+  // Drag the sheet down by its handle or title to dismiss it, as a phone expects.
+  let startY = null;
+  const grab = e => { startY = e.touches[0].clientY; };
+  const drag = e => {
+    if (startY === null) return;
+    const dy = Math.max(0, e.touches[0].clientY - startY);
+    card.style.transform = dy ? "translateY(" + dy + "px)" : "";
+  };
+  const drop = e => {
+    if (startY === null) return;
+    const dy = e.changedTouches[0].clientY - startY;
+    startY = null;
+    card.style.transform = "";
+    if (dy > 90) closeModal();
+  };
+  for (const t of [handle, card.querySelector(".modal-title")]) {
+    t.addEventListener("touchstart", grab, { passive: true });
+    t.addEventListener("touchmove", drag, { passive: true });
+    t.addEventListener("touchend", drop);
+  }
 
   const back = el("div", { class: "modal-backdrop", onclick: e => {
     if (e.target === back) closeModal();
@@ -41,8 +80,11 @@ export function modal({ title, body, actions = [], onClose }) {
 
   document.addEventListener("keydown", onKey);
   document.body.append(back);
-  const focusTarget = card.querySelector("input, textarea, select, button");
+  // A field if there is one, else the primary action — never the close button.
+  const focusTarget = card.querySelector(".modal-body input, .modal-body textarea, .modal-body select") ||
+    card.querySelector(".modal-actions .btn") || closer;
   if (focusTarget) focusTarget.focus();
+  if (result && navigator.vibrate) { try { navigator.vibrate(12); } catch { /* not every browser */ } }
 
   openModal = () => {
     document.removeEventListener("keydown", onKey);

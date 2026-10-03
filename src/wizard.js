@@ -100,14 +100,21 @@ export function render(params) {
       " so far (expect " + info.areas[0] + "–" + info.areas[1] + ")")
   );
 
-  // Progress: one dot per keyword in the budget.
-  const dots = el("div", { class: "dots", "aria-label": "Keyword progress" });
+  // Progress: one cell per keyword in the budget, showing the word and what it
+  // became. The next one to roll is outlined.
+  const steps = el("ol", { class: "steps steps-" + room.budget, "aria-label": "Keyword progress" });
+  const nextN = rolledCount(room) + 1;
   for (let i = 1; i <= room.budget; i++) {
     const kw = (room.keywords || []).find(k => k.n === i);
-    const cls = !kw ? "dot" : "dot dot-" + kw.use;
-    add(dots, el("span", { class: cls, title: kw ? kw.word : "not rolled yet" }));
+    add(steps, el("li", {
+      class: "step " + (kw ? "step-" + kw.use : (i === nextN && !pend.length ? "step-next" : "")),
+      title: kw ? kw.word + " — " + (USE_LABEL[kw.use] || kw.use) : "not rolled yet"
+    },
+      el("span", { class: "step-n", text: String(i) }),
+      el("span", { class: "step-w", text: kw ? kw.word : "—" }),
+      kw ? el("span", { class: "sr-only", text: USE_LABEL[kw.use] || kw.use }) : null));
   }
-  add(content, dots);
+  add(content, steps);
 
   let bar = null;
 
@@ -153,7 +160,8 @@ export function render(params) {
   add(card, el("p", { class: "eyebrow", text: pend.length > 1 ? "Combined" : "Keyword " + pend[0].n }));
   add(card, el("p", { class: "keyword-word" },
     pend.map(k => k.word).join(" + ")));
-  add(card, el("p", { class: "meta", text: pend.map(k => "d100 " + k.roll).join(" · ") }));
+  add(card, el("p", { class: "keyword-dice", "aria-label": "Rolled " + pend.map(k => "d100 " + k.roll).join(", ") },
+    pend.map(k => el("span", { class: "die die-sm", text: String(k.roll) }))));
   add(card, el("p", { class: "prose", text: pend.length > 1
     ? "Two words together. What is it in this room?"
     : "Does this suggest something in this room? If it does, name it. If not, carry it forward." }));
@@ -227,14 +235,17 @@ const USE_LABEL = {
   dropped: "dropped"
 };
 
+// A timeline of every keyword so far. Open from tablet width up, where it has
+// a column of its own; folded on a phone.
 function keywordTrail(room) {
   if (!(room.keywords || []).length) return null;
   const d = el("details", { class: "fold" });
+  if (typeof matchMedia === "function" && matchMedia("(min-width: 760px)").matches) d.open = true;
   add(d, el("summary", { text: "Keyword trail (" + room.keywords.length + ")" }));
-  const ul = el("ul", { class: "list" });
+  const ul = el("ul", { class: "trail" });
   for (const k of room.keywords) {
     const area = (room.areas || []).find(a => (a.fromKeywords || []).includes(k.n));
-    add(ul, el("li", { class: "list-row" },
+    add(ul, el("li", { class: "t-" + k.use },
       el("span", { class: "list-main", text: k.n + ". " + k.word }),
       el("span", { class: "list-sub", text: "d100 " + k.roll + " · " + (USE_LABEL[k.use] || k.use) +
         (area && k.use === "area" ? ": " + area.name : "") })

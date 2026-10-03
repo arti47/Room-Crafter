@@ -25,7 +25,7 @@ Companion documents:
 | **Core job** | Room **generation wizard** + **room sheet** with per-Area search state + **table roller** + crawl records |
 | **Multiplayer** | **None.** Omitted at Stage B — a GM-less room oracle has no party state to sync. JSON and read-aloud export are the hand-off |
 | **Backend** | None. `localStorage` only; no Firebase, no keys, no network at runtime |
-| **Theme** | Ink on warm paper (light) / lamplit slate (dark); one accent for keywords, one for danger-side Elements. Follows system by default, in-app toggle overrides, plus a text-size control |
+| **Theme** | Ink on warm paper (light) / lamplit slate (dark), set in Source Serif 4 (bundled, OFL); one accent for keywords, one for danger-side Elements (Unfortunate), one for the fortunate side. Every text pair ≥4.5:1, every control edge ≥3:1. Follows system by default, in-app toggle overrides (browser `theme-color` follows), plus a text-size control |
 
 ### 1.0 Approved deviations from template LOCKED scope
 
@@ -119,11 +119,12 @@ claims the other's copy.
 
 | File | Purpose | Status |
 |---|---|---|
-| `index.html` | Shell: header, persistent room header, bottom nav, screen mount, module entry | ☑ |
+| `index.html` | Shell: header, persistent room header, bottom nav, screen mount, module entry, the inline SVG icon sprite | ☑ |
 | `styles.css` | Theme (light + dark) + component styles + tablet layout | ☑ |
 | `data.js` | Room Descriptors · Sock Drawer · Room Elements · encounter bands · budgets · rules-library entries | ☑ |
 | `data-house-roomtypes.js` | Room-type starter list, `HOUSE_AID = true` | ☑ |
 | `data-mythic.js` | One-Page Mythic: Ask The GM chart, Discover Meaning, Random Event triggers, its own rules-library entries | ☑ |
+| `fonts/source-serif-4.woff2`, `fonts/OFL.txt` | The one typeface, bundled so it works offline; in the SW app shell | ☑ |
 | `manifest.json`, `service-worker.js`, `icon.svg` | PWA. The worker is **network-first for everything**, cache as the offline fallback (A-32); `CACHE_VERSION` bumped on any shipped-file change raises the update toast | ☑ |
 | `tests/` + `package.json` | Harnesses A–D, fixtures, probes; dev-only, gitignored `node_modules`, not in the SW app shell | ☑ |
 | `README.md` | Setup + personal-use licensing note | ☑ |
@@ -143,7 +144,7 @@ rules; `gm.js` — no second seat (A15); `power-automation.js` — no powers.
 | Module | Responsibility |
 |---|---|
 | `core.js` | Constants, DOM/util helpers (incl. the null-safe `add`), **crypto d100**. No imports |
-| `ui.js` | Themed modal/toast/confirm/prompt, collapsible `explain()`, pinned `actionBar()` (returns bar + spacer together) |
+| `ui.js` | Themed modal (bottom sheet, ✕, drag-to-dismiss, `result` variant)/toast/confirm/prompt, collapsible `explain()`, pinned `actionBar()` (returns bar + spacer together), `icon()` |
 | `rules.js` | Pure lookups over the data files: keyword by roll, Element band by roll, encounter band |
 | `derived.js` | Area count, total explorable Areas, room-complete predicate, search progress, normalization/migration |
 | `settings.js` | Theme, text size, house-aid visibility, advanced toggles |
@@ -155,7 +156,7 @@ rules; `gm.js` — no second seat (A15); `power-automation.js` — no powers.
 | `lifecycle.js` | Room boundaries (the once-per flag clearer), crawl boundaries, encounter check, confirmation summaries + undo |
 | `screens.js` | Home/crawl list, rules library, settings, roll log + distribution view |
 | `tutorial.js` | First-session walkthrough + neutral demo rooms |
-| `router.js` | Bottom-nav routing + section nav + live-state badges |
+| `router.js` | Bottom-nav routing + section nav + live-state badges; measures the frame into `--head-h` / `--bar-live`; keeps page and column scroll on refresh |
 | `main.js` | Entry point / boot |
 
 Adding or moving a `src/` file updates this table **and** the service-worker app
@@ -228,14 +229,14 @@ Targets below are **planned**; tick them off as they become real.
 | R16 | Fortunate/Unfortunate: obvious idea, else Discover Meaning | Permission | — | `guidance only` (B1) | Prompt on the result card | copy asserted present |
 | R17 | Random rolls a pair on a chosen Meaning table (A11) | Lookup + Permission | `ROOM_DESCRIPTORS`, `SOCK_DRAWER` | `roller.needsMeaning` → `roller.attachMeaning` | Table picker naming B2's absent tables | `R17 Random asks for a Meaning pair, and only then stops asking` |
 | R18 | Sock Drawer is a meaning table, rolled in pairs (A10) | Lookup | `SOCK_DRAWER` | `roller.rollMeaningPair` · `roller.rollDetail` | Detail roll on every Area and the General Area | `R18 a Meaning pair is two words… doubles kept` · `R18 a detail roll lands on the room, tagged with its Area` |
-| R19 | One General Area roll per room (A1, A12) | Once-per-X | `ROOM_ELEMENTS` | `derived.canSearchGeneral` → `roller.searchGeneralArea` | Its own card below the Areas | `R19 the General Area needs no prerequisite` · `R19/A12` |
+| R19 | One General Area roll per room (A1, A12) | Once-per-X | `ROOM_ELEMENTS` | `derived.canSearchGeneral` → `roller.searchGeneralArea` | Its own card below the Areas, on phone and tablet (A-34) | `R19 the General Area needs no prerequisite` · `R19/A12` · `phone: encounter, then Areas, then the General Area, then the folds` |
 | R20 | Complete = every Area + the General Area | Threshold | — | `derived.isComplete` | Persistent room header | `R20 complete flips on the last roll, not before` |
 | R21 | Unsearched Areas leave it described, not searched (A14) | Threshold | — | `derived.searchState` | Header state chip · crawl list | `R21 a skipped Area leaves the room described or part searched` |
 | R22 | No Conclusion Element | Gate | — | `lifecycle.roomSummary` · `sheet.finishRoom` | Completion summary offers no further roll | `R22/R23` · smoke asserts the summary never says "conclusion" |
 | R23 | Search all, some or none | Permission | — | `sheet.finishRoom` | "Done with this room", always enabled | `R22/R23 a room with nothing searched is a legitimate resting state` |
 | R24 | Hidden things: your task mechanic, then a Fate Question | Substitution | — | `guidance only` (B1) → `lifecycle.recordHidden` | Prompt-and-record fold, `not automated` badge | `R24 hidden searches are recorded, not automated` |
 | R25 | Connected simple rooms may be one room | Permission | `context.multiRoomNote` | `wizard.newRoomForm` | "Does this room cover several spaces?" · shown on the sheet | `R25 the multi-room note persists on the record` |
-| R26 | Place Areas where they seem fitting, and name them better later | Permission | `area.order`, `area.name` | `lifecycle.moveArea` · `lifecycle.renameArea` | ✎ ▲ ▼ on every Area card; the find is never editable | `R26 an Area can be renamed` · `R26 Areas can be reordered` |
+| R26 | Place Areas where they seem fitting, and name them better later | Permission | `area.order`, `area.name` | `lifecycle.moveArea` · `lifecycle.renameArea` | ✎ ▲ ▼ on every Area card behind one "Edit" toggle in the Areas heading (two taps); the find is never editable | `R26 an Area can be renamed` · `R26 Areas can be reordered` · `e2e: Area tools are hidden until Edit is pressed` |
 | R27 | A room may be any close space | Permission | `ROOM_TYPES` (house aid) | `wizard.newRoomForm` | Free-text room type; the list only suggests | `R27 a room type the house-aid list has never heard of is accepted` |
 | R28 | Chain rooms into a crawl | Permission | — | `lifecycle.nextRoom` | "Next room in this crawl", budget inherited | `R28 the next room joins the same crawl and inherits the budget` |
 | R29 | Cryptographic dice, shown, logged once, never silently re-rolled | — | — | `core.d100` · `store.logRoll` | Every result card · roll log · distribution | `R29 d100 stays in range and reaches both ends` · `R29 one search writes exactly one Element roll` |
@@ -383,13 +384,14 @@ table** — that is the one part of this milestone still owed.
 - ☑ Dead fields removed; wizard trail and header humanised; one label for finishing a room
 
 **Phase 8 — Hardening** ◐
-- ☑ Harness A (`npm test`, 85 checks), B (`npm run smoke`, 268), C (`npm run interact`, 342), D (fixtures fresh/mid-crawl/stress + both probes)
+- ☑ Harness A (`npm test`, 85 checks), B (`npm run smoke`, 279), C (`npm run interact`, 324), D (fixtures fresh/mid-crawl/stress + both probes)
 - ☑ Dead-data scan (`npm run scan`), clean
 - ☑ Accessibility: focus trap, `aria-live`, `aria-current`, labelled controls, 16px inputs, 40px+ targets, reduced motion, skip link
 - ☑ The §6.7 measurement contract, asserted on every route at every seed
 - ☑ Six guards proven to bite against reintroduced defects
 - ☑ Audit cycles 1–3 (twelve, four, thirteen findings) — `docs/AUDIT.md`
 - ◐ **Cycle 4.** First reports from play fixed (A-30…A-33). Harness gaps they exposed: mid-page actions, in-modal actions. The method that found it — using the app from the middle of a page, not the top — is one the harnesses lack; a mid-page variant of the interaction audit is owed.
+- ☑ **Cycle 5 — UX/visual pass** (A-34…A-43): article order on the phone sheet, compact room header with a segmented meter, tab icons, bottom-sheet results with a large die, Edit mode for Areas, 2×2 room lifecycle grid, wizard step strip and timeline trail, grouped roll log, expected line on the distribution, inset Settings panels, AA contrast tokens, bundled serif
 - ☑ PWA update-path test — `npm run pwa`: network-first serves the new code on one reload, the toast appears, accepting leaves only the new cache, the app boots offline on the new code (A-32)
 
 ## 8. Definition of done — per feature
@@ -441,6 +443,7 @@ Template §10 applies in full. The ones this project will actually be tested by:
 | 2026-09-11 | Audit cycle 2: A-13…A-16 and three harness faults | Template §11 | Three more guards watched go red | `rc-v2` |
 | 2026-09-11 | A-13: moved the default odds into the data layer | `"fifty"` was hardcoded in two `src/` modules (§10.2) | `R31` covers the row; `DEFAULT_ODDS` is the only source | `rc-v2` |
 | 2026-09-11 | H-10: the interaction audit now compares markup, not its length | A radiogroup changing selection is a net-zero length change, so nine live controls read as dead — and the same fault would hide any swap-shaped change | 294 controls, 0 findings | — |
+| 2026-10-03 | Cycle 5 UX/visual pass (A-34…A-43): R19 phone order restored; jump targets clear the sticky headers; AA text and 3:1 control-edge tokens; danger/good tone on Unfortunate/Fortunate finds; toast clears the pinned bar; top safe-area; build-time tab badge; tab icons + SVG theme toggle; `theme-color` follows the override; compact room header with segmented meter; result dialogs as bottom sheets with a large die and ✕; Area tools behind an Edit toggle; room lifecycle as a 2×2 grid with delete apart; wizard step strip + open timeline on tablet; roll log grouped by room; expected line on the distribution; rules groups as small-caps heads; Settings in inset panels with switches; Source Serif 4 bundled; tablet Areas column scrolls on its own and keeps its place | Owner asked for a UX/UI/aesthetic overhaul with content unchanged. Root causes: the two-column DOM stacked the wrong way on a phone; no frame measurements for sticky offsets; palette tokens never contrast-checked | `npm test` 85 · `scan` clean · `smoke` 279 · `interact` 324 · `pwa` 13; new R19 order guard watched go red against the old order; contrast computed per token pair; screenshots 320/390/390-dark/900. Zoom lock, app header and tab bar kept (§6.2 LOCKED) | `rc-v7` |
 | 2026-09-12 | A-32: service worker network-first for every request; the update path is now tested (`npm run pwa`, in `npm run all`) | The owner was shown a pre-fix build after the fix shipped: cache-first modules served stale code for one reload. The template's named failure, untested until now | Thirteen checks; watched go red (three named failures) against the cache-first worker. H-13/H-14: a page's own reload under an activating worker cannot be followed by this harness — the accept step is driven from a fresh page instead (`docs/AUDIT.md`) | `rc-v6` |
 | 2026-09-12 | A-33: the find modal's secondary action is full-width like its primary | Formatting report | screenshot at 390px dark | `rc-v6` |
 | 2026-09-12 | A-31: the find modal redraws itself after an action inside it; duplicate "obvious idea" line removed | Owner report: "No idea — Discover Meaning" looked dead. The modal body was static; its actions redrew only the sheet behind | `modal:` smoke checks, watched go red against the old path | `rc-v5` |

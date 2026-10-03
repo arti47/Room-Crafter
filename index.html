@@ -3,21 +3,32 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#f4efe4" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#15161a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3ede1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14151a" media="(prefers-color-scheme: dark)">
 <meta name="description" content="A room oracle for The Room Crafter: generate a room from keywords, then find out what searching it turns up.">
 <title>Room Crafter</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon.svg">
+<link rel="preload" href="./fonts/source-serif-4.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
 <a class="skip-link" href="#screen">Skip to content</a>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-crawls" viewBox="0 0 24 24"><path d="M4 6.5 9 4l6 2.5L20 4v13.5L15 20l-6-2.5L4 20z"/><path d="M9 4v13.5M15 6.5V20"/></symbol>
+  <symbol id="i-room" viewBox="0 0 24 24"><path d="M5 20V5.5A1.5 1.5 0 0 1 6.5 4h11A1.5 1.5 0 0 1 19 5.5V20"/><path d="M3 20h18"/><path d="M9 20v-7h6v7"/><circle cx="13.4" cy="16.6" r=".6"/></symbol>
+  <symbol id="i-log" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle cx="9" cy="9" r="1.1"/><circle cx="15" cy="15" r="1.1"/><circle cx="15" cy="9" r="1.1"/><circle cx="9" cy="15" r="1.1"/></symbol>
+  <symbol id="i-learn" viewBox="0 0 24 24"><path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5z"/><path d="M12 6.5v13"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+  <symbol id="i-theme" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+</svg>
+
 <header class="app-header">
-  <span class="brand">Room Crafter</span>
-  <button id="theme-toggle" class="icon-btn" type="button" aria-label="Switch theme">◐</button>
+  <span class="brand"><img class="brand-mark" src="./icon.svg" alt="" width="22" height="22">Room Crafter</span>
+  <button id="theme-toggle" class="icon-btn" type="button" aria-label="Switch theme"><svg class="ico" aria-hidden="true"><use href="#i-theme"/></svg></button>
 </header>
 
 <div id="room-header-host"></div>
@@ -35,7 +46,6 @@
   document.getElementById("theme-toggle").addEventListener("click", () => {
     const next = order[(order.indexOf(get("theme")) + 1) % order.length];
     set("theme", next);
-    document.getElementById("theme-toggle").setAttribute("aria-label", "Theme: " + next);
   });
 </script>
 </body>

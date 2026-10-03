@@ -1,5 +1,6 @@
 // router.js — hash routing, the fixed frame, section nav and live-state badges.
 import { el, add, clear, $ } from "./core.js";
+import { icon } from "./ui.js";
 import * as store from "./store.js";
 import * as screens from "./screens.js";
 import * as wizard from "./wizard.js";
@@ -8,11 +9,11 @@ import * as tutorial from "./tutorial.js";
 import { searchState, areaCount, searchedAreas } from "./derived.js";
 
 const TABS = [
-  { id: "crawls", label: "Crawls", href: "#/crawls" },
-  { id: "room", label: "Room", href: "#/room" },
-  { id: "log", label: "Log", href: "#/log" },
-  { id: "learn", label: "Learn", href: "#/rules" },
-  { id: "settings", label: "Settings", href: "#/settings" }
+  { id: "crawls", label: "Crawls", href: "#/crawls", icon: "crawls" },
+  { id: "room", label: "Room", href: "#/room", icon: "room" },
+  { id: "log", label: "Log", href: "#/log", icon: "log" },
+  { id: "learn", label: "Learn", href: "#/rules", icon: "learn" },
+  { id: "settings", label: "Settings", href: "#/settings", icon: "settings" }
 ];
 
 export function parse(hash) {
@@ -53,6 +54,7 @@ export function render(opts = {}) {
   const keep = !!opts.keepPlace;
   const y = keep ? window.scrollY : 0;
   const openFolds = keep ? snapshotFolds() : null;
+  const inner = keep ? snapshotScrollers() : null;
   const route = parse(location.hash);
   const app = $("#screen");
   const barHost = $("#action-bar-host");
@@ -96,8 +98,10 @@ export function render(opts = {}) {
 
   renderTabs(route);
   document.title = view.title ? view.title + " · Room Crafter" : "Room Crafter";
+  measureFrame();
   if (keep) {
     restoreFolds(openFolds);
+    restoreScrollers(inner);
     window.scrollTo(0, Math.min(y, document.documentElement.scrollHeight));
   } else {
     app.scrollTop = 0;
@@ -130,6 +134,33 @@ function restoreFolds(keys) {
   }
 }
 
+// A column that scrolls on its own (the tablet Areas column) keeps its place
+// across a refresh the same way the page does.
+function snapshotScrollers() {
+  const out = {};
+  for (const n of document.querySelectorAll("#screen [data-keep-scroll][id]")) out[n.id] = n.scrollTop;
+  return out;
+}
+function restoreScrollers(map) {
+  for (const id in map || {}) {
+    const n = document.getElementById(id);
+    if (n) n.scrollTop = map[id];
+  }
+}
+
+// The frame's real heights, as CSS variables: sticky offsets and in-page jumps
+// land under the headers, and the toast clears the pinned bar.
+function measureFrame() {
+  const root = document.documentElement;
+  const h = n => (n ? n.getBoundingClientRect().height : 0);
+  root.style.setProperty("--head-h", Math.round(h($(".app-header")) + h($("#room-header-host"))) + "px");
+  root.style.setProperty("--bar-live", Math.round(h($("#action-bar-host"))) + "px");
+}
+if (typeof window !== "undefined") {
+  window.addEventListener("resize", () => measureFrame());
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => measureFrame());
+}
+
 // What the screens call after an in-place action.
 export function refresh() {
   render({ keepPlace: true });
@@ -152,16 +183,20 @@ function renderTabs(route) {
   const rm = contextRoom(route);
   for (const t of TABS) {
     // Live state travels: an open room shows its search progress on the tab (§6.3.8).
+    // While the room is still being made the number that matters is keyword
+    // progress, as in the room header; "0/0" Areas says nothing.
     let badge = null;
     if (t.id === "room" && rm) {
+      const making = (rm.keywords || []).length < (rm.budget || 6) || (rm.keywords || []).some(k => k.use === "pending");
       const st = searchState(rm);
-      if (st !== "complete") badge = searchedAreas(rm) + "/" + areaCount(rm);
+      if (making) badge = (rm.keywords || []).length + "/" + rm.budget;
+      else if (st !== "complete") badge = searchedAreas(rm) + "/" + areaCount(rm);
     }
     add(host, el("a", {
       class: "tab" + (t.id === activeTab ? " tab-on" : ""),
       href: t.href,
       "aria-current": t.id === activeTab ? "page" : null
-    }, el("span", { class: "tab-label", text: t.label }),
+    }, icon(t.icon), el("span", { class: "tab-label", text: t.label }),
        badge ? el("span", { class: "tab-badge", text: badge }) : null));
   }
 }

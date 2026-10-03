@@ -143,7 +143,12 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   const secondPrimary = await page.$eval("#action-bar-host .btn-primary", n => n.textContent);
   r.check("e2e: once asked, the primary moves on to searching", /^Search:/.test(secondPrimary), secondPrimary);
 
-  // Rename and reorder an Area (R26).
+  // Rename and reorder an Area (R26): the tools sit behind one Edit toggle,
+  // two taps away, and not on the card until asked for.
+  r.check("e2e: Area tools are hidden until Edit is pressed",
+    (await page.$('#sec-areas [aria-label="Rename this Area"]')) === null);
+  await page.click("#sec-areas .btn-edit");
+  await until(page, () => !!document.querySelector('#sec-areas [aria-label="Rename this Area"]'));
   await page.click('#sec-areas .area-card:nth-of-type(1) [aria-label="Rename this Area"]');
   await until(page, () => !!document.querySelector("#prompt-field"));
   await page.fill("#prompt-field", "Renamed Area");
@@ -241,6 +246,14 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
     return r.getBoundingClientRect().top >= l.getBoundingClientRect().bottom - 1;
   });
   r.check("phone: the same columns stack", stacked);
+  // R19: on a phone the General Area is its own card below the Areas, and the
+  // Areas come before the rarer folds and the lifecycle (§6.3.4).
+  const order = await page.evaluate(() => {
+    const y = id => document.getElementById(id).getBoundingClientRect().top;
+    return { enc: y("sec-encounter"), areas: y("sec-areas"), general: y("sec-general"), ask: y("sec-ask") };
+  });
+  r.check("phone: encounter, then Areas, then the General Area, then the folds",
+    order.enc < order.areas && order.areas < order.general && order.general < order.ask, JSON.stringify(order));
   await page.context().close();
 }
 

@@ -6,7 +6,7 @@ import { MYTHIC_RULES, MYTHIC } from "../data-mythic.js";
 import * as store from "./store.js";
 import * as settings from "./settings.js";
 import { newRoomForm } from "./wizard.js";
-import { searchState, STATE_LABEL, areaCount, searchedAreas } from "./derived.js";
+import { searchState, STATE_LABEL, areaCount, searchedAreas, searchedTotal, totalExplorable } from "./derived.js";
 import { crawlSummary } from "./lifecycle.js";
 
 // ── Crawls (home) ────────────────────────────────────────────────────────────
@@ -24,7 +24,8 @@ export function crawls() {
       const s = crawlSummary(c.id);
       add(ul, el("li", {}, el("a", { class: "row-card", href: "#/crawl/" + c.id },
         el("span", { class: "row-main", text: c.name }),
-        el("span", { class: "row-sub", text: plural(s.rooms, "room") + " · " + s.complete + " fully explored · " + when(c.lastOpenedAt) })
+        el("span", { class: "row-sub", text: plural(s.rooms, "room") + " · " + s.complete + " fully explored · " + when(c.lastOpenedAt) }),
+        rowMeter(s.complete, s.rooms)
       )));
     }
     add(content, ul);
@@ -35,6 +36,14 @@ export function crawls() {
   );
   add(content, spacer);
   return { title: "Crawls", content, bar };
+}
+
+// A thin progress line under a list row. Decorative: the row's own text
+// already carries the numbers.
+function rowMeter(done, total) {
+  const pct = total ? Math.round(done / total * 100) : 0;
+  return el("span", { class: "row-meter" + (total && done >= total ? " meter-complete" : ""), "aria-hidden": "true" },
+    el("span", { style: "width:" + pct + "%" }));
 }
 
 function newCrawl() {
@@ -72,7 +81,8 @@ export function crawl(params) {
         el("span", { class: "row-main", text: r.context.label || "Untitled room" }),
         el("span", { class: "row-sub", text: (r.context.roomType ? r.context.roomType + " · " : "") +
           searchedAreas(r) + "/" + areaCount(r) + " Areas · " + STATE_LABEL[st] }),
-        el("span", { class: "row-chip res-" + st, text: st === "complete" ? "done" : st === "building" ? "unfinished" : "open" })
+        el("span", { class: "row-chip res-" + st, text: st === "complete" ? "done" : st === "building" ? "unfinished" : "open" }),
+        walkDone ? rowMeter(searchedTotal(r), totalExplorable(r)) : rowMeter((r.keywords || []).length, r.budget)
       )));
     }
     add(content, ul);
@@ -138,12 +148,14 @@ export function log() {
 
   const all = store.rollLog();
   const tables = Array.from(new Set(all.map(r => r.table)));
-  add(content, radioGroup({
+  const filter = radioGroup({
     label: "Filter by table",
     options: ["all", ...tables].map(t => ({ id: t, label: t === "all" ? "All" : t })),
-    value: logFilter, compact: true,
+    value: logFilter, compact: true, wrap: false,
     onChange: t => { logFilter = t; logShown = LOG_PAGE; rerender(); }
-  }));
+  });
+  filter.classList.add("choice-scroll");
+  add(content, filter);
 
   const rows = logFilter === "all" ? all : all.filter(r => r.table === logFilter);
   if (!rows.length) {
@@ -151,17 +163,32 @@ export function log() {
     return { title: "Roll log", content };
   }
 
-  const ul = el("ul", { class: "list", "aria-live": "polite" });
-  for (const r of rows.slice(0, logShown)) {
-    add(ul, el("li", { class: "list-row" },
-      el("span", { class: "die die-sm", text: String(r.roll) }),
-      el("span", { class: "list-main", text: r.result },
-        r.houseAid ? houseAidBadge() : null,
-        r.mythic && MYTHIC ? el("span", { class: "badge", title: "From One-Page Mythic, not the Room Crafter article", text: "Mythic" }) : null),
-      el("span", { class: "list-sub", text: r.table + (r.roomName ? " · " + r.roomName : "") + (r.context ? " · " + r.context : "") + " · " + when(r.ts) })
-    ));
+  // Grouped by room, in the order the rolls happened: the room heads each run
+  // and stays pinned while you read it.
+  const shown = rows.slice(0, logShown);
+  const runs = [];
+  for (const r of shown) {
+    const key = r.roomId || r.roomName || "";
+    const last = runs[runs.length - 1];
+    if (last && last.key === key) last.rows.push(r);
+    else runs.push({ key, name: r.roomName || "No room", rows: [r] });
   }
-  add(content, ul);
+  const wrap = el("div", { "aria-live": "polite" });
+  for (const run of runs) {
+    add(wrap, el("h2", { class: "log-group" }, run.name, el("span", { class: "count", text: String(run.rows.length) })));
+    const ul = el("ul", { class: "list" });
+    for (const r of run.rows) {
+      add(ul, el("li", { class: "list-row log-row" },
+        el("span", { class: "die die-sm", text: String(r.roll) }),
+        el("span", { class: "list-main", text: r.result },
+          r.houseAid ? houseAidBadge() : null,
+          r.mythic && MYTHIC ? el("span", { class: "badge", title: "From One-Page Mythic, not the Room Crafter article", text: "Mythic" }) : null),
+        el("span", { class: "list-sub", text: r.table + (r.context ? " · " + r.context : "") + " · " + when(r.ts) })
+      ));
+    }
+    add(wrap, ul);
+  }
+  add(content, wrap);
 
   if (rows.length > logShown) {
     add(content, el("button", { class: "btn btn-quiet btn-wide", type: "button",
@@ -207,15 +234,20 @@ export function distribution() {
     for (let i = lo; i < lo + 10; i++) n += counts[i];
     buckets.push({ label: lo + "–" + (lo + 9), n });
   }
-  const max = Math.max(...buckets.map(b => b.n), 1);
+  const expected = total / 10;
+  const max = Math.max(...buckets.map(b => b.n), expected, 1);
   const chart = el("div", { class: "chart" });
+  const at = Math.round(expected / max * 1000) / 10;
   for (const b of buckets) {
     add(chart, el("div", { class: "chart-row" },
       el("span", { class: "chart-label", text: b.label }),
-      el("span", { class: "chart-bar" }, el("span", { class: "chart-fill", style: "width:" + Math.round(b.n / max * 100) + "%" })),
+      el("span", { class: "chart-bar" },
+        el("span", { class: "chart-fill", style: "width:" + Math.round(b.n / max * 100) + "%" }),
+        el("span", { class: "chart-expect", style: "left:" + at + "%", "aria-hidden": "true" })),
       el("span", { class: "chart-val", text: String(b.n) })
     ));
   }
+  add(chart, el("p", { class: "chart-legend", "aria-hidden": "true" }, el("i", {}), "expected"));
   add(content, chart);
   add(content, el("p", { class: "meta", text: total + " rolls · expected " + (total / 10).toFixed(1) + " per band" }));
   return { title: "Distribution", content };
@@ -249,7 +281,7 @@ export function rules(params) {
   const host = el("div", {});
   const details = [];
   for (const g of groups) {
-    add(host, el("h2", { class: "block-title", text: g.name }));
+    add(host, el("h2", { class: "block-title rules-group", text: g.name }));
     for (const r of g.items) {
       const d = el("details", { class: "fold rule-entry", id: "rule-" + r.id });
       add(d, el("summary", { text: r.title }),
@@ -285,7 +317,12 @@ export function settingsScreen() {
   const content = el("div", {});
   add(content, el("h1", { class: "screen-title", text: "Settings" }), explain(EXPLAIN.settings));
 
-  add(content, el("section", { class: "block" },
+  const grid = el("div", { class: "settings-grid" });
+  const left = el("div", {}), right = el("div", {});
+  add(grid, left, right);
+  add(content, grid);
+
+  add(left, el("section", { class: "block panel" },
     el("h2", { class: "block-title", text: "Appearance" }),
     choiceRow("Theme", [
       { id: "system", label: "System" }, { id: "light", label: "Light" }, { id: "dark", label: "Dark" }
@@ -295,7 +332,7 @@ export function settingsScreen() {
     ], String(settings.get("textScale")), v => { settings.set("textScale", Number(v)); rerender(); })
   ));
 
-  add(content, el("section", { class: "block" },
+  add(left, el("section", { class: "block panel" },
     el("h2", { class: "block-title", text: "Content" }),
     toggleRow("Show house-aid suggestions", "The room-type list is invented for this app — the article has no such table. Turn it off to type your own only.",
       settings.get("showHouseAids"), v => { settings.set("showHouseAids", v); rerender(); }),
@@ -303,7 +340,7 @@ export function settingsScreen() {
       settings.get("useMythic"), v => { settings.set("useMythic", v); rerender(); })
   ));
 
-  add(content, el("section", { class: "block" },
+  add(right, el("section", { class: "block panel" },
     el("h2", { class: "block-title", text: "Your data" }),
     el("p", { class: "prose", text: "Everything lives in this browser and nowhere else. Export writes plain JSON you can read, keep and re-import." }),
     el("div", { class: "stack" },
@@ -324,7 +361,7 @@ export function settingsScreen() {
   ));
 
   const last = store.lastUndo();
-  add(content, el("section", { class: "block block-end" },
+  add(right, el("section", { class: "block panel" },
     el("h2", { class: "block-title", text: "Undo and erase" }),
     el("div", { class: "stack" },
       el("button", { class: "btn btn-quiet btn-wide", type: "button", disabled: !last, onclick: () => {
@@ -347,7 +384,7 @@ export function settingsScreen() {
     )
   ));
 
-  add(content, el("section", { class: "block block-end" },
+  add(content, el("section", { class: "block block-end panel" },
     el("h2", { class: "block-title", text: "About" }),
     el("p", { class: "prose", text: "A personal play aid for The Room Crafter, the room-exploration variation from Mythic Magazine Vol. 69, with One-Page Mythic underneath it for the questions the article defers to an emulator. Rules paraphrased; the tables belong to their publisher. Built for one person's own use from their own copies." }),
     el("p", { class: "hint" }, "The room-type list is an invented convenience ", houseAidBadge(), ", not part of the article.")

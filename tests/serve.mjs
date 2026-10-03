@@ -5,7 +5,7 @@ import { extname, join, normalize } from "node:path";
 
 const TYPES = {
   ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript",
-  ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml"
+  ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".woff2": "font/woff2"
 };
 
 export function serve(root = process.cwd()) {

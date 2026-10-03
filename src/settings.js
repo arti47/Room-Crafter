@@ -55,6 +55,14 @@ export function applyTheme() {
   if (s.theme === "system") root.removeAttribute("data-theme");
   else root.setAttribute("data-theme", s.theme);
   root.style.setProperty("--text-scale", String(s.textScale));
+  // The browser chrome follows the in-app choice, not only the system one.
+  const PAPER = { light: "#f3ede1", dark: "#14151a" };
+  for (const m of document.querySelectorAll('meta[name="theme-color"]')) {
+    const own = (m.getAttribute("media") || "").includes("dark") ? "dark" : "light";
+    m.setAttribute("content", PAPER[s.theme === "system" ? own : s.theme]);
+  }
+  const t = document.getElementById("theme-toggle");
+  if (t) t.setAttribute("aria-label", "Theme: " + s.theme + " — tap to switch");
 }
 
 export const Settings = {

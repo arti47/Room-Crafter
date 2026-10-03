@@ -21,30 +21,43 @@ import {
 // is keyword progress, not search progress.
 export function header(room) {
   if (!room) return null;
+  // A room whose keyword walk is unfinished is still being made, whatever
+  // Areas it already has.
+  const state = isWalkDone(room) ? searchState(room) : "building";
   const bar = el("div", { class: "res-header", "aria-label": "Room status" });
-  const state = searchState(room);
-  add(bar, el("span", { class: "res-name", text: room.context.label || "Untitled room" }));
+  add(bar,
+    el("span", { class: "res-name", text: room.context.label || "Untitled room" }),
+    el("span", { class: "res-chip res-" + state, text: STATE_LABEL[state] }));
   if (state === "building") {
-    add(bar,
-      el("span", { class: "res-stat", title: "Keywords rolled" },
-        el("b", { text: (room.keywords || []).length + "/" + room.budget }),
-        el("small", { text: "Keywords" })),
-      el("span", { class: "res-stat", title: "Areas so far" },
-        el("b", { text: String(areaCount(room)) }),
-        el("small", { text: "Areas" })),
-      el("span", { class: "res-chip res-" + state, text: STATE_LABEL[state] }));
+    const rolled = (room.keywords || []).length;
+    add(bar, el("div", { class: "res-row" },
+      el("span", { class: "res-stats" },
+        el("span", { class: "res-stat", title: "Keywords rolled" },
+          el("b", { text: rolled + "/" + room.budget }), el("small", { text: "Keywords" })),
+        el("span", { class: "res-stat", title: "Areas so far" },
+          el("b", { text: String(areaCount(room)) }), el("small", { text: "Areas" }))),
+      meter(Array.from({ length: room.budget }, (_, i) => ({ on: i < rolled })))));
     return bar;
   }
-  add(bar,
-    el("span", { class: "res-stat", title: "Areas plus the General Area, searched" },
-      el("b", { text: searchedTotal(room) + "/" + totalExplorable(room) }),
-      el("small", { text: "Explored" })),
-    el("span", { class: "res-stat", title: "The General Area — the room itself" },
-      el("b", { text: generalDone(room) ? "done" : "open" }),
-      el("small", { text: "General" })),
-    el("span", { class: "res-chip res-" + state, text: STATE_LABEL[state] })
-  );
+  // One segment per Area in play order, then the General Area, outlined.
+  const segs = [...room.areas].sort((a, b) => a.order - b.order).map(a => ({ on: !!a.search }));
+  segs.push({ on: generalDone(room), gen: true });
+  add(bar, el("div", { class: "res-row" },
+    el("span", { class: "res-stats" },
+      el("span", { class: "res-stat", title: "Areas plus the General Area, searched" },
+        el("b", { text: searchedTotal(room) + "/" + totalExplorable(room) }),
+        el("small", { text: "Explored" })),
+      el("span", { class: "res-stat", title: "The General Area — the room itself" },
+        el("b", { text: generalDone(room) ? "done" : "open" }),
+        el("small", { text: "General" }))),
+    meter(segs, state === "complete")));
   return bar;
+}
+
+function meter(segs, complete = false) {
+  const m = el("span", { class: "meter-seg" + (complete ? " meter-complete" : ""), "aria-hidden": "true" });
+  for (const sg of segs) add(m, el("i", { class: (sg.on ? "on" : "") + (sg.gen ? " gen" : "") }));
+  return m;
 }
 
 // ── Screen ───────────────────────────────────────────────────────────────────
@@ -72,14 +85,17 @@ export function render(params) {
     jumpRow()
   );
 
-  // Two columns from tablet width up (P8): the room's own matter on the left,
-  // the Areas — the column you work down — on the right.
+  // The article's order, top to bottom on a phone: the room, the encounter
+  // question, the Areas, the General Area below them (R19), then the rarer
+  // folds and the lifecycle (§6.3.4). From tablet width up (P8) the Areas and
+  // the General Area become a right-hand column that scrolls on its own.
   const left = el("div", { class: "col col-room" });
-  const right = el("div", { class: "col col-areas" });
-  add(left, descriptionBlock(room), encounterBlock(room), generalBlock(room),
-    askBlock(room), hiddenBlock(room), notesBlock(room), roomActionsBlock(room));
-  add(right, areasBlock(room));
-  add(content, el("div", { class: "two-col" }, left, right));
+  const right = el("div", { class: "col col-areas", id: "col-areas", "data-keep-scroll": "" });
+  const more = el("div", { class: "col col-more" });
+  add(left, descriptionBlock(room), encounterBlock(room));
+  add(right, areasBlock(room), generalBlock(room));
+  add(more, askBlock(room), hiddenBlock(room), notesBlock(room), roomActionsBlock(room));
+  add(content, el("div", { class: "two-col sheet-cols" }, left, right, more));
 
   const [bar, spacer] = actionBar(primaryAction(room));
   add(content, spacer);
@@ -133,7 +149,7 @@ function jumpRow() {
     ["The room", "sec-room"], ["Encounter", "sec-encounter"],
     ["Areas", "sec-areas"], ["General", "sec-general"], ["Ask", "sec-ask"], ["Notes", "sec-notes"]
   ];
-  const nav = el("nav", { class: "section-nav", "aria-label": "Jump to a section" });
+  const nav = el("nav", { class: "section-nav jump-row", "aria-label": "Jump to a section" });
   for (const [label, id] of targets) {
     add(nav, el("button", { class: "pill", type: "button", onclick: () => {
       const t = document.getElementById(id);
@@ -280,6 +296,7 @@ function showAnswer(res, question) {
   modal({
     title: question || "Ask The Game Master",
     body: answerCard(res),
+    result: true,
     actions: [{ label: "Good", onClick: () => rerender() }]
   });
 }
@@ -315,10 +332,17 @@ function askBlock(room) {
   return d;
 }
 
+// Rename and reorder (R26) are rare, so their tools sit behind one toggle
+// rather than on every card. Two taps either way, and the find is never editable.
+let editingAreas = false;
+
 function areasBlock(room) {
   const box = el("section", { class: "block", id: "sec-areas" });
   add(box, el("h2", { class: "block-title", text: "Explorable Areas" },
-    el("span", { class: "count", text: searchedAreas(room) + "/" + areaCount(room) })));
+    el("span", { class: "count", text: searchedAreas(room) + "/" + areaCount(room) }),
+    areaCount(room) ? el("button", { class: "btn btn-quiet btn-edit", type: "button",
+      "aria-pressed": editingAreas ? "true" : "false",
+      onclick: () => { editingAreas = !editingAreas; rerender(); } }, editingAreas ? "Done" : "Edit") : null));
   if (!areaCount(room)) {
     add(box, el("p", { class: "hint", text: "No Areas — every keyword was dropped." }));
     return box;
@@ -330,7 +354,7 @@ function areasBlock(room) {
 
 function areaCard(room, area, index, count) {
   const done = !!area.search;
-  const card = el("article", { class: "card area-card" + (done ? " card-done" : "") });
+  const card = el("article", { class: "card area-card " + (done ? "card-done " + toneOf(area.search) : "card-open") });
   const words = (area.fromKeywords || []).map(n => {
     const k = (room.keywords || []).find(x => x.n === n);
     return k ? k.word : null;
@@ -341,7 +365,7 @@ function areaCard(room, area, index, count) {
     el("div", { class: "card-head-text" },
       el("h3", { class: "card-title", text: area.name }),
       words.length ? el("p", { class: "meta", text: "from " + words.join(" + ") }) : null),
-    el("div", { class: "card-tools" },
+    !editingAreas ? null : el("div", { class: "card-tools" },
       el("button", { class: "icon-btn icon-sm", type: "button", "aria-label": "Rename this Area", title: "Rename", onclick: () => {
         promptModal({ title: "Rename the Area", label: "What is it?", value: area.name, onConfirm: v => {
           if (!lifecycle.renameArea(room, area.id, v)) return showToast("Give it a name.");
@@ -374,7 +398,7 @@ function generalBlock(room) {
   add(box, el("h2", { class: "block-title", text: "The General Area" }));
   add(box, el("p", { class: "prose", text: "The room itself — everything not immediately noticeable. One roll, at any budget: it is what makes " +
     areaCount(room) + " Areas into " + totalExplorable(room) + " explorable places." }));
-  const card = el("article", { class: "card area-card" + (generalDone(room) ? " card-done" : "") });
+  const card = el("article", { class: "card area-card " + (generalDone(room) ? "card-done " + toneOf(room.generalArea) : "card-open") });
   if (generalDone(room)) {
     add(card, findBlock(room, room.generalArea, { areaId: null }));
     add(card, detailBlock(room, null));
@@ -445,13 +469,15 @@ function notesBlock(room) {
 function roomActionsBlock(room) {
   const box = el("section", { class: "block block-end" });
   add(box, el("h2", { class: "block-title", text: "This room" }));
-  add(box, el("div", { class: "stack" },
-    el("button", { class: "btn btn-quiet btn-wide", type: "button", onclick: () => finishRoom(room) }, "Finish this room"),
+  add(box,
+    el("div", { class: "action-grid" },
+      el("button", { class: "btn btn-quiet", type: "button", onclick: () => finishRoom(room) }, "Finish this room"),
+      el("button", { class: "btn btn-quiet", type: "button", onclick: () => readAloud(room) }, "Read-aloud text"),
+      el("button", { class: "btn btn-quiet", type: "button", onclick: () => nextRoomFlow(room) }, "Next room in this crawl"),
+      el("a", { class: "btn btn-quiet", href: "#/crawl/" + room.crawlId }, "Back to the crawl")),
     el("p", { class: "hint" }, "Searching is optional — a room you only looked at is a finished room. ", ruleLink("complete", "The rule"), "."),
-    el("button", { class: "btn btn-quiet btn-wide", type: "button", onclick: () => readAloud(room) }, "Read-aloud text"),
-    el("button", { class: "btn btn-quiet btn-wide", type: "button", onclick: () => nextRoomFlow(room) }, "Next room in this crawl"),
-    el("a", { class: "btn btn-quiet btn-wide", href: "#/crawl/" + room.crawlId }, "Back to the crawl"),
-    el("button", { class: "btn btn-danger btn-wide", type: "button", onclick: () => {
+    el("div", { class: "danger-row" },
+    el("button", { class: "btn btn-danger", type: "button", onclick: () => {
       confirmModal({
         title: "Delete this room?",
         message: "Deletes " + (room.context.label || "this room") + ", its " + areaCount(room) +
@@ -464,8 +490,7 @@ function roomActionsBlock(room) {
           location.hash = "#/crawl/" + crawlId;
         }
       });
-    } }, "Delete this room")
-  ));
+    } }, "Delete this room")));
   return box;
 }
 
@@ -473,7 +498,7 @@ function roomActionsBlock(room) {
 // A result shows the dice, what they resolved to, and what it means (§6.4).
 function findBlock(room, find, { areaId, redraw = rerender }) {
   const box = el("div", { class: "find" });
-  add(box, el("p", { class: "find-head" },
+  add(box, el("p", { class: "find-head tone-" + find.elementId },
     el("span", { class: "die", text: String(find.roll) }),
     el("b", { text: find.elementName })));
   add(box, el("p", { class: "prose", text: elementBlurb(find.elementId) }));
@@ -483,7 +508,7 @@ function findBlock(room, find, { areaId, redraw = rerender }) {
   }
 
   for (const s of find.sub || []) {
-    add(box, el("p", { class: "find-head find-sub" },
+    add(box, el("p", { class: "find-head find-sub tone-" + s.elementId },
       el("span", { class: "die", text: String(s.roll) }),
       el("b", { text: s.elementName }),
       s.substituted ? el("span", { class: "list-sub", text: " (" + s.substituted + " became Expected)" }) : null));
@@ -562,6 +587,17 @@ function meaningBlock(room, find, areaId, redraw = rerender) {
   return box;
 }
 
+// The colour channel for a find: the danger hue for the loss side, the good hue
+// for the fortunate side (theme, §1). Answers are never toned — whether a Yes is
+// good news depends on the question.
+function toneOf(find) {
+  if (!find) return "";
+  const ids = [find.elementId, ...(find.sub || []).map(x => x.elementId)];
+  if (ids.includes("unfortunate")) return "tone-unfortunate";
+  if (ids.includes("fortunate")) return "tone-fortunate";
+  return "";
+}
+
 function elementBlurb(id) {
   const band = ROOM_ELEMENTS.find(x => x.id === id);
   return band ? band.blurb : "";
@@ -629,6 +665,7 @@ function showFind(room, find, label, areaId) {
   modal({
     title: label,
     body: host,
+    result: true,
     actions: [{ label: "Good", onClick: () => { rerender(); } }]
   });
 }

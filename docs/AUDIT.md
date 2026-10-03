@@ -464,3 +464,57 @@ order the findings arrived:
 2. Descend into any modal the audit opens and click there, comparing the
    modal's own markup (A-31).
 3. `npm run pwa` is in `npm run all` now (A-32) — keep it there.
+
+## Cycle 5 — UX and visual pass (2026-10-03)
+
+Six rounds over every route at 320/390/390-dark/900, against the §6.2–§6.7
+contract and the traceability ledger. Content untouched; every change is layout,
+styling or a reachability fix.
+
+**A-34 · On a phone the General Area sat above the Areas.** Ledger R19 says
+"its own card below the Areas"; the two-column DOM stacked the whole left
+column (General, Ask, Hidden, Notes, lifecycle) before the Areas. *Fix:* three
+columns in article order (room+encounter · Areas+General · folds+lifecycle),
+laid out as two on a tablet by grid areas. *Guard:* `phone: encounter, then
+Areas, then the General Area, then the folds` — watched go red against the old
+order (general 848 < areas 1073).
+
+**A-35 · In-page jumps landed under the sticky headers.** `#sec-areas` scrolled
+to y=0 beneath 122px of header. *Fix:* the router measures the frame into
+`--head-h`; blocks carry `scroll-margin-top`. Now 126 vs header bottom 114.
+
+**A-36 · Hint/meta text failed AA contrast** (`--ink-3` 3.0–3.8:1) **and control
+edges failed 3:1** (`--rule` 1.3–1.5:1). *Fix:* `--ink-3` ≥5.0:1 on every
+surface in both themes; new `--line-strong` (≥3.2:1) for control edges, `--line`
+kept for decoration.
+
+**A-37 · The spec's danger accent for loss-side Elements was never applied.**
+*Fix:* Unfortunate finds draw the die, name and card rule in `--danger`,
+Fortunate in `--good`; text still names the Element, so colour is never the only
+channel. Mythic answers are deliberately not toned — whether a Yes is good news
+depends on the question.
+
+**A-38 · The toast covered the pinned primary.** *Fix:* the router publishes the
+action bar's real height as `--bar-live`; the toast sits above it.
+
+**A-39 · No top safe-area inset under `viewport-fit=cover`.** *Fix:* the app
+header pads by `env(safe-area-inset-top)`.
+
+**A-40 · The Room tab badge read "0/0" during the keyword walk.** *Fix:* it shows
+keywords rolled / budget until the walk is done, matching the room header.
+
+**A-41 · Jump pills rendered in the UA's sans on grey** (no `font: inherit`), and
+the ◐ theme glyph fell back to a half-glyph. *Fix:* inherited font; SVG icon.
+
+**A-42 · `theme-color` ignored the in-app theme override.** *Fix:* `applyTheme`
+rewrites both meta tags.
+
+**A-43 · The tablet wizard's right column was an empty collapsed fold.** *Fix:*
+the keyword trail is an open timeline from 760px up.
+
+**Considered and not done, because §6.2 is LOCKED:** lifting the zoom lock (the
+template trades it for the text-size control, which exists); dropping the app
+header or its theme toggle; replacing the tab bar with a side rail on tablet.
+The room header was compacted instead (two lines with a segmented meter), and
+the frame at 320px went from 288px to 270px with the skip link showing, ~235px
+without.

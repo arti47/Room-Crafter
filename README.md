@@ -109,3 +109,6 @@ you want to publish something like it, build it on openly licensed material
 yours.
 
 No setting, adventure or artwork from the source is included.
+
+The typeface is Source Serif 4 (Adobe), bundled in `fonts/` under the SIL Open
+Font License 1.1 — see `fonts/OFL.txt`. It ships with the app so it works offline.
