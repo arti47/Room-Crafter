@@ -563,3 +563,36 @@ record. *Guard:* `R25:` smoke checks.
 
 **A-52 · A tall sheet scrolled its own title and ✕ away** (same screenshot).
 *Fix:* handle, title and ✕ sit in a sticky top band inside the sheet.
+
+## Redundancy and linkage check (2026-10-03)
+
+**A-53 · Duplicated logic.** One rule, several copies — the shape that drifts:
+| What | Copies | Now |
+|---|---|---|
+| Walk finished (all keywords rolled, none pending) | 5 (sheet, wizard, screens ×2, print, router inline) | `derived.isWalkDone` |
+| Room link (sheet if walked, else wizard) | 4 | `derived.roomHref` |
+| An Area's keyword words | 4 (sheet, wizard, store, print) | `derived.areaWords` |
+| A find's tone | 2 (sheet, print) | `graphics.findTone` |
+| Breadcrumb | 4 | `ui.crumb` |
+| Copy-to-clipboard | 2 | `ui.copyText` |
+| New / next room dialog | 2 (screens, sheet) | `wizard.openNewRoom` |
+Five functions used only inside their own module were un-exported; the
+no-room screen now uses the shared empty state.
+
+**A-54 · The finish summary did not offer the print record**, though finishing
+is when a record is wanted. *Fix:* "Print this room" among its onward routes.
+*Guard:* `link: the finish summary offers the print record`.
+
+**H-15 · A statistical check that failed 1.8% of the time.** "R18 … doubles
+kept" asserted at least one double in 400 Sock Drawer pairs; at 1 in 100 that
+misses with probability 0.99⁴⁰⁰ ≈ 1.8%. It failed once during this pass with
+`roller.js` unchanged. Now 2,000 pairs (≈2·10⁻⁹). The other sampled checks
+were re-read: each asserts an invariant on every sample, or samples enough
+that a miss is below 10⁻⁹.
+
+**Linkage map, verified:** Crawls ⇄ crawl ⇄ room/wizard (crumbs both ways,
+rows and Back), room ⇄ neighbours (pager), room → print → room, crawl → print
+→ crawl, finish → next room / read-aloud / print / crawl, log ⇄ distribution
+(section nav), log → room, rules ⇄ tutorial (section nav), surface → rule →
+Back, refusal toast → rule, Settings → tutorial / rules, tutorial → crawls /
+examples crawl, no-room → crawl. No dead ends found.

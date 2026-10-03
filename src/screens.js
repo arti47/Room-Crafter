@@ -1,13 +1,13 @@
 // screens.js — home/crawls, crawl detail, roll log, distribution, rules, settings.
 import { el, add, when, plural } from "./core.js";
-import { explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast, emptyState, sectionNav, houseAidBadge, radioGroup, downloadText, pickFile, icon } from "./ui.js";
+import { explain, actionBar, modal, promptModal, confirmModal, showToast, emptyState, sectionNav, houseAidBadge, radioGroup, downloadText, pickFile, icon, crumb, copyText } from "./ui.js";
 import { crawlStrip, heatGrid, illustration, fleuron } from "./graphics.js";
 import { EXPLAIN, RULES_LIBRARY, ROLL_LOG_CAP } from "../data.js";
 import { MYTHIC_RULES, MYTHIC } from "../data-mythic.js";
 import * as store from "./store.js";
 import * as settings from "./settings.js";
-import { newRoomForm } from "./wizard.js";
-import { searchState, STATE_LABEL, areaCount, searchedAreas, searchedTotal, totalExplorable } from "./derived.js";
+import { openNewRoom } from "./wizard.js";
+import { searchState, STATE_LABEL, areaCount, searchedAreas, searchedTotal, totalExplorable, isWalkDone, roomHref } from "./derived.js";
 import { crawlSummary } from "./lifecycle.js";
 
 // ── Crawls (home) ────────────────────────────────────────────────────────────
@@ -27,7 +27,7 @@ export function crawls() {
         el("span", { class: "row-main", text: c.name }),
         el("span", { class: "row-sub", text: plural(s.rooms, "room") + " · " + s.complete + " fully explored · " + when(c.lastOpenedAt) }),
         // One square per room, in crawl order, shaded by how far it was searched.
-        crawlStrip(store.rooms(c.id).map(r => roomWalkDone(r) ? searchState(r) : "building")) || rowMeter(0, 0)
+        crawlStrip(store.rooms(c.id).map(r => isWalkDone(r) ? searchState(r) : "building")) || rowMeter(0, 0)
       )));
     }
     add(content, ul);
@@ -42,10 +42,6 @@ export function crawls() {
 
 // A thin progress line under a list row. Decorative: the row's own text
 // already carries the numbers.
-function roomWalkDone(r) {
-  return (r.keywords || []).length >= r.budget && !(r.keywords || []).some(k => k.use === "pending");
-}
-
 function rowMeter(done, total) {
   const pct = total ? Math.round(done / total * 100) : 0;
   return el("span", { class: "row-meter" + (total && done >= total ? " meter-complete" : ""), "aria-hidden": "true" },
@@ -71,7 +67,7 @@ export function crawl(params) {
   const rooms = store.rooms(c.id);
   const content = el("div", {});
   add(content,
-    el("a", { class: "crumb", href: "#/crawls" }, icon("chev-l"), el("span", { text: "Crawls" })),
+    crumb("#/crawls", "Crawls"),
     el("h1", { class: "screen-title", text: c.name }),
     explain(EXPLAIN.crawl),
     el("p", { class: "meta", text: crawlSummary(c.id).lines.join(" · ") })
@@ -84,8 +80,8 @@ export function crawl(params) {
     const ul = el("ul", { class: "list list-cards chain" });
     for (const r of rooms) {
       const st = searchState(r);
-      const walkDone = (r.keywords || []).length >= r.budget && !(r.keywords || []).some(k => k.use === "pending");
-      add(ul, el("li", {}, el("a", { class: "row-card", href: (walkDone ? "#/room/" : "#/wizard/") + r.id },
+      const walkDone = isWalkDone(r);
+      add(ul, el("li", {}, el("a", { class: "row-card", href: roomHref(r) },
         el("span", { class: "row-main", text: r.context.label || "Untitled room" }),
         el("span", { class: "row-sub", text: (r.context.roomType ? r.context.roomType + " · " : "") +
           searchedAreas(r) + "/" + areaCount(r) + " Areas · " + STATE_LABEL[st] }),
@@ -121,22 +117,11 @@ export function crawl(params) {
   ));
 
   const [bar, spacer] = actionBar(
-    el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => startRoom(c.id) },
+    el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => openNewRoom(c.id) },
       rooms.length ? "Next room" : "First room")
   );
   add(content, spacer);
   return { title: c.name, content, bar };
-}
-
-function startRoom(crawlId) {
-  const form = newRoomForm(crawlId, rm => { location.hash = "#/wizard/" + rm.id; });
-  modal({
-    title: "New room", body: form.body,
-    actions: [
-      { label: "Start the keyword walk", onClick: () => { closeModal(); form.create(); } },
-      { label: "Cancel" }
-    ]
-  });
 }
 
 // ── Roll log ─────────────────────────────────────────────────────────────────
@@ -188,7 +173,7 @@ export function log() {
     const rid = run.rows[0].roomId;
     const target = rid ? store.room(rid) : null;
     add(wrap, el("h2", { class: "log-group" },
-      target ? el("a", { class: "log-room", href: (roomWalkDone(target) ? "#/room/" : "#/wizard/") + target.id }, run.name, icon("chev-r")) : run.name,
+      target ? el("a", { class: "log-room", href: roomHref(target) }, run.name, icon("chev-r")) : run.name,
       el("span", { class: "count", text: String(run.rows.length) })));
     const ul = el("ul", { class: "list" });
     for (const r of run.rows) {
@@ -461,9 +446,7 @@ function exportTextFlow(text) {
     body: el("div", {}, ta, el("p", { class: "hint", text: "Copy this and keep it somewhere. Import puts it back." })),
     actions: [
       { label: "Copy", onClick: () => {
-        ta.select();
-        if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => showToast("Copied."), () => showToast("Select the text and copy."));
-        else showToast("Select the text and copy.");
+        copyText(ta, text);
         return true;
       } },
       { label: "Close" }

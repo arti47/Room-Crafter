@@ -10,6 +10,17 @@ function svgWrap(cls, markup, label) {
   return el("span", { class: "gfx " + cls, ...attrs, html: markup });
 }
 
+// The colour channel for a find: the danger hue for the loss side, the good hue
+// for the fortunate side (theme, §1). Answers are never toned — whether a Yes is
+// good news depends on the question.
+export function findTone(find) {
+  if (!find) return "";
+  const ids = [find.elementId, ...(find.sub || []).map(x => x.elementId)];
+  if (ids.includes("unfortunate")) return "tone-unfortunate";
+  if (ids.includes("fortunate")) return "tone-fortunate";
+  return "";
+}
+
 // A glyph for each Room Element (sprite symbols e-*), shown beside its name.
 export function elementGlyph(id) {
   return svgWrap("glyph glyph-" + id,
@@ -58,7 +69,7 @@ export function oddsBands(row, answers) {
 // room and means nothing.
 function hash(s) { let h = 7; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; }
 
-export function roomPlan(room, { onPick, toneOf } = {}) {
+export function roomPlan(room, { onPick } = {}) {
   const areas = [...(room.areas || [])].sort((a, b) => a.order - b.order);
   const n = areas.length;
   const rows = n > 3 ? [Math.ceil(n / 2), n - Math.ceil(n / 2)] : [n];
@@ -78,7 +89,7 @@ export function roomPlan(room, { onPick, toneOf } = {}) {
       const bh = rowH - (h % 7);
       const y = pad + 2 + r * (rowH + gap) + (r === 0 ? 0 : rowH - bh);
       const done = !!a.search;
-      const tone = done && toneOf ? toneOf(a.search) : "";
+      const tone = done ? findTone(a.search) : "";
       blocks += '<g class="plan-area' + (done ? " done" : "") + (tone ? " " + tone : "") + '" data-area="' + esc(a.id) +
         '" tabindex="0" role="button" aria-label="' + esc("Area " + (idx + 1) + ": " + a.name + (done ? ", searched" : ", not searched")) + '">' +
         '<rect x="' + x.toFixed(1) + '" y="' + y + '" width="' + w.toFixed(1) + '" height="' + bh + '" rx="2.5"/>' +

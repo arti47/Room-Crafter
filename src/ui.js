@@ -287,6 +287,18 @@ export function iconTitle(tag, cls, iconName, text, ...extra) {
   return el(tag, { class: cls + " has-ico" }, icon(iconName), el("span", { class: "title-text", text }), ...extra);
 }
 
+// The way back up (§6.3.9): a link to the parent screen, named.
+export function crumb(href, label) {
+  return el("a", { class: "crumb", href }, icon("chev-l"), el("span", { text: label }));
+}
+
+// Copy a textarea's text, falling back to leaving it selected for the hand.
+export function copyText(ta, text) {
+  ta.select();
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => showToast("Copied."), () => showToast("Select the text and copy."));
+  else showToast("Select the text and copy.");
+}
+
 // A link into the rules library from an automated surface (§6.6 layer 2).
 export function ruleLink(id, label = "the rule") {
   return el("a", { class: "rule-link", href: "#/rules/" + id }, label);

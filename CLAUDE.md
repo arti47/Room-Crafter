@@ -144,13 +144,13 @@ rules; `gm.js` — no second seat (A15); `power-automation.js` — no powers.
 | Module | Responsibility |
 |---|---|
 | `core.js` | Constants, DOM/util helpers (incl. the null-safe `add`), **crypto d100**. No imports |
-| `ui.js` | Themed modal (bottom sheet, ✕, drag-to-dismiss, `result` variant)/toast/confirm/prompt, collapsible `explain()`, pinned `actionBar()` (returns bar + spacer together), `icon()` |
-| `graphics.js` | Drawn elements, all derived from a record or a data table: the room plan, d100 band strips (the working on result dialogs and the odds gauge), Element glyphs, crawl strip, 10×10 face grid, empty-state drawings, fleuron. No rules |
+| `ui.js` | Themed modal (bottom sheet, ✕, drag-to-dismiss, `result` variant)/toast/confirm/prompt, collapsible `explain()`, pinned `actionBar()` (returns bar + spacer together), `icon()`, `crumb()` (every way-back link), `copyText()` (every Copy button) |
+| `graphics.js` | Drawn elements, all derived from a record or a data table: the room plan, d100 band strips (the working on result dialogs and the odds gauge), Element glyphs, crawl strip, 10×10 face grid, empty-state drawings, fleuron, and `findTone` (the one place a find's colour is decided). No rules |
 | `rules.js` | Pure lookups over the data files: keyword by roll, Element band by roll, encounter band |
-| `derived.js` | Area count, total explorable Areas, room-complete predicate, search progress, normalization/migration |
+| `derived.js` | Area count, total explorable Areas, room-complete predicate, search progress, normalization/migration; `isWalkDone` / `roomHref` / `areaWords` — the one definition of each, read by every screen |
 | `settings.js` | Theme, text size, house-aid visibility, advanced toggles |
 | `store.js` | Crawl + room persistence, roll log (attributed at write time), JSON export/import, read-aloud export, undo stack |
-| `wizard.js` | Room generation — the sequential keyword walk with interpret / combine / drop |
+| `wizard.js` | Room generation — the sequential keyword walk with interpret / combine / drop; `openNewRoom` — the one new/next-room dialog |
 | `roller.js` | The d100 engine: keyword rolls, Element resolution, Multi-Element cascade, Sock Drawer pairs, roll-log writes |
 | `mythic.js` | The One-Page Mythic engine, behind its toggle: Ask The GM, the Random Event trigger, Discover Meaning and "another word" |
 | `sheet.js` | Room sheet, Area cards, persistent room header, General Area, notes |
@@ -386,7 +386,7 @@ table** — that is the one part of this milestone still owed.
 - ☑ Dead fields removed; wizard trail and header humanised; one label for finishing a room
 
 **Phase 8 — Hardening** ◐
-- ☑ Harness A (`npm test`, 87 checks), B (`npm run smoke`, 302), C (`npm run interact`, 324), D (fixtures fresh/mid-crawl/stress + both probes)
+- ☑ Harness A (`npm test`, 87 checks), B (`npm run smoke`, 303), C (`npm run interact`, 324), D (fixtures fresh/mid-crawl/stress + both probes)
 - ☑ Dead-data scan (`npm run scan`), clean
 - ☑ Accessibility: focus trap, `aria-live`, `aria-current`, labelled controls, 16px inputs, 40px+ targets, reduced motion, skip link
 - ☑ The §6.7 measurement contract, asserted on every route at every seed
@@ -447,6 +447,7 @@ Template §10 applies in full. The ones this project will actually be tested by:
 | 2026-09-11 | Audit cycle 2: A-13…A-16 and three harness faults | Template §11 | Three more guards watched go red | `rc-v2` |
 | 2026-09-11 | A-13: moved the default odds into the data layer | `"fifty"` was hardcoded in two `src/` modules (§10.2) | `R31` covers the row; `DEFAULT_ODDS` is the only source | `rc-v2` |
 | 2026-09-11 | H-10: the interaction audit now compares markup, not its length | A radiogroup changing selection is a net-zero length change, so nine live controls read as dead — and the same fault would hide any swap-shaped change | 294 controls, 0 findings | — |
+| 2026-10-03 | Redundancy pass (A-53): one definition each for the walk-done predicate (was five), the room link (four), an Area's keyword words (four), a find's tone (two), the breadcrumb (four), the Copy action (two) and the new/next-room dialog (two); five internal-only functions un-exported; the no-room screen uses the shared empty state. Linkage (A-54): the finish summary offers "Print this room". H-15: the Sock Drawer doubles check sampled 400 pairs, a 1.8% false-failure rate; now 2,000 | Owner asked for a redundancy and linkage check | `npm test` 87 · `scan` clean · `smoke` 303 · `interact` 324 · `pwa` 13 | `rc-v12` |
 | 2026-10-03 | Print appendix: each room's print record ends with its rolls from the log, oldest first, with provenance badges and the log-cap note | Owner asked for it (Q3). The log is the fairness record; the page now carries its own evidence | `smoke` 302 (appendix check watched go red with the filter broken) · all harnesses green · A4 PDF read | `rc-v11` |
 | 2026-10-03 | A-51: the several-spaces question (R25) is a switch, off by default, revealing its field; switched off, no note is saved. A-52: a sheet's title, handle and ✕ stay pinned while its body scrolls | Owner report (screenshot): an always-open text box read as a required answer for a permission most rooms never use; the same screenshot showed the sheet's title scrolled off | `smoke` 301 (four R25 checks) · all harnesses green · screenshots 390×560 dark, scrolled | `rc-v10` |
 | 2026-10-03 | Print records: `src/print.js`, routes `#/print/room/:id` and `#/print/crawl/:id`, entry points on the room sheet and the crawl; `@media print` for every screen (light palette, no chrome, no controls, folds opened by `beforeprint`, one room per page in a crawl) | Owner asked for a one-page record of a finished room or crawl. Wording is the read-aloud export's, so nothing new is said | `npm test` 87 · `scan` clean · `smoke` 297 (six print checks) · `interact` 324 · `pwa` 13; A4 PDF of the stress crawl rendered and read | `rc-v9` |

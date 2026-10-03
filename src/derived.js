@@ -45,6 +45,26 @@ export function searchState(room) {
   return "searching";
 }
 
+// The keyword walk is finished: every keyword in the budget rolled and none
+// still on the table. One definition, read by every screen that needs it.
+export function isWalkDone(room) {
+  const kws = room.keywords || [];
+  return kws.length >= (room.budget || 6) && !kws.some(k => k.use === "pending");
+}
+
+// Where a room lives: its sheet once the walk is done, the walk until then.
+export function roomHref(room) {
+  return (isWalkDone(room) ? "#/room/" : "#/wizard/") + room.id;
+}
+
+// The keywords an Area was made from, as words, in the order rolled.
+export function areaWords(room, area) {
+  return (area.fromKeywords || []).map(n => {
+    const k = (room.keywords || []).find(x => x.n === n);
+    return k ? k.word : null;
+  }).filter(Boolean);
+}
+
 export const STATE_LABEL = {
   building: "Being made",
   described: "Described, not searched",

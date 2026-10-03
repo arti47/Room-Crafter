@@ -2,22 +2,22 @@
 // The app enforces the order, the cap and the count. The interpretation is yours
 // — that is the one thing this tool exists to leave alone.
 import { el, add, clear, uid } from "./core.js";
-import { explain, actionBar, promptModal, showToast, refuse, ruleLink, houseAidBadge, radioGroup, icon } from "./ui.js";
+import { explain, actionBar, promptModal, showToast, refuse, ruleLink, houseAidBadge, radioGroup, crumb, modal, closeModal } from "./ui.js";
 import { MAX_COMBINE, BUDGETS, EXPLAIN } from "../data.js";
 import { ROOM_TYPES, HOUSE_AID } from "../data-house-roomtypes.js";
 import * as store from "./store.js";
 import * as lifecycle from "./lifecycle.js";
 import * as roller from "./roller.js";
 import { Settings } from "./settings.js";
-import { budgetInfo } from "./derived.js";
+import { budgetInfo, isWalkDone as walkDone, areaWords } from "./derived.js";
 
 export function pending(room) {
   return (room.keywords || []).filter(k => k.use === "pending");
 }
-export function rolledCount(room) {
+function rolledCount(room) {
   return (room.keywords || []).length;
 }
-export function stepsLeft(room) {
+function stepsLeft(room) {
   return (room.budget || 6) - rolledCount(room);
 }
 export function canCarry(room) {
@@ -27,9 +27,8 @@ export function canDrop(room) {
   // Ruling A8: only the final keyword may be dropped.
   return stepsLeft(room) === 0 && pending(room).length > 0;
 }
-export function isWalkDone(room) {
-  return stepsLeft(room) === 0 && pending(room).length === 0;
-}
+// One definition lives in derived.js; re-exported for the harnesses.
+export const isWalkDone = walkDone;
 
 // ── Engine ───────────────────────────────────────────────────────────────────
 export function rollNext(room) {
@@ -93,7 +92,7 @@ export function render(params) {
 
   const crawl = store.crawl(room.crawlId);
   add(content,
-    crawl ? el("a", { class: "crumb", href: "#/crawl/" + crawl.id }, icon("chev-l"), el("span", { text: crawl.name })) : null,
+    crawl ? crumb("#/crawl/" + crawl.id, crawl.name) : null,
     el("h1", { class: "screen-title", text: room.context.label || "New room" }),
     explain(EXPLAIN.wizard),
     el("p", { class: "meta" },
@@ -220,10 +219,7 @@ function areaList(room) {
   for (const a of room.areas) {
     add(ul, el("li", { class: "list-row" },
       el("span", { class: "list-main", text: a.name }),
-      el("span", { class: "list-sub", text: a.fromKeywords.map(n => {
-        const k = room.keywords.find(x => x.n === n);
-        return k ? k.word : "";
-      }).filter(Boolean).join(" + ") })
+      el("span", { class: "list-sub", text: areaWords(room, a).join(" + ") })
     ));
   }
   add(box, ul);
@@ -325,6 +321,20 @@ export function newRoomForm(crawlId, onCreated, fromRoom = null) {
     onCreated && onCreated(rm);
     return rm;
   } };
+}
+
+// The one dialog that starts a room, from the crawl ("New room") or from a
+// room ("Next room", budget inherited — R28). Either way it lands in the walk.
+export function openNewRoom(crawlId, fromRoom = null) {
+  const form = newRoomForm(crawlId, rm => { location.hash = "#/wizard/" + rm.id; }, fromRoom);
+  modal({
+    title: fromRoom ? "Next room" : "New room",
+    body: form.body,
+    actions: [
+      { label: "Start the keyword walk", onClick: () => { closeModal(); form.create(); } },
+      { label: "Cancel" }
+    ]
+  });
 }
 
 let rerender = () => {};

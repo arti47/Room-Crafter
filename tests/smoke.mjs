@@ -273,6 +273,13 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await goto(page, site, "#/room");
   const href = await page.$eval('#screen a[href^="#/print/room/"]', n => n.getAttribute("href")).catch(() => null);
   r.check("print: the room sheet links to its print record", !!href);
+  // The finish summary is where a record is wanted, so it offers the print too.
+  await page.evaluate(() => Array.from(document.querySelectorAll("#screen .action-grid button")).find(b => /Finish this room/.test(b.textContent)).click());
+  await until(page, () => !!document.querySelector(".modal-backdrop"));
+  const finishActions = await page.$$eval(".modal-actions .btn", ns => ns.map(n => n.textContent.trim()));
+  r.check("link: the finish summary offers the print record", finishActions.includes("Print this room"), finishActions.join(" | "));
+  await page.keyboard.press("Escape");
+  await until(page, () => !document.querySelector(".modal-backdrop"));
   if (href) {
     await goto(page, site, href);
     const rec = await page.evaluate(() => ({

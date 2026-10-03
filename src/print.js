@@ -2,27 +2,15 @@
 // as PDF. A record, not a screen: the same facts and wording as the read-aloud
 // export (store.roomAsText), laid out for paper. No controls survive printing.
 import { el, add } from "./core.js";
-import { icon, houseAidBadge } from "./ui.js";
+import { houseAidBadge, crumb } from "./ui.js";
 import { ROLL_LOG_CAP } from "../data.js";
 import { MYTHIC } from "../data-mythic.js";
 import * as store from "./store.js";
-import { roomPlan, elementGlyph } from "./graphics.js";
-import { searchState, STATE_LABEL, searchedTotal, totalExplorable } from "./derived.js";
-
-function toneOf(find) {
-  if (!find) return "";
-  const ids = [find.elementId, ...(find.sub || []).map(x => x.elementId)];
-  if (ids.includes("unfortunate")) return "tone-unfortunate";
-  if (ids.includes("fortunate")) return "tone-fortunate";
-  return "";
-}
-
-function walkDone(r) {
-  return (r.keywords || []).length >= r.budget && !(r.keywords || []).some(k => k.use === "pending");
-}
+import { roomPlan, elementGlyph, findTone } from "./graphics.js";
+import { searchState, STATE_LABEL, searchedTotal, totalExplorable, isWalkDone, roomHref, areaWords } from "./derived.js";
 
 function findLine(find) {
-  const p = el("div", { class: "pr-find " + toneOf(find) });
+  const p = el("div", { class: "pr-find " + findTone(find) });
   add(p, el("span", { class: "die die-sm", text: String(find.roll) }), elementGlyph(find.elementId),
     el("b", { text: find.elementName }));
   for (const s of find.sub || []) {
@@ -45,9 +33,9 @@ function answerLine(rec, lead) {
 }
 
 // One room as a record.
-export function roomRecord(rm) {
+function roomRecord(rm) {
   const ctx = rm.context || {};
-  const st = walkDone(rm) ? searchState(rm) : "building";
+  const st = isWalkDone(rm) ? searchState(rm) : "building";
   const art = el("article", { class: "pr-room" });
   add(art, el("header", { class: "pr-head" },
     el("div", {},
@@ -57,7 +45,7 @@ export function roomRecord(rm) {
     el("span", { class: "res-chip res-" + st, text: STATE_LABEL[st] })));
 
   const top = el("div", { class: "pr-top" });
-  if ((rm.areas || []).length) add(top, el("div", { class: "pr-plan" }, roomPlan(rm, { toneOf }),
+  if ((rm.areas || []).length) add(top, el("div", { class: "pr-plan" }, roomPlan(rm),
     el("p", { class: "pr-cap", text: searchedTotal(rm) + "/" + totalExplorable(rm) + " explored" })));
   const side = el("div", { class: "pr-side" });
   if (rm.description) add(side, el("p", { class: "prose prose-read", text: rm.description }));
@@ -70,11 +58,8 @@ export function roomRecord(rm) {
   add(art, el("h3", { class: "pr-h", text: "Areas:" }));
   const ol = el("ol", { class: "pr-areas" });
   areas.forEach((a, i) => {
-    const words = (a.fromKeywords || []).map(n => {
-      const k = (rm.keywords || []).find(x => x.n === n);
-      return k ? k.word : null;
-    }).filter(Boolean).join(" + ");
-    const li = el("li", { class: a.search ? "done " + toneOf(a.search) : "" },
+    const words = areaWords(rm, a).join(" + ");
+    const li = el("li", { class: a.search ? "done " + findTone(a.search) : "" },
       el("span", { class: "area-num", "aria-hidden": "true", text: String(i + 1) }),
       el("div", {},
         el("p", { class: "pr-name" }, el("b", { text: a.name }), words ? el("span", { class: "meta", text: "  [" + words + "]" }) : null),
@@ -126,7 +111,7 @@ export function render(params) {
   let rooms = [], title = "Print", back = "#/crawls", heading = null;
   if (params.kind === "room") {
     const rm = store.room(params.id);
-    if (rm) { rooms = [rm]; title = rm.context.label || "Room"; back = (walkDone(rm) ? "#/room/" : "#/wizard/") + rm.id; }
+    if (rm) { rooms = [rm]; title = rm.context.label || "Room"; back = roomHref(rm); }
   } else {
     const c = store.crawl(params.id);
     if (c) {
@@ -136,7 +121,7 @@ export function render(params) {
     }
   }
   add(content, el("div", { class: "print-bar no-print" },
-    el("a", { class: "crumb", href: back }, icon("chev-l"), el("span", { text: title })),
+    crumb(back, title),
     el("button", { class: "btn btn-primary", type: "button", onclick: () => window.print() }, "Print")));
   if (!rooms.length) {
     add(content, el("p", { class: "prose", text: "Nothing to print." }));

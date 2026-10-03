@@ -1,7 +1,7 @@
 // store.js — all persistence. localStorage only; no backend, no keys, no network.
 // Plain JSON throughout so the data outlives the app (template §5.1).
 import { uid } from "./core.js";
-import { normalizeRoom, normalizeCrawl, isComplete } from "./derived.js";
+import { normalizeRoom, normalizeCrawl, isComplete, areaWords } from "./derived.js";
 import { ROLL_LOG_CAP, UNDO_CAP } from "../data.js";
 import { all as allSettings, replaceAll as replaceSettings } from "./settings.js";
 
@@ -259,10 +259,7 @@ export function roomAsText(rm) {
   }
   L.push("Areas:");
   for (const a of rm.areas || []) {
-    const words = (a.fromKeywords || []).map(n => {
-      const k = (rm.keywords || []).find(x => x.n === n);
-      return k ? k.word : null;
-    }).filter(Boolean).join(" + ");
+    const words = areaWords(rm, a).join(" + ");
     L.push("  - " + a.name + (words ? "  [" + words + "]" : ""));
     if (a.search) L.push("      " + describeFind(a.search));
     for (const d of (rm.details || []).filter(x => x.areaId === a.id)) {
@@ -298,7 +295,7 @@ export function roomAsText(rm) {
   return L.join("\n");
 }
 
-export function describeFind(find) {
+function describeFind(find) {
   if (!find) return "not searched";
   const bits = [find.elementName + " (" + find.roll + ")"];
   for (const s of find.sub || []) bits.push(s.elementName + " (" + s.roll + ")");

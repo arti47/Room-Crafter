@@ -389,15 +389,17 @@ check("R17 Random asks for a Meaning pair, and only then stops asking", () => {
 });
 check("R18 a Meaning pair is two words from the chosen table, doubles kept", () => {
   const room = walk(freshRoom(3), () => "area");
+  // A double is 1 in 100, so 400 pairs miss one 1.8% of the time (H-15);
+  // 2,000 pairs miss one about twice in a billion.
   let doubles = 0;
-  for (let i = 0; i < 400; i++) {
+  for (let i = 0; i < 2000; i++) {
     const m = roller.rollMeaningPair(room, "sock");
     eq(m.words.length, 2);
     eq(m.tableName, "Sock Drawer");
     for (const w of m.words) ok(data.SOCK_DRAWER.includes(w), "not a Sock Drawer word: " + w);
     if (m.words[0] === m.words[1]) { doubles++; ok(m.doubled === true); }
   }
-  ok(doubles > 0, "no doubles in 400 pairs — they are being re-rolled somewhere");
+  ok(doubles > 0, "no doubles in 2000 pairs — they are being re-rolled somewhere");
 });
 check("R19 the General Area needs no prerequisite and takes one roll", () => {
   const room = walk(freshRoom(6), () => "area");

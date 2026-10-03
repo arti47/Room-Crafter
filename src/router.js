@@ -1,13 +1,14 @@
 // router.js — hash routing, the fixed frame, section nav and live-state badges.
 import { el, add, clear, $ } from "./core.js";
-import { icon } from "./ui.js";
+import { icon, emptyState } from "./ui.js";
+import { illustration } from "./graphics.js";
 import * as store from "./store.js";
 import * as screens from "./screens.js";
 import * as wizard from "./wizard.js";
 import * as sheet from "./sheet.js";
 import * as tutorial from "./tutorial.js";
 import * as print from "./print.js";
-import { searchState, areaCount, searchedAreas } from "./derived.js";
+import { searchState, areaCount, searchedAreas, isWalkDone } from "./derived.js";
 
 const TABS = [
   { id: "crawls", label: "Crawls", href: "#/crawls", icon: "crawls" },
@@ -167,17 +168,14 @@ if (typeof window !== "undefined") {
 }
 
 // What the screens call after an in-place action.
-export function refresh() {
+function refresh() {
   render({ keepPlace: true });
 }
 
 function noRoom() {
   const cur = store.current();
-  const box = el("div", { class: "empty" });
-  add(box, el("p", { class: "prose", text: "No room open. Rooms live inside a crawl — open one and start a room, and it stays here while you work on it." }));
-  add(box, el("a", { class: "btn btn-primary", href: cur.crawlId ? "#/crawl/" + cur.crawlId : "#/crawls" },
-    cur.crawlId ? "Back to the crawl" : "Go to crawls"));
-  return box;
+  return emptyState("No room open. Rooms live inside a crawl — open one and start a room, and it stays here while you work on it.",
+    cur.crawlId ? "Back to the crawl" : "Go to crawls", cur.crawlId ? "#/crawl/" + cur.crawlId : "#/crawls", illustration("door"));
 }
 
 function renderTabs(route) {
@@ -192,7 +190,7 @@ function renderTabs(route) {
     // progress, as in the room header; "0/0" Areas says nothing.
     let badge = null;
     if (t.id === "room" && rm) {
-      const making = (rm.keywords || []).length < (rm.budget || 6) || (rm.keywords || []).some(k => k.use === "pending");
+      const making = !isWalkDone(rm);
       const st = searchState(rm);
       if (making) badge = (rm.keywords || []).length + "/" + rm.budget;
       else if (st !== "complete") badge = searchedAreas(rm) + "/" + areaCount(rm);

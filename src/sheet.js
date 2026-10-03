@@ -2,9 +2,9 @@
 import { el, add, clear } from "./core.js";
 import {
   explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast,
-  refuse, ruleLink, emptyState, radioGroup, shareText, iconTitle, icon
+  refuse, ruleLink, emptyState, radioGroup, shareText, iconTitle, icon, crumb, copyText
 } from "./ui.js";
-import { roomPlan, bandStrip, elementBands, oddsBands, elementGlyph, illustration } from "./graphics.js";
+import { roomPlan, bandStrip, elementBands, oddsBands, elementGlyph, illustration, findTone } from "./graphics.js";
 import { EXPLAIN, MEANING_TABLES, ENCOUNTER_ANSWERS, ROOM_ELEMENTS } from "../data.js";
 import * as store from "./store.js";
 import * as roller from "./roller.js";
@@ -13,7 +13,8 @@ import * as mythic from "./mythic.js";
 import { Settings } from "./settings.js";
 import {
   areaCount, searchedAreas, searchedTotal, totalExplorable, generalDone,
-  isComplete, searchState, STATE_LABEL, canSearchGeneral, nextStep
+  isComplete, searchState, STATE_LABEL, canSearchGeneral, nextStep,
+  isWalkDone, roomHref, areaWords
 } from "./derived.js";
 
 // ── Persistent room header (sticky, under the app header) ────────────────────
@@ -104,17 +105,6 @@ export function render(params) {
   const [bar, spacer] = actionBar(primaryAction(room));
   add(content, spacer);
   return { title: "Room", content, bar };
-}
-
-// The way back up: the crawl this room belongs to (§6.3.9).
-export function crumb(href, label) {
-  return el("a", { class: "crumb", href }, icon("chev-l"), el("span", { text: label }));
-}
-
-function isWalkDone(room) {
-  const rolled = (room.keywords || []).length;
-  const pend = (room.keywords || []).filter(k => k.use === "pending").length;
-  return rolled >= (room.budget || 6) && pend === 0;
 }
 
 // The one control the screen exists for, always above the fold (§6.3.2), and
@@ -369,7 +359,7 @@ function areasBlock(room) {
   }
   const list = [...room.areas].sort((a, b) => a.order - b.order);
   // The plan: tap a block to go to its card, the outline for the General Area.
-  add(box, roomPlan(room, { toneOf, onPick: id => {
+  add(box, roomPlan(room, { onPick: id => {
     const t = document.getElementById(id === "__general" ? "sec-general" : "area-" + id);
     if (t) t.scrollIntoView({ block: "start" });
   } }));
@@ -379,11 +369,8 @@ function areasBlock(room) {
 
 function areaCard(room, area, index, count) {
   const done = !!area.search;
-  const card = el("article", { class: "card area-card " + (done ? "card-done " + toneOf(area.search) : "card-open"), id: "area-" + area.id });
-  const words = (area.fromKeywords || []).map(n => {
-    const k = (room.keywords || []).find(x => x.n === n);
-    return k ? k.word : null;
-  }).filter(Boolean);
+  const card = el("article", { class: "card area-card " + (done ? "card-done " + findTone(area.search) : "card-open"), id: "area-" + area.id });
+  const words = areaWords(room, area);
 
   const head = el("div", { class: "card-head" });
   add(head,
@@ -424,7 +411,7 @@ function generalBlock(room) {
   add(box, iconTitle("h2", "block-title", "frame", "The General Area"));
   add(box, el("p", { class: "prose", text: "The room itself — everything not immediately noticeable. One roll, at any budget: it is what makes " +
     areaCount(room) + " Areas into " + totalExplorable(room) + " explorable places." }));
-  const card = el("article", { class: "card area-card " + (generalDone(room) ? "card-done " + toneOf(room.generalArea) : "card-open") });
+  const card = el("article", { class: "card area-card " + (generalDone(room) ? "card-done " + findTone(room.generalArea) : "card-open") });
   if (generalDone(room)) {
     add(card, findBlock(room, room.generalArea, { areaId: null }));
     add(card, detailBlock(room, null));
@@ -528,12 +515,11 @@ function pager(room) {
   const list = store.rooms(room.crawlId);
   const i = list.findIndex(r => r.id === room.id);
   if (i < 0 || list.length < 2) return null;
-  const href = r => (isWalkDone(r) ? "#/room/" : "#/wizard/") + r.id;
   const prev = list[i - 1], next = list[i + 1];
   return el("nav", { class: "pager", "aria-label": "Rooms in this crawl" },
-    prev ? el("a", { class: "pager-link pager-prev", href: href(prev) },
+    prev ? el("a", { class: "pager-link pager-prev", href: roomHref(prev) },
       icon("chev-l"), el("span", {}, el("small", { text: "Earlier room" }), el("b", { text: prev.context.label || "Untitled room" }))) : el("span"),
-    next ? el("a", { class: "pager-link pager-next", href: href(next) },
+    next ? el("a", { class: "pager-link pager-next", href: roomHref(next) },
       el("span", {}, el("small", { text: "Later room" }), el("b", { text: next.context.label || "Untitled room" })), icon("chev-r")) : el("span"));
 }
 
@@ -634,9 +620,6 @@ function meaningBlock(room, find, areaId, redraw = rerender) {
   return box;
 }
 
-// The colour channel for a find: the danger hue for the loss side, the good hue
-// for the fortunate side (theme, §1). Answers are never toned — whether a Yes is
-// good news depends on the question.
 // A d100 table drawn as a strip with the roll marked, and the band's range in
 // words beneath it, so the picture never carries the reading alone.
 function workingStrip(table, toBands, roll, name) {
@@ -646,14 +629,6 @@ function workingStrip(table, toBands, roll, name) {
   wrap.append(bandStrip(bands, roll, { label: "Rolled " + roll + " — " + name + (hit ? ", " + hit.min + "–" + hit.max : "") }));
   if (hit) wrap.append(el("p", { class: "working-cap", "aria-hidden": "true", text: hit.min + "–" + hit.max + " · " + name }));
   return wrap;
-}
-
-function toneOf(find) {
-  if (!find) return "";
-  const ids = [find.elementId, ...(find.sub || []).map(x => x.elementId)];
-  if (ids.includes("unfortunate")) return "tone-unfortunate";
-  if (ids.includes("fortunate")) return "tone-fortunate";
-  return "";
 }
 
 function elementBlurb(id) {
@@ -741,20 +716,14 @@ function finishRoom(room) {
     actions: [
       { label: "Next room", onClick: () => { nextRoomFlow(room); return true; } },
       { label: "Read-aloud text", onClick: () => { readAloud(room); return true; } },
+      { label: "Print this room", onClick: () => { location.hash = "#/print/room/" + room.id; } },
       { label: "Back to the crawl", onClick: () => { location.hash = "#/crawl/" + room.crawlId; } }
     ]
   });
 }
 
 function nextRoomFlow(fromRoom) {
-  import("./wizard.js").then(w => {
-    const form = w.newRoomForm(fromRoom.crawlId, rm => { location.hash = "#/wizard/" + rm.id; }, fromRoom);
-    modal({
-      title: "Next room",
-      body: form.body,
-      actions: [{ label: "Start the keyword walk", onClick: () => { closeModal(); form.create(); } }, { label: "Cancel" }]
-    });
-  });
+  import("./wizard.js").then(w => w.openNewRoom(fromRoom.crawlId, fromRoom));
 }
 
 function readAloud(room) {
@@ -770,9 +739,7 @@ function readAloud(room) {
     } });
   }
   actions.push({ label: "Copy", onClick: () => {
-    ta.select();
-    if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => showToast("Copied."), () => showToast("Select the text and copy."));
-    else showToast("Select the text and copy.");
+    copyText(ta, text);
     return true;
   } });
   actions.push({ label: "Close" });
