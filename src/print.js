@@ -2,7 +2,9 @@
 // as PDF. A record, not a screen: the same facts and wording as the read-aloud
 // export (store.roomAsText), laid out for paper. No controls survive printing.
 import { el, add } from "./core.js";
-import { icon } from "./ui.js";
+import { icon, houseAidBadge } from "./ui.js";
+import { ROLL_LOG_CAP } from "../data.js";
+import { MYTHIC } from "../data-mythic.js";
 import * as store from "./store.js";
 import { roomPlan, elementGlyph } from "./graphics.js";
 import { searchState, STATE_LABEL, searchedTotal, totalExplorable } from "./derived.js";
@@ -99,6 +101,22 @@ export function roomRecord(rm) {
       el("ul", { class: "pr-list" }, rm.questions.map(q => el("li", {}, el("span", { text: q.question + " → " }), answerLine(q)))));
   }
   if (rm.notes) add(art, el("h3", { class: "pr-h", text: "Notes:" }), el("p", { class: "prose prose-read", text: rm.notes }));
+
+  // Appendix: this room's rolls from the log, in the order they were made —
+  // the fairness record for the page above it (R29). The log is capped, so
+  // an old room may show fewer rolls than it had; the line under it says so.
+  const rolls = store.rollLog().filter(r => r.roomId === rm.id).slice().reverse();
+  if (rolls.length) {
+    add(art, el("h3", { class: "pr-h pr-appendix", text: "Roll log" }),
+      el("table", { class: "pr-rolls" },
+        el("tbody", {}, rolls.map(r => el("tr", {},
+          el("td", { class: "pr-roll" }, el("span", { class: "die die-sm", text: String(r.roll) })),
+          el("td", {}, el("b", { text: r.result }),
+            r.houseAid ? houseAidBadge() : null,
+            r.mythic && MYTHIC ? el("span", { class: "badge", text: "Mythic" }) : null),
+          el("td", { class: "pr-src", text: r.table + (r.context ? " · " + r.context : "") }))))),
+      el("p", { class: "pr-cap", text: "The log keeps the last " + ROLL_LOG_CAP + " rolls." }));
+  }
   return art;
 }
 

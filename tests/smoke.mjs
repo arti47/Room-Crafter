@@ -282,6 +282,12 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
     }));
     r.check("print: the record lists every Area and the General Area", rec.areas >= 1 && rec.general, JSON.stringify(rec));
     r.check("print: no app frame around the record", rec.tabbar === "none", rec.tabbar);
+    const appendix = await page.evaluate(() => {
+      const id = location.hash.split("/").pop();
+      const logged = JSON.parse(localStorage.getItem("rc.rollLog") || "[]").filter(r => r.roomId === id).length;
+      return { rows: document.querySelectorAll(".pr-rolls tr").length, logged };
+    });
+    r.check("print: the appendix lists every logged roll for the room", appendix.rows === appendix.logged && appendix.rows > 0, JSON.stringify(appendix));
     await page.emulateMedia({ media: "print" });
     const visibleButtons = await page.evaluate(() => Array.from(document.querySelectorAll("button, .btn"))
       .filter(b => b.getBoundingClientRect().width > 0).length);

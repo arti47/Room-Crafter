@@ -945,3 +945,12 @@ body.print-view main#screen { padding-top: 12px; padding-bottom: 32px; max-width
   background: var(--paper); border-radius: inherit;
 }
 .modal-top .modal-close { top: 6px; }
+
+/* Print appendix: the room's rolls */
+.pr-appendix { border-top: 1px dashed var(--line-strong); padding-top: 12px; margin-top: 20px; }
+.pr-rolls { width: 100%; border-collapse: collapse; font-size: .85em; }
+.pr-rolls td { padding: 3px 6px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.pr-rolls .pr-roll { width: 48px; padding-left: 0; }
+.pr-rolls .pr-src { color: var(--ink-3); }
+.pr-rolls tr { break-inside: avoid; }
+.pr-rolls .die-sm { min-height: 24px; min-width: 34px; font-size: .9em; }
