@@ -637,3 +637,10 @@ Now 900.
 §6.2 frame (app header with theme, room header, action bar, tab bar — four tabs
 is inside §6.3.1's 4–6); `explain()` on every screen, now an ⓘ in the title row,
 still collapsed.
+
+**Cycle 7b (P15).** Keyword deck (the Area named on the card; the strip moves
+under the card so the field clears the pinned bar at 390×780 — measured 525 vs
+611); the odds dial over all nine rows, superseding P13's three chips and fold
+at the owner's choice; fewer boxes. The interaction audit fell from 402 to 270
+controls: the nine-plus-three odds chips on every picker are gone, which is the
+point.

@@ -2,7 +2,7 @@
 // The app enforces the order, the cap and the count. The interpretation is yours
 // — that is the one thing this tool exists to leave alone.
 import { el, add, clear, uid } from "./core.js";
-import { explain, actionBar, promptModal, showToast, refuse, ruleLink, houseAidBadge, radioGroup, crumb, modal, closeModal } from "./ui.js";
+import { explain, actionBar, showToast, refuse, ruleLink, houseAidBadge, radioGroup, crumb, modal, closeModal } from "./ui.js";
 import { MAX_COMBINE, BUDGETS, EXPLAIN } from "../data.js";
 import { ROOM_TYPES, HOUSE_AID } from "../data-house-roomtypes.js";
 import * as store from "./store.js";
@@ -155,35 +155,36 @@ export function render(params) {
     return { title: "Room", content, bar };
   }
 
-  // A keyword (or a carried pair) is on the table.
-  const card = el("div", { class: "card card-keyword" });
+  // A keyword (or a carried pair) is on the table: one card off the deck, the
+  // Area named on the card itself. The deck behind it is the keywords still
+  // to come (R1: one at a time); a carried card sits on top of the next (R3,
+  // capped at two — R4).
+  const words = pend.map(k => k.word).join(" + ");
+  const left = stepsLeft(room);
+  const card = el("div", { class: "card card-keyword deck-card" });
   const cols = el("div", { class: "two-col" });
   const leftCol = el("div", { class: "col" });
   const rightCol = el("div", { class: "col" });
   add(card, el("p", { class: "eyebrow", text: pend.length > 1 ? "Combined" : "Keyword " + pend[0].n }));
-  add(card, el("p", { class: "keyword-word" },
-    pend.map(k => k.word).join(" + ")));
+  add(card, el("p", { class: "keyword-word" }, words));
   add(card, el("p", { class: "keyword-dice", "aria-label": "Rolled " + pend.map(k => "d100 " + k.roll).join(", ") },
     pend.map(k => el("span", { class: "die die-sm", text: String(k.roll) }))));
-  add(card, el("p", { class: "prose", text: pend.length > 1
-    ? "Two words together. What is it in this room?"
-    : "Does this suggest something in this room? If it does, name it. If not, carry it forward." }));
-  add(leftCol, card);
+  const nameField = el("input", { class: "field kw-name", type: "text", id: "kw-name", autocomplete: "off",
+    placeholder: "a shelf of tonics", "aria-label": words + " — what is it?" });
+  const make = () => {
+    const r = makeArea(room, nameField.value);
+    if (!r.ok) { showToast(r.reason); nameField.focus(); return; }
+    rerender();
+  };
+  nameField.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); make(); } });
+  add(card, el("label", { class: "field-label kw-label", for: "kw-name", text: words + " — what is it?" }), nameField,
+    el("p", { class: "prose kw-prompt", text: pend.length > 1
+      ? "Two words together. What is it in this room?"
+      : "Does this suggest something in this room? If it does, name it. If not, carry it forward." }));
+  add(leftCol, el("div", { class: "deck" + (left > 0 ? " deck-" + Math.min(left, 3) : "") }, card));
 
-  const controls = el("div", { class: "stack" });
-  add(controls, el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => {
-    promptModal({
-      title: "Make it an Area",
-      label: pend.map(k => k.word).join(" + ") + " — what is it?",
-      hint: "A few words is plenty: 'a shelf of tonics', 'crates jammed by the bed'.",
-      confirmLabel: "Add Area",
-      onConfirm: name => {
-        const r = makeArea(room, name);
-        if (!r.ok) return showToast(r.reason);
-        rerender();
-      }
-    });
-  } }, "Make this an Area"));
+  const controls = el("div", { class: "stack deck-actions" });
+  add(controls, el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: make }, "Make this an Area"));
 
   if (canCarry(room)) {
     add(controls, el("button", { class: "btn btn-quiet btn-wide", type: "button", onclick: () => {
@@ -209,7 +210,8 @@ export function render(params) {
   bar = b2;
   add(rightCol, areaList(room), keywordTrail(room));
   add(cols, leftCol, rightCol);
-  add(content, cols, spacer2);
+  // With a card on the table the card comes first; the strip moves under it.
+  add(content, cols, steps, spacer2);
   return { title: "Room", content, bar };
 }
 

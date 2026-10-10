@@ -2,7 +2,7 @@
 import { el, add, clear } from "./core.js";
 import {
   explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast,
-  refuse, ruleLink, emptyState, radioGroup, shareText, iconTitle, icon, crumb, copyText, hint
+  refuse, ruleLink, emptyState, shareText, iconTitle, icon, crumb, copyText, hint
 } from "./ui.js";
 import { roomPlan, bandStrip, elementBands, oddsBands, elementGlyph, illustration, findTone } from "./graphics.js";
 import { EXPLAIN, MEANING_TABLES, ENCOUNTER_ANSWERS, ROOM_ELEMENTS } from "../data.js";
@@ -394,39 +394,36 @@ function askEncounter(room, odds) {
   showAnswer(res, "Is there an encounter?");
 }
 
-// The odds picker: the three you pick nine times in ten on one row, the full
-// chart behind a fold. Shared by every question the app asks (one control for
-// one kind of thing). Calls back with the chosen odds id.
-const QUICK_ODDS = ["unlikely", "fifty", "likely"];
+// The odds dial (P15, superseding P13's chips): all nine rows of the chart on
+// one slider, least likely on the left, the chosen row named above it and
+// drawn below it. Every row is one drag away (R31); 50/50 is where it rests
+// (DEFAULT_ODDS). Shared by every question the app asks.
+let dialSeq = 0;
 function oddsAsker(room, question, onAsk, { buttonLabel = "Ask" } = {}) {
+  // The chart lists Certain first; the dial reads left to right, low to high.
+  const rows = [...mythic.ODDS].reverse();
   let odds = mythic.DEFAULT_ODDS;
+  const id = "odds-" + (++dialSeq);
   const wrap = el("div", { class: "asker" });
-  const quick = radioGroup({
-    label: "How likely is a Yes?",
-    options: QUICK_ODDS.map(id => mythic.oddsById(id)).map(o => ({ id: o.id, label: o.name })),
-    value: odds,
-    compact: true, wrap: false,
-    onChange: id => { odds = id; full.setValue(id); drawGauge(); }
-  });
-  const full = radioGroup({
-    label: "All odds",
-    options: mythic.ODDS.map(o => ({ id: o.id, label: o.name })),
-    value: odds,
-    compact: true,
-    onChange: id => { odds = id; quick.setValue(QUICK_ODDS.includes(id) ? id : "__none"); drawGauge(); }
-  });
-  const more = el("details", { class: "fold fold-tight" });
-  add(more, el("summary", { text: "More odds" }), full);
-  // The chosen odds row of the chart, drawn: how much of the d100 is a Yes.
+  const name = el("output", { class: "dial-name", for: id, text: mythic.oddsById(odds).name });
   const gauge = el("div", { class: "odds-gauge" });
-  const drawGauge = () => {
+  const draw = () => {
+    name.textContent = mythic.oddsById(odds).name;
+    range.setAttribute("aria-valuetext", mythic.oddsById(odds).name);
     gauge.replaceChildren(bandStrip(oddsBands(mythic.oddsById(odds), mythic.ANSWERS), null,
       { label: "The chart at " + mythic.oddsById(odds).name }));
   };
-  drawGauge();
+  const range = el("input", { class: "dial", type: "range", id, min: "0", max: String(rows.length - 1), step: "1",
+    value: String(rows.findIndex(r => r.id === odds)), "aria-labelledby": id + "-l",
+    oninput: e => { odds = rows[Number(e.target.value)].id; draw(); } });
+  const ticks = el("div", { class: "dial-ticks", "aria-hidden": "true" }, rows.map(() => el("i")));
+  draw();
   add(wrap,
-    el("p", { class: "field-label", text: "How likely is a Yes?" }),
-    quick, gauge, more,
+    el("p", { class: "field-label", id: id + "-l", text: "How likely is a Yes?" }),
+    el("div", { class: "odds-dial" }, name, range, ticks,
+      el("div", { class: "dial-ends", "aria-hidden": "true" },
+        el("span", { text: rows[0].name }), el("span", { text: rows[rows.length - 1].name }))),
+    gauge,
     el("button", { class: "btn btn-secondary btn-wide", type: "button", onclick: () => onAsk(odds) }, buttonLabel),
     hint("odds", mythic.MYTHIC_EXPLAIN.ask)
   );

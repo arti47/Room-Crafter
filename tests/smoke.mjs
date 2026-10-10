@@ -98,11 +98,9 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   for (let step = 0; step < 3; step++) {
     await page.click("#action-bar-host .btn-primary");                  // Roll keyword N
     await until(page, () => !!document.querySelector(".card-keyword"));
+    await page.fill("#kw-name", "Area " + (step + 1));                 // named on the card
     await page.click("#action-bar-host .btn-primary");                  // Make this an Area
-    await until(page, () => !!document.querySelector("#prompt-field"));
-    await page.fill("#prompt-field", "Area " + (step + 1));
-    await page.click(".modal-actions .btn-primary");
-    await until(page, () => !document.querySelector(".modal-backdrop"));
+    await until(page, n => document.querySelectorAll(".step-area").length > n, 2500, step);
   }
   r.check("e2e: three keywords made three Areas",
     await until(page, () => document.body.textContent.includes("The keywords are done")));
@@ -125,8 +123,11 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   r.check("e2e: the primary asks the encounter question before offering a search", /encounter/i.test(firstPrimary), firstPrimary);
   r.check("e2e: the question can be skipped", !!(await page.$("#action-bar-host .btn-link")));
 
-  // Ask it from the block at Likely — the quick row's third chip.
-  await page.click("#sec-encounter .asker .choice-row .choice:nth-child(3)");
+  // Ask it from the block at Likely — set on the dial.
+  await page.$eval("#sec-encounter .asker input.dial", n => {
+    n.value = String(5);                                                   // Impossible … Likely is the sixth stop
+    n.dispatchEvent(new Event("input", { bubbles: true }));
+  });
   await page.click("#sec-encounter .btn-secondary");                    // Ask
   r.check("e2e: Ask The GM produced an answer",
     await until(page, () => !!document.querySelector(".modal-backdrop")));
@@ -203,11 +204,10 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await goto(page, site, "#/room");
   const onText = await page.$eval("#sec-encounter", n => n.textContent);
   r.check("mythic on: the odds picker is offered", /How likely is a Yes/.test(onText));
-  const quick = await page.$$eval("#sec-encounter .asker > .choice-row .choice", ns => ns.map(n => n.textContent.trim()));
-  r.check("mythic on: the quick row is three odds with 50/50 in the middle",
-    quick.length === 3 && /50\/50/.test(quick[1]), quick.join(" | "));
-  r.check("mythic on: the full chart is behind a fold",
-    (await page.$("#sec-encounter .asker details .choice-row")) !== null);
+  // R31: every row of the chart is on the dial, low to high, resting at 50/50.
+  const dial = await page.$eval("#sec-encounter .asker input.dial", n => ({ min: n.min, max: n.max, value: n.value, name: n.closest(".odds-dial").querySelector(".dial-name").textContent }));
+  r.check("mythic on: the dial covers all nine odds", dial.min === "0" && dial.max === "8", JSON.stringify(dial));
+  r.check("mythic on: the dial rests at 50/50", dial.value === "4" && /50\/50/.test(dial.name), JSON.stringify(dial));
   r.check("mythic on: nothing claims to be un-automated", !/not automated/.test(onText), onText.slice(0, 90));
 
   await page.evaluate(() => {
@@ -503,12 +503,10 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
     await until(page, () => location.hash.startsWith("#/wizard/"));
     for (let i = 0; i < 3; i++) {
       await page.click("#action-bar-host .btn-primary");
-      await until(page, () => !!document.querySelector(".card-keyword"));
+      await until(page, () => !!document.querySelector("#kw-name"));
+      await page.fill("#kw-name", "Area " + i);
       await page.click("#action-bar-host .btn-primary");
-      await until(page, () => !!document.querySelector("#prompt-field"));
-      await page.fill("#prompt-field", "Area " + i);
-      await page.click(".modal-actions .btn-primary");
-      await until(page, () => !document.querySelector(".modal-backdrop"));
+      await until(page, n => document.querySelectorAll(".step-area").length > n, 2500, i);
     }
     await page.click("#action-bar-host .btn-primary");
     await until(page, () => location.hash.startsWith("#/room/"));

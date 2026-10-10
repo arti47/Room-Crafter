@@ -1140,3 +1140,54 @@ body.print-view main#screen { padding-top: 12px; padding-bottom: 32px; max-width
 .crawl-art { display: flex; gap: 8px; overflow-x: auto; margin: 4px -16px 10px; padding: 4px 16px; scrollbar-width: none; }
 .crawl-art::-webkit-scrollbar { display: none; }
 .crawl-art .room-plan { flex: 0 0 96px; width: 96px; margin: 0; }
+
+/* ══ Cycle 7b — keyword deck, odds dial, fewer boxes ══════════════════════ */
+
+/* The keyword deck: the card on top, the keywords still to come behind it */
+.deck { position: relative; isolation: isolate; margin-bottom: 22px; }
+.deck .deck-card { position: relative; margin: 10px 0 0; }
+.deck::before, .deck::after {
+  content: ""; position: absolute; top: 10px; bottom: -7px; left: 10px; right: 10px; z-index: -1; display: none;
+  border-radius: var(--r); background: var(--card); border: 1px solid var(--line);
+}
+.deck::after { bottom: -14px; left: 22px; right: 22px; z-index: -2; opacity: .7; }
+.deck-1::before, .deck-2::before, .deck-3::before { display: block; }
+.deck-2::after, .deck-3::after { display: block; }
+.kw-label { text-align: left; margin-top: 12px; }
+.kw-name { text-align: center; font-size: max(17px, 1.05em); font-weight: 600; margin-bottom: 6px; }
+.kw-prompt { color: var(--ink-3); font-size: .9em; margin: 4px 0 0; }
+.deck-actions .btn { min-height: 52px; }
+.deck-card .keyword-word { font-size: 2em; margin: 2px 0 6px; }
+
+/* The odds dial */
+.odds-dial { position: relative; padding: 4px 2px 0; }
+.dial-name { display: block; text-align: center; font-weight: 750; font-size: 1.2em; color: var(--accent); margin: 2px 0 2px; }
+.dial {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 44px; margin: 0; background: transparent; cursor: pointer;
+}
+.dial::-webkit-slider-runnable-track {
+  height: 8px; border-radius: 4px;
+  background: linear-gradient(90deg, var(--paper-2), color-mix(in srgb, var(--accent) 45%, var(--paper-2)));
+  border: 1px solid var(--line-strong);
+}
+.dial::-moz-range-track { height: 8px; border-radius: 4px; background: var(--paper-2); border: 1px solid var(--line-strong); }
+.dial::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 30px; height: 30px; border-radius: 50%; margin-top: -12px;
+  background: var(--accent); border: 3px solid var(--card); box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+}
+.dial::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); border: 3px solid var(--card); }
+.dial:focus-visible { outline: none; }
+.dial:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--focus); }
+.dial-ticks { display: flex; justify-content: space-between; padding: 0 13px; margin-top: -10px; }
+.dial-ticks i { width: 2px; height: 6px; background: var(--line-strong); border-radius: 1px; }
+.dial-ends { display: flex; justify-content: space-between; font-size: .75em; color: var(--ink-3); margin-top: 2px; }
+.asker .odds-gauge { margin: 6px 0 10px; }
+
+/* Fewer boxes: separate with space and type, not borders and shadows */
+.area-card.card-done { border-top: 0; border-right: 0; border-bottom: 0; box-shadow: none; background: transparent; border-radius: 0; padding-right: 0; }
+.list-cards .row-card { box-shadow: none; border-color: transparent; background: color-mix(in srgb, var(--card) 70%, transparent); }
+.chain > li .row-card { border-color: var(--line); }
+.panel { box-shadow: none; border-color: transparent; background: color-mix(in srgb, var(--card) 75%, transparent); }
+.chart, .heat { box-shadow: none; border-color: transparent; }
+.card { box-shadow: none; }
+.block-title::after { opacity: .6; }
