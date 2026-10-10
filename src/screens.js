@@ -1,30 +1,37 @@
 // screens.js — home/crawls, crawl detail, roll log, distribution, rules, settings.
 import { el, add, when, plural } from "./core.js";
 import { explain, actionBar, modal, promptModal, confirmModal, showToast, emptyState, sectionNav, houseAidBadge, radioGroup, downloadText, pickFile, icon, crumb, copyText } from "./ui.js";
-import { crawlStrip, heatGrid, illustration, fleuron } from "./graphics.js";
-import { EXPLAIN, RULES_LIBRARY, ROLL_LOG_CAP } from "../data.js";
+import { crawlStrip, heatGrid, illustration, fleuron, roomPlan } from "./graphics.js";
+import { EXPLAIN, RULES_LIBRARY, ROLL_LOG_CAP, TUTORIAL } from "../data.js";
 import { MYTHIC_RULES, MYTHIC } from "../data-mythic.js";
 import * as store from "./store.js";
 import * as settings from "./settings.js";
 import { openNewRoom } from "./wizard.js";
-import { readAloud } from "./sheet.js";
+import { readAloud, STAGES, naturalStage } from "./sheet.js";
+import { loadDemos } from "./tutorial.js";
 import { searchState, STATE_LABEL, areaCount, searchedAreas, searchedTotal, totalExplorable, isWalkDone, roomHref } from "./derived.js";
 import { crawlSummary } from "./lifecycle.js";
 
 // ── Crawls (home) ────────────────────────────────────────────────────────────
 export function crawls() {
   const content = el("div", {});
-  add(content, el("h1", { class: "screen-title", text: "Crawls" }), explain(EXPLAIN.crawls));
+  add(content, el("div", { class: "title-row" },
+    el("h1", { class: "screen-title", text: "Crawls" }), explain(EXPLAIN.crawls)));
   const list = store.crawls();
 
   if (!list.length) {
+    if (!settings.get("welcomed")) add(content, welcome());
     add(content, emptyState("Nothing here yet. A crawl is a run of rooms — a dungeon, a house, one evening's exploring. One room is a perfectly good crawl.", null, null, illustration("map")));
     add(content, el("p", { class: "hint" }, "New to this? ", el("a", { class: "rule-link", href: "#/learn/tutorial" }, "Walk through a first room"), "."));
   } else {
-    const ul = el("ul", { class: "list list-cards" });
+    add(content, continueCard());
+    const ul = el("ul", { class: "list list-cards shelf" });
     for (const c of list) {
       const s = crawlSummary(c.id);
+      const rs = store.rooms(c.id);
+      const latest = rs[rs.length - 1];
       add(ul, el("li", {}, el("a", { class: "row-card", href: "#/crawl/" + c.id },
+        latest && (latest.areas || []).length ? el("span", { class: "row-thumb", "aria-hidden": "true" }, roomPlan(latest)) : null,
         el("span", { class: "row-main", text: c.name }),
         el("span", { class: "row-sub", text: plural(s.rooms, "room") + " · " + s.complete + " fully explored · " + when(c.lastOpenedAt) }),
         // One square per room, in crawl order, shaded by how far it was searched.
@@ -47,6 +54,47 @@ function rowMeter(done, total) {
   const pct = total ? Math.round(done / total * 100) : 0;
   return el("span", { class: "row-meter" + (total && done >= total ? " meter-complete" : ""), "aria-hidden": "true" },
     el("span", { style: "width:" + pct + "%" }));
+}
+
+// The room you were in, first: one tap back into play.
+function continueCard() {
+  const cur = store.current();
+  const rm = cur.roomId ? store.room(cur.roomId) : null;
+  if (!rm || !store.crawl(rm.crawlId)) return null;
+  const st = STAGES.find(x => x.id === naturalStage(rm));
+  const state = isWalkDone(rm) ? searchState(rm) : "building";
+  return el("a", { class: "continue-card", href: roomHref(rm) },
+    (rm.areas || []).length ? roomPlan(rm) : illustration("plan"),
+    el("span", { class: "continue-text" },
+      el("span", { class: "eyebrow", text: store.crawl(rm.crawlId).name }),
+      el("span", { class: "continue-name", text: rm.context.label || "Untitled room" }),
+      el("span", { class: "continue-meta" },
+        el("span", { class: "res-chip res-" + state, text: STATE_LABEL[state] }),
+        st ? el("span", { class: "continue-step" }, icon(st.icon), st.label) : null)),
+    icon("chev-r"));
+}
+
+// First run: three panels, each a tutorial step with its drawing, then the
+// way in. The words are the tutorial's own.
+function welcome() {
+  const panels = [[0, "map"], [2, "plan"], [5, "dice"]].map(([i, art]) => ({ step: TUTORIAL[i], art }));
+  let at = 0;
+  const box = el("section", { class: "welcome", "aria-roledescription": "carousel", "aria-label": "Welcome" });
+  const draw = () => {
+    const p = panels[at];
+    box.replaceChildren(
+      illustration(p.art),
+      el("h2", { class: "welcome-title", text: p.step.title }),
+      el("p", { class: "prose", text: p.step.body }),
+      el("div", { class: "welcome-dots", "aria-hidden": "true" }, panels.map((_, i) => el("i", { class: i === at ? "on" : "" }))),
+      el("div", { class: "welcome-actions" },
+        at < panels.length - 1
+          ? el("button", { class: "btn btn-secondary", type: "button", onclick: () => { at++; draw(); } }, "Next")
+          : el("button", { class: "btn btn-secondary", type: "button", onclick: () => { settings.set("welcomed", true); loadDemos(); } }, "Load the example rooms"),
+        el("button", { class: "btn-link", type: "button", onclick: () => { settings.set("welcomed", true); rerender(); } }, "Skip")));
+  };
+  draw();
+  return box;
 }
 
 function newCrawl() {
@@ -73,6 +121,9 @@ export function crawl(params) {
     explain(EXPLAIN.crawl),
     el("p", { class: "meta", text: crawlSummary(c.id).lines.join(" · ") })
   );
+  // The crawl's own art: its rooms' plans, in order, as a frieze.
+  const drawn = rooms.filter(r => (r.areas || []).length).slice(0, 8);
+  if (drawn.length) add(content, el("div", { class: "crawl-art", "aria-hidden": "true" }, drawn.map(r => roomPlan(r))));
 
   if (!rooms.length) {
     add(content, emptyState("No rooms yet. Start the first one — six keywords, or three if you are making a lot of them.", null, null, illustration("plan")));
@@ -345,6 +396,7 @@ export function settingsScreen() {
     el("h2", { class: "block-title", text: "Content" }),
     toggleRow("Show house-aid suggestions", "The room-type list is invented for this app — the article has no such table. Turn it off to type your own only.",
       settings.get("showHouseAids"), v => { settings.set("showHouseAids", v); rerender(); }),
+    hintsRow(),
     toggleRow("Use One-Page Mythic", "Answers the encounter and hidden-search questions on the Ask The Game Master chart, rolls Random Events on a double, and adds Discover Meaning to the Random element. Turn it off and those go back to recording an answer you rolled yourself.",
       settings.get("useMythic"), v => { settings.set("useMythic", v); rerender(); })
   ));
@@ -409,10 +461,22 @@ export function settingsScreen() {
   return { title: "Settings", content };
 }
 
+// Coach marks fold to an ⓘ once dismissed; this brings them all back.
+function hintsRow() {
+  const n = (settings.get("hintsSeen") || []).length;
+  return el("div", { class: "setting" },
+    el("button", { class: "btn btn-quiet btn-wide", type: "button", disabled: n ? null : true, onclick: () => {
+      settings.set("hintsSeen", []);
+      settings.set("welcomed", false);
+      showToast("Hints are back.");
+      rerender();
+    } }, "Show hints again"));
+}
+
 function readAloudButton() {
   const cur = store.current();
   const rm = cur.roomId ? store.room(cur.roomId) : null;
-  return el("button", { class: "btn btn-quiet btn-wide", type: "button", disabled: rm ? null : true,
+  return el("button", { class: "btn btn-quiet btn-wide", type: "button", disabled: rm ? null : true, "data-spot": "readaloud",
     title: rm ? (rm.context.label || "Untitled room") : null,
     onclick: () => { if (rm) readAloud(rm); } }, "Read-aloud text");
 }

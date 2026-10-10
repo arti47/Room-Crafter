@@ -606,3 +606,34 @@ when none), the Multi-Element rule, or Settings. Step text unchanged. *Guard:*
 Settings explain note both put the read-aloud export in Settings; it lived only
 on the room sheet. *Fix:* "Read-aloud text" in Settings → Your data, for the
 open room (disabled when none). The copy is unchanged; the app now matches it.
+
+## Cycle 7 — the room as stages (2026-10-10, P14)
+
+Owner report: cluttered, wordy, intimidating for a first-time user. Measured
+before: the room sheet showed ~14 blocks, ~40 controls and 9 guidance
+paragraphs at once.
+
+**A-57 · One screen did two jobs.** Play and record shared a single long sheet.
+*Fix:* stages (Keywords → Describe → Encounter → Search → Done) with Record as
+the whole sheet. Every block is still rendered on every stage and hidden off
+its own, so there is one record and every id, fold and link survives.
+
+**A-58 · The plan was decoration.** *Fix:* it is the search surface. Guard pair:
+tapping an unsearched block rolls once (watched go red with the call removed);
+tapping a searched block never rolls (R11, backed by the engine's own refusal).
+
+**A-59 · Loading the examples twice stacked a second copy.** *Fix:* it resets
+the Examples crawl; one undo step restores the old one.
+
+**A-60 · Guidance never went away.** *Fix:* how-to text is a coach mark the first
+time and an ⓘ after "Got it"; Settings → "Show hints again". Rules the app
+cannot enforce (R10, R15, R24) and the guidance-only badges stay visible.
+
+**H-16 · The modal redraw check read only the first 240 characters**, so a
+Multi-Element find with two blurbs pushed the Meaning words out of the window.
+Now 900.
+
+**Kept, deliberately:** the P13 odds picker (an earlier owner decision); the
+§6.2 frame (app header with theme, room header, action bar, tab bar — four tabs
+is inside §6.3.1's 4–6); `explain()` on every screen, now an ⓘ in the title row,
+still collapsed.

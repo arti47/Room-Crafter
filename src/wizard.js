@@ -10,6 +10,7 @@ import * as lifecycle from "./lifecycle.js";
 import * as roller from "./roller.js";
 import { Settings } from "./settings.js";
 import { budgetInfo, isWalkDone as walkDone, areaWords } from "./derived.js";
+import { stepper } from "./sheet.js";
 
 export function pending(room) {
   return (room.keywords || []).filter(k => k.use === "pending");
@@ -93,6 +94,7 @@ export function render(params) {
   const crawl = store.crawl(room.crawlId);
   add(content,
     crawl ? crumb("#/crawl/" + crawl.id, crawl.name) : null,
+    stepper(room, "keywords"),
     el("h1", { class: "screen-title", text: room.context.label || "New room" }),
     explain(EXPLAIN.wizard),
     el("p", { class: "meta" },

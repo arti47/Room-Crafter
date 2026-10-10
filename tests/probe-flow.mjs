@@ -38,13 +38,13 @@ await sequence("make a crawl and start a room", "fresh", [
 ]);
 
 await sequence("search one Area from the room sheet", "mid-crawl", [
-  click('.tab[href="#/room"]'),
+  async page => { await page.evaluate(() => { location.hash = "#/room"; }); await page.waitForTimeout(60); },
   click("#action-bar-host .btn-primary"),
   click(".modal-actions .btn-primary")
 ]);
 
 await sequence("read a rule from an automated surface", "mid-crawl", [
-  click('.tab[href="#/room"]'),
+  async page => { await page.evaluate(() => { location.hash = "#/room"; }); await page.waitForTimeout(60); },
   async page => {
     const link = await page.$("#screen .rule-link");
     if (link) await link.click();
@@ -53,7 +53,7 @@ await sequence("read a rule from an automated surface", "mid-crawl", [
 ]);
 
 await sequence("export a room to read aloud", "mid-crawl", [
-  click('.tab[href="#/room"]'),
+  async page => { await page.evaluate(() => { location.hash = "#/room"; }); await page.waitForTimeout(60); },
   async page => {
     const btns = await page.$$("#screen button");
     for (const b of btns) {

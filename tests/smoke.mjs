@@ -178,13 +178,14 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   });
   r.check("e2e: no Area offers a second search", disabled);
 
-  // Finish, then read-aloud.
-  await page.click("#action-bar-host .btn-primary");                    // Finish this room
-  await until(page, () => !!document.querySelector(".modal-backdrop"));
-  const summary = await page.$eval(".modal-card", n => n.textContent);
+  // Fully explored, the room moves on to its Done stage by itself.
+  r.check("e2e: a fully explored room opens on its Done stage",
+    await until(page, () => !!document.querySelector("#sec-done") && !document.querySelector("#sec-done").hidden));
+  const summary = await page.$eval("#sec-done", n => n.textContent);
   r.check("e2e: the completion summary reports the room", /3 Areas|Areas from/.test(summary), summary.slice(0, 80));
   r.check("e2e: no conclusion roll is offered at the end", !/conclusion/i.test(summary));
-  await page.keyboard.press("Escape");
+  const doneP = await page.$eval("#action-bar-host .btn-primary", n => n.textContent);
+  r.check("e2e: Done's primary is the next room", /Next room/.test(doneP), doneP);
 
   const logRows = await (async () => {
     await goto(page, site, "#/log");
@@ -251,7 +252,7 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   const goes = await page.$$eval("#screen .tut-go", ns => ns.map(n => n.getAttribute("href")));
   r.check("link: every tutorial step links to where it is done", goes.length === 10 && goes.every(h => /^#\/(crawls|crawl\/|room\/|wizard\/|rules\/|settings)/.test(h)), goes.join(" "));
   r.check("link: the room steps lead to the open room", goes.filter(h => /^#\/(room|wizard)\//.test(h)).length === 6, goes.join(" "));
-  await goto(page, site, "#/room");
+  await goto(page, site, "#/record");
   r.check("link: the room sheet leads back to its crawl", !!(await page.$('#screen a.crumb[href^="#/crawl/"]')));
   r.check("link: the room sheet leads to its neighbours in the crawl", (await page.$$("#screen .pager a")).length >= 1);
   const crawlHref = await page.$eval("#screen a.crumb", n => n.getAttribute("href"));
@@ -286,15 +287,17 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
 {
   const page = await newPage(browser, site, { seed: "mid-crawl" });
   await goto(page, site, "#/room");
-  const href = await page.$eval('#screen a[href^="#/print/room/"]', n => n.getAttribute("href")).catch(() => null);
-  r.check("print: the room sheet links to its print record", !!href);
-  // The finish summary is where a record is wanted, so it offers the print too.
-  await page.evaluate(() => Array.from(document.querySelectorAll("#screen .action-grid button")).find(b => /Finish this room/.test(b.textContent)).click());
-  await until(page, () => !!document.querySelector(".modal-backdrop"));
-  const finishActions = await page.$$eval(".modal-actions .btn", ns => ns.map(n => n.textContent.trim()));
-  r.check("link: the finish summary offers the print record", finishActions.includes("Print this room"), finishActions.join(" | "));
+  // The ⋯ menu carries the print; so does the Done stage, where a record is wanted.
+  await page.click("#screen .room-menu-btn");
+  await until(page, () => !!document.querySelector(".modal-card .menu-list"));
+  const menu = await page.$$eval(".modal-card .menu-row", ns => ns.map(n => n.textContent.trim()));
+  r.check("link: the room menu offers the print record", menu.includes("Print this room"), menu.join(" | "));
   await page.keyboard.press("Escape");
   await until(page, () => !document.querySelector(".modal-backdrop"));
+  const roomId = await page.evaluate(() => location.hash.split("/")[2]);
+  await goto(page, site, "#/room/" + roomId + "/done");
+  const href = await page.$eval('#sec-done a[href^="#/print/room/"]', n => n.getAttribute("href")).catch(() => null);
+  r.check("link: the Done stage offers the print record", !!href);
   if (href) {
     await goto(page, site, href);
     const rec = await page.evaluate(() => ({
@@ -357,10 +360,76 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await page.context().close();
 }
 
+// Stages (cycle 7): the room is played one stage at a time; every stage is a
+// link; the plan searches; the + menu holds the three anytime actions.
+{
+  const page = await newPage(browser, site, { seed: "mid-crawl" });
+  await goto(page, site, "#/room");
+  r.check("stage: four tabs, Play first", (await page.$$eval(".tab", ns => ns.map(n => n.textContent.trim()))).join("|").startsWith("Play"));
+  const steps = await page.$$eval("#screen .stepper a", ns => ns.map(n => n.getAttribute("href")));
+  r.check("stage: the stepper links all six stages", steps.length === 6 && /^#\/wizard\//.test(steps[0]) && steps.slice(1).every(h => /^#\/room\/[^/]+\/(describe|encounter|search|done|record)$/.test(h)), steps.join(" "));
+  const vis = id => page.evaluate(i => { const n = document.getElementById(i); return !!n && !n.hidden && n.getBoundingClientRect().height > 0; }, id);
+  r.check("stage: an unasked room opens on its Encounter stage", await vis("sec-encounter") && !(await vis("sec-areas")));
+  const id = await page.evaluate(() => location.hash.split("/")[2]);
+  await goto(page, site, "#/room/" + id + "/search");
+  r.check("stage: Search shows the Areas and the General Area, not the encounter", await vis("sec-areas") && await vis("sec-general") && !(await vis("sec-encounter")));
+  // Tapping an unsearched block searches it — one roll — and a searched block never rolls.
+  const before = await page.evaluate(() => JSON.parse(localStorage.getItem("rc.rollLog")).length);
+  await page.click("#sec-areas .plan-area:not(.done)");
+  await until(page, () => !!document.querySelector(".modal-backdrop"));
+  const mid = await page.evaluate(() => JSON.parse(localStorage.getItem("rc.rollLog")).length);
+  r.check("plan: tapping an unsearched Area searches it", mid > before, before + " → " + mid);
+  if (await page.$(".modal-backdrop")) {
+    await page.click(".modal-actions .btn-primary");
+    await until(page, () => !document.querySelector(".modal-backdrop"));
+  }
+  await goto(page, site, "#/room/" + id + "/search");
+  const n1 = await page.evaluate(() => JSON.parse(localStorage.getItem("rc.rollLog")).length);
+  await page.click("#sec-areas .plan-area.done");
+  await page.waitForTimeout(150);
+  const n2 = await page.evaluate(() => JSON.parse(localStorage.getItem("rc.rollLog")).length);
+  r.check("plan: tapping a searched Area never rolls again (R11)", n1 === n2 && !(await page.$(".modal-backdrop")), n1 + " → " + n2);
+  // The + menu.
+  await page.click("#screen .fab");
+  await until(page, () => !!document.querySelector(".modal-card .menu-list"));
+  const fabRows = await page.$$eval(".modal-card .menu-row", ns => ns.map(n => n.textContent.trim().replace(/\d+$/, "")));
+  r.check("fab: the + menu holds Ask the GM, Hidden things and Notes", fabRows.join("|") === "Ask the GM|Hidden things|Notes", fabRows.join("|"));
+  await page.click(".modal-card .menu-row:first-child");
+  r.check("fab: Ask the GM opens with its question field", await until(page, () => !!document.querySelector(".modal-card #ask-q")));
+  await page.keyboard.press("Escape");
+  await until(page, () => !document.querySelector(".modal-backdrop"));
+  // Coach marks: dismissed once, folded to an ⓘ, and remembered.
+  await goto(page, site, "#/room/" + id + "/encounter");
+  const coach = await page.$("#sec-encounter .coach");
+  r.check("coach: guidance shows in full the first time", !!coach);
+  if (coach) {
+    const count = () => page.$$eval("#sec-encounter .coach", ns => ns.length);
+    const c0 = await count();
+    await page.click("#sec-encounter .coach .coach-ok");
+    r.check("coach: Got it folds it to an ⓘ", await until(page, n => document.querySelectorAll("#sec-encounter .coach").length === n - 1 && !!document.querySelector("#sec-encounter .hint-i"), 1500, c0));
+    await goto(page, site, "#/room/" + id + "/encounter");
+    r.check("coach: and it stays folded, words intact", (await count()) === c0 - 1 && /Ask it once/.test(await page.$eval("#sec-encounter", n => n.textContent)));
+  }
+  // Home continues the open room.
+  await goto(page, site, "#/crawls");
+  r.check("home: Continue leads back into the open room", !!(await page.$('#screen a.continue-card[href^="#/room/"]')));
+  r.check("stage: no console errors", page.__errors.length === 0, page.__errors[0]);
+  await page.context().close();
+
+  const fresh = await newPage(browser, site, { seed: "fresh" });
+  await goto(fresh, site, "#/crawls");
+  r.check("welcome: first run shows the welcome", !!(await fresh.$("#screen .welcome")));
+  await fresh.click("#screen .welcome .btn-link");
+  r.check("welcome: Skip puts it away for good", await until(fresh, () => !document.querySelector("#screen .welcome")));
+  await goto(fresh, site, "#/crawls");
+  r.check("welcome: and it does not come back", !(await fresh.$("#screen .welcome")));
+  await fresh.context().close();
+}
+
 // Tablet width adds density: two real columns on the room sheet and the wizard.
 {
   const page = await newPage(browser, site, { seed: "mid-crawl", width: 900, height: 1000 });
-  await goto(page, site, "#/room");
+  await goto(page, site, "#/record");
   const cols = await page.evaluate(() => {
     const l = document.querySelector(".two-col .col-room"), r = document.querySelector(".two-col .col-areas");
     if (!l || !r) return null;
@@ -389,7 +458,7 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
 // An in-place action keeps your place; a navigation starts at the top (A-30).
 {
   const page = await newPage(browser, site, { seed: "stress", width: 390, height: 780 });
-  await goto(page, site, "#/room");
+  await goto(page, site, "#/record");
   // Open the first searched Area's detail fold, scroll it into view, roll.
   const opened = await page.evaluate(() => {
     const card = Array.from(document.querySelectorAll(".area-card")).find(c => c.querySelector(".details-block"));
@@ -461,7 +530,7 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
         await action.click();
         const changed = await until(page, b => document.querySelector(".modal-card .find").textContent !== b, 1500, before);
         const after = await page.$eval(".modal-card .find", n => n.textContent);
-        found = { before: before.slice(0, 60), after: after.slice(0, 240), changed };
+        found = { before: before.slice(0, 60), after: after.slice(0, 900), changed };
       }
       await page.click(".modal-actions .btn-primary");
       await until(page, () => !document.querySelector(".modal-backdrop"));

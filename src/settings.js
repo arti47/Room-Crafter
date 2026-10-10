@@ -9,7 +9,11 @@ const DEFAULTS = {
   // Room Crafter assumes an emulator underneath it. Off means the blocked
   // surfaces go back to prompt-and-record.
   useMythic: true,
-  confirmDestructive: true
+  confirmDestructive: true,
+  // First-run state: the welcome has been seen; which guidance hints have
+  // been dismissed (each shows in full once, then folds to an ⓘ).
+  welcomed: false,
+  hintsSeen: []
 };
 
 let cache = null;

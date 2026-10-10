@@ -10,9 +10,10 @@ import * as tutorial from "./tutorial.js";
 import * as print from "./print.js";
 import { searchState, areaCount, searchedAreas, isWalkDone } from "./derived.js";
 
+// Four tabs (§6.3.1 allows 4–6). Play holds the crawls, the open room and its
+// stages; it carries the open room's live progress (§6.3.8).
 const TABS = [
-  { id: "crawls", label: "Crawls", href: "#/crawls", icon: "crawls" },
-  { id: "room", label: "Room", href: "#/room", icon: "room" },
+  { id: "play", label: "Play", href: "#/crawls", icon: "room" },
   { id: "log", label: "Log", href: "#/log", icon: "log" },
   { id: "learn", label: "Learn", href: "#/rules", icon: "learn" },
   { id: "settings", label: "Settings", href: "#/settings", icon: "settings" }
@@ -26,7 +27,8 @@ export function parse(hash) {
     case "crawls": return { name: "crawls", params: {} };
     case "crawl": return { name: "crawl", params: { crawlId: parts[1] } };
     case "wizard": return { name: "wizard", params: { roomId: parts[1] } };
-    case "room": return { name: "room", params: { roomId: parts[1] || null } };
+    case "room": return { name: "room", params: { roomId: parts[1] || null, stage: parts[2] || null } };
+    case "record": return { name: "room", params: { roomId: null, stage: "record" } };
     case "log": return parts[1] === "distribution"
       ? { name: "distribution", params: {} } : { name: "log", params: {} };
     case "rules": return { name: "rules", params: { ruleId: parts[1] || null } };
@@ -39,8 +41,8 @@ export function parse(hash) {
 }
 
 const TAB_OF = {
-  crawls: "crawls", crawl: "crawls", wizard: "room", room: "room",
-  log: "log", distribution: "log", rules: "learn", tutorial: "learn", settings: "settings", print: "crawls"
+  crawls: "play", crawl: "play", wizard: "play", room: "play",
+  log: "log", distribution: "log", rules: "learn", tutorial: "learn", settings: "settings", print: "play"
 };
 
 // The room the app is currently "in" — the header follows it (§6.2).
@@ -74,7 +76,7 @@ export function render(opts = {}) {
       if (!rm) {
         view = { title: "Room", content: noRoom() };
       } else {
-        if (!route.params.roomId) { location.replace("#/room/" + rm.id); return; }
+        if (!route.params.roomId) { location.replace("#/room/" + rm.id + (route.params.stage ? "/" + route.params.stage : "")); return; }
         store.setCurrent({ crawlId: rm.crawlId, roomId: rm.id });
         view = sheet.render(route.params);
       }
@@ -93,6 +95,7 @@ export function render(opts = {}) {
   document.body.classList.toggle("print-view", route.name === "print");
   clear(app);
   add(app, view.content);
+  titleRows(app);
 
   clear(barHost);
   if (view.bar) add(barHost, view.bar);
@@ -105,6 +108,7 @@ export function render(opts = {}) {
   renderTabs(route);
   document.title = view.title ? view.title + " · Room Crafter" : "Room Crafter";
   measureFrame();
+  if (!keep) setTimeout(spotlight, 30);
   if (keep) {
     restoreFolds(openFolds);
     restoreScrollers(inner);
@@ -167,6 +171,31 @@ if (typeof window !== "undefined") {
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => measureFrame());
 }
 
+// Every screen's heading carries its "what this does" ⓘ beside it, not under
+// it: one row, one place to look (§6.6 keeps the note, collapsed).
+function titleRows(app) {
+  for (const h of app.querySelectorAll(".screen-title")) {
+    const next = h.nextElementSibling;
+    if (h.parentElement.classList.contains("title-row") || !next || !next.matches("details.explain")) continue;
+    const row = el("div", { class: "title-row" });
+    h.before(row);
+    row.append(h, next);
+  }
+}
+
+// A tutorial step can ask the screen it opens to point at the control it
+// means: the control pulses once, then the page is ordinary again.
+function spotlight() {
+  let sel = null;
+  try { sel = sessionStorage.getItem("rc.spot"); sessionStorage.removeItem("rc.spot"); } catch { /* private mode */ }
+  if (!sel) return;
+  const t = document.querySelector(sel);
+  if (!t) return;
+  t.classList.add("spot");
+  if (t.scrollIntoView) t.scrollIntoView({ block: "center" });
+  setTimeout(() => t.classList.remove("spot"), 2600);
+}
+
 // What the screens call after an in-place action.
 function refresh() {
   render({ keepPlace: true });
@@ -182,14 +211,14 @@ function renderTabs(route) {
   const host = $("#tabbar");
   if (!host) return;
   clear(host);
-  const activeTab = TAB_OF[route.name] || "crawls";
+  const activeTab = TAB_OF[route.name] || "play";
   const rm = contextRoom(route);
   for (const t of TABS) {
     // Live state travels: an open room shows its search progress on the tab (§6.3.8).
     // While the room is still being made the number that matters is keyword
     // progress, as in the room header; "0/0" Areas says nothing.
     let badge = null;
-    if (t.id === "room" && rm) {
+    if (t.id === "play" && rm) {
       const making = !isWalkDone(rm);
       const st = searchState(rm);
       if (making) badge = (rm.keywords || []).length + "/" + rm.budget;

@@ -59,12 +59,19 @@ function stepLink(go) {
     const r = RULES_LIBRARY.find(x => x.id === go.slice(5));
     if (r) { href = "#/rules/" + r.id; label = r.title; }
   }
-  return el("a", { class: "tut-go", href }, el("span", { text: label }), icon("chev-r"));
+  // Arriving, the screen points at the control the step means.
+  const spot = go === "settings" ? '[data-spot="readaloud"]' : go.startsWith("rule:") ? null : "#action-bar-host .btn-primary";
+  return el("a", { class: "tut-go", href, onclick: () => {
+    try { if (spot) sessionStorage.setItem("rc.spot", spot); } catch { /* private mode */ }
+  } }, el("span", { text: label }), icon("chev-r"));
 }
 
-function loadDemos() {
+export function loadDemos() {
+  // A playground you can spoil: loading again resets the examples rather than
+  // stacking a second copy (one undo step brings the old ones back).
   const existing = store.crawls().find(c => c.name === "Examples");
-  const crawl = existing || store.createCrawl("Examples");
+  if (existing) store.deleteCrawl(existing.id);
+  const crawl = store.createCrawl("Examples");
   for (const demo of DEMO_ROOMS) {
     const rm = store.createRoom(crawl.id, {
       label: demo.label, roomType: demo.roomType, houseAidType: HOUSE_AID,

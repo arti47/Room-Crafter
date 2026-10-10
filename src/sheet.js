@@ -2,7 +2,7 @@
 import { el, add, clear } from "./core.js";
 import {
   explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast,
-  refuse, ruleLink, emptyState, radioGroup, shareText, iconTitle, icon, crumb, copyText
+  refuse, ruleLink, emptyState, radioGroup, shareText, iconTitle, icon, crumb, copyText, hint
 } from "./ui.js";
 import { roomPlan, bandStrip, elementBands, oddsBands, elementGlyph, illustration, findTone } from "./graphics.js";
 import { EXPLAIN, MEANING_TABLES, ENCOUNTER_ANSWERS, ROOM_ELEMENTS } from "../data.js";
@@ -63,6 +63,64 @@ function meter(segs, complete = false) {
 }
 
 // ── Screen ───────────────────────────────────────────────────────────────────
+// The room is played as stages, in the article's order (R9): Keywords →
+// Describe → Encounter → Search → Done, plus Record, the whole sheet at once.
+// Every block is rendered on every stage and the others are hidden, so state,
+// links and folds are one record; a stage only decides what you look at.
+// Every stage can be opened at any time — the order is guidance, not a gate
+// (R23: search all, some or none).
+export const STAGES = [
+  { id: "keywords", label: "Keywords", icon: "grid" },
+  { id: "describe", label: "Describe", icon: "quill" },
+  { id: "encounter", label: "Encounter", icon: "eye" },
+  { id: "search", label: "Search", icon: "search" },
+  { id: "done", label: "Done", icon: "flag" },
+  { id: "record", label: "Record", icon: "learn" }
+];
+
+// Where the procedure is up to, as a stage.
+export function naturalStage(room) {
+  if (!isWalkDone(room)) return "keywords";
+  const next = nextStep(room).step;
+  if (next === "ask") return room.description ? "encounter" : "describe";
+  if (next === "search" || next === "general") return "search";
+  return "done";
+}
+
+function stageHref(room, id) {
+  return id === "keywords" ? "#/wizard/" + room.id : "#/room/" + room.id + "/" + id;
+}
+
+// After a step of the procedure, follow it to wherever it now stands.
+function toNatural(room) {
+  const target = "#/room/" + room.id;
+  if (location.hash !== target) location.hash = target;
+  else rerender();
+}
+
+// The stepper: six stations, the current one lit, each a link.
+export function stepper(room, current) {
+  const done = {
+    keywords: isWalkDone(room),
+    describe: !!room.description,
+    encounter: !!room.encounter || !!room.encounterSkipped,
+    search: isComplete(room),
+    done: false, record: false
+  };
+  const nav = el("nav", { class: "stepper", "aria-label": "Stages of the room" });
+  for (const st of STAGES) {
+    const on = st.id === current;
+    const extra = st.id === "search" && isWalkDone(room) ? searchedTotal(room) + "/" + totalExplorable(room) : null;
+    add(nav, el("a", {
+      class: "step-link" + (on ? " on" : "") + (done[st.id] ? " ok" : ""),
+      href: stageHref(room, st.id), "aria-current": on ? "step" : null
+    }, el("span", { class: "step-ico" }, icon(st.icon)),
+       el("span", { class: "step-label", text: st.label }),
+       extra ? el("span", { class: "step-count", text: extra }) : null));
+  }
+  return nav;
+}
+
 export function render(params) {
   const room = store.room(params.roomId);
   if (!room) {
@@ -75,36 +133,133 @@ export function render(params) {
         "Continue the keyword walk", "#/wizard/" + room.id, illustration("plan"))
     };
   }
+  const stage = STAGES.some(x => x.id === params.stage && x.id !== "keywords") ? params.stage : naturalStage(room);
 
-  const content = el("div", {});
+  const content = el("div", { class: "room-screen stage-" + stage });
   const crawl = store.crawl(room.crawlId);
   add(content,
     crawl ? crumb("#/crawl/" + crawl.id, crawl.name) : null,
-    isComplete(room) ? el("p", { class: "stamp", "aria-hidden": "true", text: STATE_LABEL.complete }) : null,
-    el("h1", { class: "screen-title", text: room.context.label || "Untitled room" }),
+    stepper(room, stage),
+    el("div", { class: "title-row" },
+      el("h1", { class: "screen-title", text: room.context.label || "Untitled room" }),
+      el("button", { class: "icon-btn room-menu-btn", type: "button", "aria-label": "Room actions",
+        onclick: () => roomMenu(room) }, icon("more")),
+      explain(EXPLAIN.room)),
     room.context.roomType ? el("p", { class: "meta", text: room.context.roomType }) : null,
     room.context.multiRoomNote
       ? el("p", { class: "meta", text: "Covers several spaces: " + room.context.multiRoomNote })
       : null,
-    explain(EXPLAIN.room),
-    jumpRow()
+    stage === "record" ? jumpRow() : null
   );
 
-  // The article's order, top to bottom on a phone: the room, the encounter
-  // question, the Areas, the General Area below them (R19), then the rarer
-  // folds and the lifecycle (§6.3.4). From tablet width up (P8) the Areas and
-  // the General Area become a right-hand column that scrolls on its own.
+  // The article's order, top to bottom: the room, the encounter question, the
+  // Areas, the General Area below them (R19), then the rarer folds. On Record
+  // at tablet width (P8) the Areas and General Area are a right-hand column.
   const left = el("div", { class: "col col-room" });
   const right = el("div", { class: "col col-areas", id: "col-areas", "data-keep-scroll": "" });
   const more = el("div", { class: "col col-more" });
-  add(left, descriptionBlock(room), encounterBlock(room));
-  add(right, areasBlock(room), generalBlock(room));
-  add(more, askBlock(room), hiddenBlock(room), notesBlock(room), roomActionsBlock(room));
-  add(content, el("div", { class: "two-col sheet-cols" }, left, right, more));
+  add(left, show(descriptionBlock(room), stage, "describe"), show(encounterBlock(room), stage, "encounter"));
+  add(right, show(areasBlock(room), stage, "search"), show(generalBlock(room), stage, "search"));
+  add(more, show(askBlock(room), stage), show(hiddenBlock(room), stage), show(notesBlock(room), stage));
+  add(content, el("div", { class: "two-col sheet-cols" + (stage === "record" ? "" : " one-stage") }, left, right, more));
+  if (stage === "done") add(content, doneBlock(room));
+  if (stage === "record") add(content, pager(room));
 
-  const [bar, spacer] = actionBar(primaryAction(room));
+  if (stage !== "done" && stage !== "record") add(content, fab(room));
+  const [bar, spacer] = actionBar(stage === "done" ? doneAction(room) : primaryAction(room));
   add(content, spacer);
   return { title: "Room", content, bar };
+}
+
+// A block shows on its own stage and on Record; elsewhere it stays in the
+// record but out of sight.
+function show(node, stage, own = null) {
+  if (stage !== "record" && stage !== own) node.hidden = true;
+  return node;
+}
+
+// The ⋯ menu: everything you do *to* the room rather than *in* it.
+function roomMenu(room) {
+  const row = (iconName, label, fn, cls = "") =>
+    el("button", { class: "menu-row " + cls, type: "button", onclick: () => { closeModal(); fn(); } },
+      icon(iconName), el("span", { text: label }));
+  modal({
+    title: room.context.label || "Untitled room",
+    body: el("div", { class: "menu-list" },
+      row("ask", "Read-aloud text", () => readAloud(room)),
+      row("print", "Print this room", () => { location.hash = "#/print/room/" + room.id; }),
+      row("door", "Next room in this crawl", () => nextRoomFlow(room)),
+      row("crawls", "Back to the crawl", () => { location.hash = "#/crawl/" + room.crawlId; }),
+      row("close", "Delete this room", () => deleteRoom(room), "menu-danger")),
+    actions: []
+  });
+}
+
+function deleteRoom(room) {
+  confirmModal({
+    title: "Delete this room?",
+    message: "Deletes " + (room.context.label || "this room") + ", its " + areaCount(room) +
+      " Areas and everything searching turned up. Its rolls stay in the log. One-step undo is offered afterwards.",
+    confirmLabel: "Delete the room",
+    onConfirm: () => {
+      const crawlId = room.crawlId;
+      store.deleteRoom(room.id);
+      showToast("Room deleted.", { action: { label: "Undo", onClick: () => { store.undo(); rerender(); } } });
+      location.hash = "#/crawl/" + crawlId;
+    }
+  });
+}
+
+// The + button: the three things you may do at any moment in a room — ask a
+// question (R38), look for something hidden (R24), keep a note.
+function fab(room) {
+  const counts = { ask: (room.questions || []).length, hidden: (room.hidden || []).length };
+  return el("button", { class: "fab", type: "button", "aria-label": "Ask, search for hidden things, or add a note",
+    onclick: () => {
+      const row = (iconName, label, n, build) =>
+        el("button", { class: "menu-row", type: "button", onclick: () => foldSheet(room, label, build) },
+          icon(iconName), el("span", { text: label }), n ? el("span", { class: "menu-count", text: String(n) }) : null);
+      modal({
+        title: room.context.label || "Untitled room",
+        body: el("div", { class: "menu-list" },
+          row("ask", "Ask the GM", counts.ask, askBody),
+          row("search", "Hidden things", counts.hidden, hiddenBody),
+          row("quill", "Notes", 0, notesBody)),
+        actions: []
+      });
+    } }, icon("plus"));
+}
+
+// A fold's body in a sheet of its own, redrawn in place after each action.
+function foldSheet(room, title, build) {
+  const host = el("div", {});
+  const redraw = () => { clear(host); add(host, build(room, redraw)); rerender(); };
+  add(host, build(room, redraw));
+  modal({ title, body: host, actions: [{ label: "Done", onClick: () => rerender() }] });
+}
+
+// The end of the procedure: no conclusion roll (R22), a summary, the stamp
+// when the room is fully explored, and every onward route (§6.3.6).
+function doneBlock(room) {
+  const box = el("section", { class: "block done-block", id: "sec-done" });
+  const lines = lifecycle.roomSummary(room);
+  add(box,
+    isComplete(room) ? el("p", { class: "stamp stamp-lg", "aria-hidden": "true", text: STATE_LABEL.complete }) : null,
+    roomPlan(room),
+    el("ul", { class: "summary done-summary" }, lines.map(l => el("li", { text: l }))),
+    !isComplete(room) ? el("p", { class: "hint", text: "Areas are still unsearched. That is a real state — the room is described rather than searched, and you can come back to it." }) : null,
+    el("p", { class: "hint" }, "Searching is optional — a room you only looked at is a finished room. ", ruleLink("complete", "The rule"), "."),
+    el("div", { class: "done-actions" },
+      el("button", { class: "btn btn-quiet", type: "button", onclick: () => readAloud(room) }, icon("ask"), "Read-aloud text"),
+      el("a", { class: "btn btn-quiet", href: "#/print/room/" + room.id }, icon("print"), "Print this room"),
+      el("a", { class: "btn btn-quiet", href: "#/crawl/" + room.crawlId }, icon("crawls"), "Back to the crawl")),
+    pager(room));
+  return box;
+}
+
+function doneAction(room) {
+  return el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => nextRoomFlow(room) },
+    "Next room in this crawl");
 }
 
 // The one control the screen exists for, always above the fold (§6.3.2), and
@@ -116,7 +271,7 @@ function primaryAction(room) {
       return el("div", { class: "bar-stack" },
         el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => askEncounter(room, mythic.DEFAULT_ODDS) },
           "Ask: is there an encounter? (50/50)"),
-        el("button", { class: "btn-link", type: "button", onclick: () => { lifecycle.skipEncounter(room); rerender(); } },
+        el("button", { class: "btn-link", type: "button", onclick: () => { lifecycle.skipEncounter(room); toNatural(room); } },
           "Skip the question"));
     }
     return el("div", { class: "bar-stack" },
@@ -124,7 +279,7 @@ function primaryAction(room) {
         const t = document.getElementById("sec-encounter");
         if (t) t.scrollIntoView({ block: "start" });
       } }, "Record: is there an encounter?"),
-      el("button", { class: "btn-link", type: "button", onclick: () => { lifecycle.skipEncounter(room); rerender(); } },
+      el("button", { class: "btn-link", type: "button", onclick: () => { lifecycle.skipEncounter(room); toNatural(room); } },
         "Skip the question"));
   }
   if (next.step === "search") {
@@ -165,7 +320,7 @@ function descriptionBlock(room) {
   if (room.description) {
     add(box, el("p", { class: "prose prose-read", text: room.description }));
   } else {
-    add(box, el("p", { class: "hint", text: "Not described yet. The Areas are its main features — write the room from them, and add whatever else obviously belongs." }));
+    add(box, hint("describe", "Not described yet. The Areas are its main features — write the room from them, and add whatever else obviously belongs."));
   }
   add(box, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
     promptModal({
@@ -206,10 +361,10 @@ function encounterBlock(room) {
     return box;
   }
 
-  add(box, el("p", { class: "prose" },
+  add(box, hint("encounter-when",
     "Ask it once, after describing the room and before searching — see ", ruleLink("encounter", "the rule"), "."));
   if (!room.description) {
-    add(box, el("p", { class: "hint", text: "The article asks you to describe the room before you ask. You can answer now anyway — this is guidance, not a gate." }));
+    add(box, hint("encounter-describe-first", "The article asks you to describe the room before you ask. You can answer now anyway — this is guidance, not a gate."));
   }
 
   if (Settings.useMythic()) {
@@ -235,7 +390,7 @@ function encounterBlock(room) {
 function askEncounter(room, odds) {
   const res = mythic.ask(room, odds, "Is there an encounter?");
   lifecycle.recordEncounter(room, res.answer, "", res);
-  rerender();
+  toNatural(room);
   showAnswer(res, "Is there an encounter?");
 }
 
@@ -273,7 +428,7 @@ function oddsAsker(room, question, onAsk, { buttonLabel = "Ask" } = {}) {
     el("p", { class: "field-label", text: "How likely is a Yes?" }),
     quick, gauge, more,
     el("button", { class: "btn btn-secondary btn-wide", type: "button", onclick: () => onAsk(odds) }, buttonLabel),
-    el("p", { class: "hint", text: mythic.MYTHIC_EXPLAIN.ask })
+    hint("odds", mythic.MYTHIC_EXPLAIN.ask)
   );
   return wrap;
 }
@@ -283,7 +438,7 @@ function answerCard(rec, { working = false } = {}) {
   const box = el("div", { class: "find" });
   add(box, el("p", { class: "find-head" },
     rec.roll ? el("span", { class: "die", text: String(rec.roll) }) : null,
-    el("b", { text: rec.answerName }),
+    el("b", { class: working ? "seal" : null, text: rec.answerName }),
     rec.oddsName ? el("span", { class: "list-sub", text: " at " + rec.oddsName }) : null));
   if (working && rec.roll && rec.odds) {
     const row = mythic.oddsById(rec.odds);
@@ -315,11 +470,21 @@ function showAnswer(res, question) {
 // trapped. Mythic-gated like the rest; with it off the fold explains why it is
 // not here rather than vanishing.
 function askBlock(room) {
-  const d = el("details", { class: "fold", id: "sec-ask" });
   const n = (room.questions || []).length;
-  add(d, el("summary", { class: "has-ico" }, icon("ask"), el("span", { text: "Ask the GM" + (n ? " (" + n + ")" : "") })));
-  add(d, el("p", { class: "prose" },
-    "Any yes/no question about this room. Decide how likely a Yes is and roll it — ",
+  return foldOf("sec-ask", "ask", "Ask the GM" + (n ? " (" + n + ")" : ""), askBody(room));
+}
+
+// One shape for the three folds: a <details> on the sheet, the same body in a
+// sheet of its own from the + button.
+function foldOf(id, iconName, label, body) {
+  const d = el("details", { class: "fold", id });
+  add(d, el("summary", { class: "has-ico" }, icon(iconName), el("span", { text: label })), body);
+  return d;
+}
+
+function askBody(room, redraw = rerender) {
+  const d = el("div", { class: "fold-body" });
+  add(d, hint("ask-gm", "Any yes/no question about this room. Decide how likely a Yes is and roll it — ",
     ruleLink("mythic-ask", "the rule"), "."));
   for (const q of room.questions || []) {
     add(d, el("div", { class: "card" }, el("p", { class: "meta", text: q.question }), answerCard(q)));
@@ -336,7 +501,7 @@ function askBlock(room) {
     if (!text) { showToast("Type the question first."); q.focus(); return; }
     const res = mythic.ask(room, odds, text);
     lifecycle.recordQuestion(room, res, "");
-    rerender();
+    redraw();
     showAnswer(res, text);
   }));
   return d;
@@ -358,8 +523,16 @@ function areasBlock(room) {
     return box;
   }
   const list = [...room.areas].sort((a, b) => a.order - b.order);
-  // The plan: tap a block to go to its card, the outline for the General Area.
+  // The plan is the search surface: tap an unsearched block to search it, the
+  // outline for the General Area. A searched block opens its card instead —
+  // one roll per Area (R11) and one for the General Area (R19), never two.
   add(box, roomPlan(room, { onPick: id => {
+    if (id === "__general") {
+      if (canSearchGeneral(room)) return doGeneral(room);
+    } else {
+      const a = room.areas.find(x => x.id === id);
+      if (a && !a.search) return doSearch(room, id);
+    }
     const t = document.getElementById(id === "__general" ? "sec-general" : "area-" + id);
     if (t) t.scrollIntoView({ block: "start" });
   } }));
@@ -395,7 +568,7 @@ function areaCard(room, area, index, count) {
 
   if (done) {
     add(card, findBlock(room, area.search, { areaId: area.id }));
-    add(card, el("p", { class: "hint" }, "Searched. One roll per Area — ", ruleLink("search", "the rule"), "."));
+    add(card, hint("search-once", "Searched. One roll per Area — ", ruleLink("search", "the rule"), "."));
     // Detail rolls and notes are things you do to something you have found.
     add(card, detailBlock(room, area.id));
     add(card, noteControl(area.note, v => { area.note = v; store.saveRoom(room); rerender(); }));
@@ -409,8 +582,8 @@ function areaCard(room, area, index, count) {
 function generalBlock(room) {
   const box = el("section", { class: "block", id: "sec-general" });
   add(box, iconTitle("h2", "block-title", "frame", "The General Area"));
-  add(box, el("p", { class: "prose", text: "The room itself — everything not immediately noticeable. One roll, at any budget: it is what makes " +
-    areaCount(room) + " Areas into " + totalExplorable(room) + " explorable places." }));
+  add(box, hint("general", "The room itself — everything not immediately noticeable. One roll, at any budget: it is what makes " +
+    areaCount(room) + " Areas into " + totalExplorable(room) + " explorable places."));
   const card = el("article", { class: "card area-card " + (generalDone(room) ? "card-done " + findTone(room.generalArea) : "card-open") });
   if (generalDone(room)) {
     add(card, findBlock(room, room.generalArea, { areaId: null }));
@@ -424,8 +597,14 @@ function generalBlock(room) {
 }
 
 function hiddenBlock(room) {
-  const d = el("details", { class: "fold", id: "sec-hidden" });
-  add(d, el("summary", { class: "has-ico" }, icon("search"), el("span", { text: "Hidden things" + ((room.hidden || []).length ? " (" + room.hidden.length + ")" : "") })));
+  const n = (room.hidden || []).length;
+  return foldOf("sec-hidden", "search", "Hidden things" + (n ? " (" + n + ")" : ""), hiddenBody(room));
+}
+
+// R24's instruction stays in full every time: the app cannot run your game's
+// search mechanic, so it says so rather than folding the words away.
+function hiddenBody(room, redraw = rerender) {
+  const d = el("div", { class: "fold-body" });
   add(d, el("p", { class: "prose" },
     "Room Crafter reports what is apparent. For a secret door or a stash, use your own game's search mechanic first, then ask — ",
     ruleLink("hidden", "the rule"), "."));
@@ -437,7 +616,7 @@ function hiddenBlock(room) {
     add(d, oddsAsker(room, "Is something hidden found?", odds => {
       const res = mythic.ask(room, odds, "Is something hidden found?");
       lifecycle.recordHidden(room, "Is something hidden found?", res.answer, "", res);
-      rerender();
+      redraw();
       showAnswer(res, "Is something hidden found?");
     }));
   } else {
@@ -457,7 +636,7 @@ function hiddenBlock(room) {
         actions: [
           { label: "Record", onClick: () => {
             lifecycle.recordHidden(room, q.value.trim(), ansSel.value, note.value.trim());
-            showToast("Recorded."); rerender();
+            showToast("Recorded."); redraw();
           } },
           { label: "Cancel" }
         ]
@@ -468,45 +647,17 @@ function hiddenBlock(room) {
 }
 
 function notesBlock(room) {
-  const d = el("details", { class: "fold", id: "sec-notes" });
-  add(d, el("summary", { class: "has-ico" }, icon("quill"), el("span", { text: "Notes" })));
+  return foldOf("sec-notes", "quill", "Notes", notesBody(room));
+}
+
+function notesBody(room, redraw = rerender) {
+  const d = el("div", { class: "fold-body" });
   add(d, room.notes ? el("p", { class: "prose prose-read", text: room.notes }) : el("p", { class: "hint", text: "Nothing yet." }));
   add(d, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
     promptModal({ title: "Notes", label: "Anything you want to keep", value: room.notes, multiline: true,
-      onConfirm: v => { room.notes = v; store.saveRoom(room); rerender(); } });
+      onConfirm: v => { room.notes = v; store.saveRoom(room); redraw(); } });
   } }, "Edit notes"));
   return d;
-}
-
-// Destructive controls live at the end of the scroll, out of the thumb's arc (§6.3.11).
-function roomActionsBlock(room) {
-  const box = el("section", { class: "block block-end" });
-  add(box, iconTitle("h2", "block-title", "flag", "This room"));
-  add(box,
-    el("div", { class: "action-grid" },
-      el("button", { class: "btn btn-quiet", type: "button", onclick: () => finishRoom(room) }, "Finish this room"),
-      el("button", { class: "btn btn-quiet", type: "button", onclick: () => readAloud(room) }, "Read-aloud text"),
-      el("button", { class: "btn btn-quiet", type: "button", onclick: () => nextRoomFlow(room) }, "Next room in this crawl"),
-      el("a", { class: "btn btn-quiet", href: "#/crawl/" + room.crawlId }, "Back to the crawl"),
-      el("a", { class: "btn btn-quiet btn-span", href: "#/print/room/" + room.id }, icon("print"), "Print this room")),
-    el("p", { class: "hint" }, "Searching is optional — a room you only looked at is a finished room. ", ruleLink("complete", "The rule"), "."),
-    pager(room),
-    el("div", { class: "danger-row" },
-    el("button", { class: "btn btn-danger", type: "button", onclick: () => {
-      confirmModal({
-        title: "Delete this room?",
-        message: "Deletes " + (room.context.label || "this room") + ", its " + areaCount(room) +
-          " Areas and everything searching turned up. Its rolls stay in the log. One-step undo is offered afterwards.",
-        confirmLabel: "Delete the room",
-        onConfirm: () => {
-          const crawlId = room.crawlId;
-          store.deleteRoom(room.id);
-          showToast("Room deleted.", { action: { label: "Undo", onClick: () => { store.undo(); rerender(); } } });
-          location.hash = "#/crawl/" + crawlId;
-        }
-      });
-    } }, "Delete this room")));
-  return box;
 }
 
 // The rooms either side of this one in the crawl's order (R28), so a finished
@@ -609,7 +760,7 @@ function meaningBlock(room, find, areaId, redraw = rerender) {
         redraw();
       } }, el("span", { class: "choice-main", text: "+ " + c.name })));
     }
-    add(box, el("p", { class: "hint" }, "Not clear yet? Roll another word — ", ruleLink("mythic-meaning", "the rule"), "."));
+    add(box, hint("another-word", "Not clear yet? Roll another word — ", ruleLink("mythic-meaning", "the rule"), "."));
   } else {
     add(row, el("button", { class: "choice choice-sm", type: "button", onclick: () => {
       roller.rerollMeaning(room, find, m.tableId, areaId);
@@ -648,7 +799,7 @@ function detailBlock(room, areaId) {
   }
   const fold = el("details", { class: "fold fold-tight" });
   add(fold, el("summary", { text: mine.length ? "Roll another detail" : "Roll a detail" }));
-  add(fold, el("p", { class: "prose", text: "A keyword pair for one thing inside — the article's own use when you pick a single sock out of the drawer." }));
+  add(fold, hint("detail", "A keyword pair for one thing inside — the article's own use when you pick a single sock out of the drawer."));
   const row = el("div", { class: "choice-row choice-wrap" });
   for (const t of MEANING_TABLES) {
     add(row, el("button", { class: "choice choice-sm", type: "button", onclick: () => {
@@ -676,15 +827,15 @@ function doSearch(room, areaId) {
   const r = roller.searchArea(room, areaId);
   if (!r.ok) return refuse(r.reason, r.ruleId);
   const area = room.areas.find(a => a.id === areaId);
+  toNatural(room);
   showFind(room, r.find, area.name, areaId);
-  rerender();
 }
 
 function doGeneral(room) {
   const r = roller.searchGeneralArea(room);
   if (!r.ok) return refuse(r.reason, r.ruleId);
+  toNatural(room);
   showFind(room, r.find, "The General Area", null);
-  rerender();
 }
 
 function showFind(room, find, label, areaId) {
@@ -703,23 +854,9 @@ function showFind(room, find, label, areaId) {
   });
 }
 
+// Finishing is a place, not a pop-up: the Done stage (R22, R23).
 function finishRoom(room) {
-  const lines = lifecycle.roomSummary(room);
-  const body = el("div", {});
-  add(body, el("ul", { class: "summary" }, lines.map(l => el("li", { text: l }))));
-  if (!isComplete(room)) {
-    add(body, el("p", { class: "hint", text: "Areas are still unsearched. That is a real state — the room is described rather than searched, and you can come back to it." }));
-  }
-  modal({
-    title: "Room finished",
-    body,
-    actions: [
-      { label: "Next room", onClick: () => { nextRoomFlow(room); return true; } },
-      { label: "Read-aloud text", onClick: () => { readAloud(room); return true; } },
-      { label: "Print this room", onClick: () => { location.hash = "#/print/room/" + room.id; } },
-      { label: "Back to the crawl", onClick: () => { location.hash = "#/crawl/" + room.crawlId; } }
-    ]
-  });
+  location.hash = stageHref(room, "done");
 }
 
 function nextRoomFlow(fromRoom) {

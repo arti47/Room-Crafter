@@ -1,5 +1,6 @@
 // ui.js — themed primitives. No native alert/confirm/prompt anywhere in the app.
 import { el, add, clear, $ } from "./core.js";
+import { get as getSetting, set as setSetting } from "./settings.js";
 
 let openModal = null;
 
@@ -156,11 +157,33 @@ export function showToast(message, { action } = {}) {
   toastTimer = setTimeout(() => clear(host), action ? 9000 : 4000);
 }
 
-// The collapsible "what this does" note every screen carries (§6.6).
+// The collapsible "what this does" note every screen carries (§6.6). It sits
+// in the title row as a small ⓘ; the words stay one tap away.
 export function explain(text) {
   const d = el("details", { class: "explain" });
-  add(d, el("summary", { text: "What this does" }), el("p", { class: "prose", text }));
+  add(d, el("summary", { "aria-label": "What this does" }, el("span", { class: "explain-label", text: "What this does" })),
+    el("p", { class: "prose", text }));
   return d;
+}
+
+// Guidance the first time, an ⓘ after that (coach marks). The words are never
+// removed — once dismissed they fold behind the ⓘ and open on a tap. Rules a
+// surface cannot enforce keep their own always-visible copy; this is only for
+// the how-to.
+export function hint(key, ...children) {
+  const seen = (getSetting("hintsSeen") || []).includes(key);
+  if (seen) {
+    const d = el("details", { class: "hint-i" });
+    add(d, el("summary", { "aria-label": "How this works" }), el("p", { class: "hint" }, ...children));
+    return d;
+  }
+  const box = el("div", { class: "coach", role: "note" });
+  add(box, el("p", { class: "hint" }, ...children),
+    el("button", { class: "coach-ok", type: "button", onclick: () => {
+      setSetting("hintsSeen", [...(getSetting("hintsSeen") || []), key]);
+      box.replaceWith(hint(key, ...children.map(c => (c && c.cloneNode) ? c.cloneNode(true) : c)));
+    } }, "Got it"));
+  return box;
 }
 
 // Returns [bar, spacer] together so a caller cannot forget the spacer (§6.2).

@@ -56,6 +56,7 @@ the **Room** as the tracked entity. Signed off at Stage B.
 |---|---|---|
 | P1 | Source scope | ~~Room Crafter article only~~ — **superseded.** One-Page Mythic was supplied after Stage B and unblocks B1–B3 (ruling A16) |
 | P13 | Review round (2026-09-12) | **Play order:** the pinned primary walks the procedure — ask (skippable) → search → General → finish · **Odds picker:** one row Unlikely/50-50/Likely, full chart behind a fold · **Tablet:** two real columns · **Areas:** rename + reorder, finds never editable · **Export:** files + share sheet, clipboard fallback · **Mis-taps:** no protection — the roll is the roll · **Free questions:** an Ask-the-GM fold on the room sheet |
+| P14 | Redesign (2026-10-10) | **Owner: "complete everything, follow your recommendation."** The room is played as stages (Keywords → Describe → Encounter → Search → Done, plus Record); the plan is the search surface; 4 tabs (Play · Log · Learn · Settings); ⋯ menu for room actions; + menu for Ask the GM / Hidden things / Notes; guidance as coach marks that fold to ⓘ; home leads with Continue; first-run welcome; tutorial links spotlight their control. The P13 odds picker (three odds + full chart behind a fold) is kept — an earlier owner decision |
 | P12 | Mythic scope | **All of it, behind a toggle** (`Settings.useMythic`, default on): Ask The GM, Discover Meaning, and Random Events. Off, the three surfaces revert to prompt-and-record and Mythic's rules leave the library |
 | P2 | Scope re-point + rulings | **Approved as written** — §1.0 above, rulings A1–A15 binding |
 | P3 | Repository | **Private** (owner to set). Verbatim tables stay committed; README carries the personal-use licensing note |
@@ -144,7 +145,7 @@ rules; `gm.js` — no second seat (A15); `power-automation.js` — no powers.
 | Module | Responsibility |
 |---|---|
 | `core.js` | Constants, DOM/util helpers (incl. the null-safe `add`), **crypto d100**. No imports |
-| `ui.js` | Themed modal (bottom sheet, ✕, drag-to-dismiss, `result` variant)/toast/confirm/prompt, collapsible `explain()`, pinned `actionBar()` (returns bar + spacer together), `icon()`, `crumb()` (every way-back link), `copyText()` (every Copy button) |
+| `ui.js` | `hint()` — coach marks that fold to ⓘ once dismissed; themed modal (bottom sheet, ✕, drag-to-dismiss, `result` variant)/toast/confirm/prompt, collapsible `explain()`, pinned `actionBar()` (returns bar + spacer together), `icon()`, `crumb()` (every way-back link), `copyText()` (every Copy button) |
 | `graphics.js` | Drawn elements, all derived from a record or a data table: the room plan, d100 band strips (the working on result dialogs and the odds gauge), Element glyphs, crawl strip, 10×10 face grid, empty-state drawings, fleuron, and `findTone` (the one place a find's colour is decided). No rules |
 | `rules.js` | Pure lookups over the data files: keyword by roll, Element band by roll, encounter band |
 | `derived.js` | Area count, total explorable Areas, room-complete predicate, search progress, normalization/migration; `isWalkDone` / `roomHref` / `areaWords` — the one definition of each, read by every screen |
@@ -153,12 +154,12 @@ rules; `gm.js` — no second seat (A15); `power-automation.js` — no powers.
 | `wizard.js` | Room generation — the sequential keyword walk with interpret / combine / drop; `openNewRoom` — the one new/next-room dialog |
 | `roller.js` | The d100 engine: keyword rolls, Element resolution, Multi-Element cascade, Sock Drawer pairs, roll-log writes |
 | `mythic.js` | The One-Page Mythic engine, behind its toggle: Ask The GM, the Random Event trigger, Discover Meaning and "another word" |
-| `sheet.js` | Room sheet, Area cards, persistent room header, General Area, notes |
+| `sheet.js` | The room as stages (`STAGES`, `naturalStage`, `stepper`): every block rendered on every stage and hidden off its own, so the record is one; persistent room header; Area cards; tap-to-search plan; General Area; ⋯ menu; + menu with the three fold bodies in sheets; Done stage |
 | `lifecycle.js` | Room boundaries (the once-per flag clearer), crawl boundaries, encounter check, confirmation summaries + undo |
 | `screens.js` | Home/crawl list, rules library, settings, roll log + distribution view |
 | `print.js` | Print records: one room (`#/print/room/:id`) or a whole crawl (`#/print/crawl/:id`, one room per page) — the read-aloud export's facts and wording, laid out for paper with the plan, and an appendix of the room's rolls from the log in the order they were made; no frame, no controls on paper |
 | `tutorial.js` | First-session walkthrough (each step links to where it is done) + neutral demo rooms |
-| `router.js` | Bottom-nav routing + section nav + live-state badges; measures the frame into `--head-h` / `--bar-live`; keeps page and column scroll on refresh |
+| `router.js` | Four tabs; `#/room/:id/:stage` and `#/record`; heading + ⓘ title rows; tutorial spotlight; bottom-nav routing + section nav + live-state badges; measures the frame into `--head-h` / `--bar-live`; keeps page and column scroll on refresh |
 | `main.js` | Entry point / boot; opens every fold for printing and closes them after |
 
 Adding or moving a `src/` file updates this table **and** the service-worker app
@@ -221,9 +222,9 @@ Targets below are **planned**; tick them off as they become real.
 | R6 | The budget caps the Area count | Threshold | `BUDGETS` | `derived.areaCount` · `derived.totalExplorable` | Wizard meta line · persistent room header | `R6/R7` · `R6 derived Area counts match the record` |
 | R7 | Three-keyword variant for crawls | Substitution | `BUDGETS` | `wizard.newRoomForm` budget picker | Budget picker, inherited by the next room | `R6/R7 a three-keyword room walks three steps` |
 | R8 | Embellishments are not Areas | Permission | — | `sheet.descriptionBlock` | Free-text description, separate from Area cards | structural: no Area record is created from it |
-| R9 | The encounter check comes after describing, before searching (A9) | Lookup + Gate | `ENCOUNTER_ANSWERS` | `derived.nextStep` → `sheet.primaryAction`; `lifecycle.recordEncounter` · `lifecycle.skipEncounter` | The pinned primary asks it first, with a skip link; the block sits above the Areas | `the primary action walks the article's order` · `skipping the encounter is a permission` · `R9/R10` |
+| R9 | The encounter check comes after describing, before searching (A9) | Lookup + Gate | `ENCOUNTER_ANSWERS` | `derived.nextStep` → `sheet.primaryAction` · `sheet.naturalStage`; `lifecycle.recordEncounter` · `lifecycle.skipEncounter` | Its own Encounter stage, opened by default until asked or skipped; the pinned primary asks it first, with a skip link | `the primary action walks the article's order` · `skipping the encounter is a permission` · `R9/R10` |
 | R10 | Resolving it needs the Fate Chart | Lookup | — | `guidance only` (B1) | Prompt-and-record, `not automated` badge | same |
-| R11 | One Room Elements roll per Area (A2) | Once-per-X | `ROOM_ELEMENTS` | `derived.canSearchArea` → `roller.searchArea` | Control disappears after use; refusal cites `search` | `R11 an Area takes exactly one roll, and the second is refused` |
+| R11 | One Room Elements roll per Area (A2) | Once-per-X | `ROOM_ELEMENTS` | `derived.canSearchArea` → `roller.searchArea` | Tap an unsearched block on the plan, or its card; a searched block opens its card and never rolls; refusal cites `search` | `R11 an Area takes exactly one roll, and the second is refused` · `plan: tapping a searched Area never rolls again (R11)` · `plan: tapping an unsearched Area searches it` |
 | R12 | The flag is cleared only by a new room | Once-per-X | — | `lifecycle.newRoom` (throws if a new room carries spent flags) | — | `R12 a new room clears the search flags — and nothing else does` |
 | R13 | Multi-Element expands to exactly two (A3) | Cascade | `ROOM_ELEMENTS` | `roller.expandMultiElement` | Result card shows both | `R13 Multi-Element always expands to exactly two sub-Elements` |
 | R14 | A repeat or nested Multi-Element becomes Expected (A4) | Exception | — | `roller.resolveSubBand` | Result card names the substitution | `R14 a repeat or a nested Multi-Element becomes Expected` |
@@ -234,8 +235,8 @@ Targets below are **planned**; tick them off as they become real.
 | R19 | One General Area roll per room (A1, A12) | Once-per-X | `ROOM_ELEMENTS` | `derived.canSearchGeneral` → `roller.searchGeneralArea` | Its own card below the Areas, on phone and tablet (A-34) | `R19 the General Area needs no prerequisite` · `R19/A12` · `phone: encounter, then Areas, then the General Area, then the folds` |
 | R20 | Complete = every Area + the General Area | Threshold | — | `derived.isComplete` | Persistent room header | `R20 complete flips on the last roll, not before` |
 | R21 | Unsearched Areas leave it described, not searched (A14) | Threshold | — | `derived.searchState` | Header state chip · crawl list | `R21 a skipped Area leaves the room described or part searched` |
-| R22 | No Conclusion Element | Gate | — | `lifecycle.roomSummary` · `sheet.finishRoom` | Completion summary offers no further roll | `R22/R23` · smoke asserts the summary never says "conclusion" |
-| R23 | Search all, some or none | Permission | — | `sheet.finishRoom` | "Done with this room", always enabled | `R22/R23 a room with nothing searched is a legitimate resting state` |
+| R22 | No Conclusion Element | Gate | — | `lifecycle.roomSummary` · `sheet.doneBlock` | The Done stage: summary, stamp, onward routes, no further roll | `R22/R23` · smoke asserts the summary never says "conclusion" |
+| R23 | Search all, some or none | Permission | — | `sheet.finishRoom` → Done stage | Done is a stage you can open at any time from the stepper; the primary offers it once everything is searched | `R22/R23 a room with nothing searched is a legitimate resting state` |
 | R24 | Hidden things: your task mechanic, then a Fate Question | Substitution | — | `guidance only` (B1) → `lifecycle.recordHidden` | Prompt-and-record fold, `not automated` badge | `R24 hidden searches are recorded, not automated` |
 | R25 | Connected simple rooms may be one room | Permission | `context.multiRoomNote` | `wizard.newRoomForm` | "Does this room cover several spaces?" as a switch, off by default; on reveals the note field (A-51) · shown on the sheet and the print record | `R25 the multi-room note persists on the record` · `R25: the several-spaces field is hidden until the switch is on` · `R25: the note is kept on the record` |
 | R26 | Place Areas where they seem fitting, and name them better later | Permission | `area.order`, `area.name` | `lifecycle.moveArea` · `lifecycle.renameArea` | ✎ ▲ ▼ on every Area card behind one "Edit" toggle in the Areas heading (two taps); the find is never editable | `R26 an Area can be renamed` · `R26 Areas can be reordered` · `e2e: Area tools are hidden until Edit is pressed` |
@@ -254,7 +255,7 @@ Targets below are **planned**; tick them off as they become real.
 | R34 | Keep rolling words until it comes clear | Permission | `MEANING_COLUMNS` | `mythic.anotherWord` | "+ Action" / "+ Description" on any Mythic meaning | `R34 another word appends rather than replacing` |
 | R35 | One question is one roll, read once for the answer and once for the event | Compulsion | — | `mythic.ask` | Answer card shows the single die | `R35 Ask The GM records the odds, the roll and the answer` · `R35 asking writes one roll, plus two only when an event fires` |
 | R36 | The answer belongs to the room, not the moment | — | — | `lifecycle.recordEncounter` · `lifecycle.recordHidden` | Room sheet · read-aloud export | `R36 a Mythic answer reaches the encounter record and the read-aloud text` · `R36 a hidden search keeps its Mythic answer through normalization` |
-| R38 | Any yes/no question about the room may be asked | Permission | — | `mythic.ask` → `lifecycle.recordQuestion` | "Ask the GM" fold on the sheet, kept with the room and in the read-aloud text | `R38 a free question is kept on the room` |
+| R38 | Any yes/no question about the room may be asked | Permission | — | `mythic.ask` → `lifecycle.recordQuestion` | + menu → Ask the GM, on every play stage; the fold on Record; kept with the room and in the read-aloud text | `R38 a free question is kept on the room` |
 | R39 | The fairness record is never capped | — (template §5.1) | — | `store.logRoll` face counter · `store.distribution` | Distribution view | `the face counts are never capped` · `face counts survive export, import and undo` |
 | R37 | The toggle gates every Mythic surface, and its rules with it | Gate | — | `Settings.useMythic` | Settings row; five call sites in `sheet.js`, one in `screens.js` | smoke asserts both states and that neither claims the other's copy |
 
@@ -304,7 +305,8 @@ rollLog/{id}: { table, roll, result, crawlId, roomId, roomName, areaId|null,
                                                             // provenance flags badge the row
 faceCounts:   { counts[101], total }           // never capped: the fairness record (A-19)
 undo:         [ { label, snapshot, ts } ]                                  // one stack, any mutating action pushes
-settings:     { theme, textScale, showHouseAids, useMythic }
+settings:     { theme, textScale, showHouseAids, useMythic,
+                welcomed: bool, hintsSeen: [key] }    // first-run state (P14); defaults false / [] back-fill old records
 ```
 
 Rules: every rules number the schema references lives in the data files; every
@@ -386,7 +388,7 @@ table** — that is the one part of this milestone still owed.
 - ☑ Dead fields removed; wizard trail and header humanised; one label for finishing a room
 
 **Phase 8 — Hardening** ◐
-- ☑ Harness A (`npm test`, 87 checks), B (`npm run smoke`, 307), C (`npm run interact`, 327), D (fixtures fresh/mid-crawl/stress + both probes)
+- ☑ Harness A (`npm test`, 87 checks), B (`npm run smoke`, 357), C (`npm run interact`, 402), D (fixtures fresh/mid-crawl/stress + both probes)
 - ☑ Dead-data scan (`npm run scan`), clean
 - ☑ Accessibility: focus trap, `aria-live`, `aria-current`, labelled controls, 16px inputs, 40px+ targets, reduced motion, skip link
 - ☑ The §6.7 measurement contract, asserted on every route at every seed
@@ -396,6 +398,7 @@ table** — that is the one part of this milestone still owed.
 - ☑ **Cycle 5 — UX/visual pass** (A-34…A-43): article order on the phone sheet, compact room header with a segmented meter, tab icons, bottom-sheet results with a large die, Edit mode for Areas, 2×2 room lifecycle grid, wizard step strip and timeline trail, grouped roll log, expected line on the distribution, inset Settings panels, AA contrast tokens, bundled serif
 - ☑ **Cycle 6 — drawn elements + linkage** (A-44…A-50): room plan, band-strip working on every result dialog and the odds picker, Element glyphs, section icons, Area medallions, crawl strip and chain, face grid, empty-state drawings, paper grain / lamplight, stamp, tutorial stations, theme swatches; breadcrumbs, room pager, log→room, rules Back, Settings→Tutorial/Rules
 - ☑ **Print records** — a room or a whole crawl, from the sheet ("Print this room") and the crawl ("Print the crawl"); `@media print` strips the frame and controls on every screen and prints folds open
+- ☑ **Cycle 7 — the room as stages** (P14, A-57…A-60): stepper, Encounter/Search/Done stages, Record view, tap-to-search plan, ⋯ and + menus, coach marks, Continue home, welcome, spotlight, crawl frieze, four tabs, roll tumble and answer seals
 - ☑ PWA update-path test — `npm run pwa`: network-first serves the new code on one reload, the toast appears, accepting leaves only the new cache, the app boots offline on the new code (A-32)
 
 ## 8. Definition of done — per feature
@@ -453,6 +456,7 @@ Template §10 applies in full. The ones this project will actually be tested by:
 | 2026-09-11 | Audit cycle 2: A-13…A-16 and three harness faults | Template §11 | Three more guards watched go red | `rc-v2` |
 | 2026-09-11 | A-13: moved the default odds into the data layer | `"fifty"` was hardcoded in two `src/` modules (§10.2) | `R31` covers the row; `DEFAULT_ODDS` is the only source | `rc-v2` |
 | 2026-09-11 | H-10: the interaction audit now compares markup, not its length | A radiogroup changing selection is a net-zero length change, so nine live controls read as dead — and the same fault would hide any swap-shaped change | 294 controls, 0 findings | — |
+| 2026-10-10 | Cycle 7 redesign (P14): the room as stages with a stepper; Record view holds the whole sheet; the plan searches (R11/R19 kept: a searched block never rolls); ⋯ menu (read-aloud, print, next room, crawl, delete); + menu (Ask the GM, Hidden things, Notes) in sheets; Done stage replaces the finish dialog; four tabs; guidance as coach marks folding to ⓘ (`welcomed`, `hintsSeen` settings); home Continue card and shelf thumbnails; first-run welcome built from tutorial steps; tutorial spotlight; examples reset instead of stacking (A-59); crawl frieze; roll tumble, element emblem, answer seal; `#/record` added to the measured routes | Owner: interface cluttered, wordy and intimidating — "complete everything, follow your recommendation". No rule, table or copy changed; copy moved behind disclosure, never deleted; R10/R15/R24 guidance stays always visible | `npm test` 87 · `scan` clean · `smoke` 357 (sixteen new stage/plan/menu/coach/welcome checks; tap-to-search watched go red) · `interact` 402 · `pwa` 13 | `rc-v14` |
 | 2026-10-10 | Linkage (A-55, A-56): every tutorial step links to where it is done — the open crawl or room when there is one, Crawls otherwise, the Multi-Element rule, Settings (new `go` field on T8; step text unchanged). Settings gains "Read-aloud text" for the open room: tutorial step 10 and `EXPLAIN.settings` both said it was there, and it was not | Owner approved the recommendation. A-56 is copy describing a control that did not exist (process rule 9); fixed by adding the control, not by changing the copy | `smoke` 307 (four new link checks; the tutorial pair watched go red with the links removed) · `interact` 327 · all harnesses green | `rc-v13` |
 | 2026-10-10 | Recorded the owner's standing instructions as process rule 12 (rules faithfulness, linkage check, content unchanged, progress format, merge to `main`) | Owner asked for them to be remembered for this project | Docs only | — |
 | 2026-10-03 | Redundancy pass (A-53): one definition each for the walk-done predicate (was five), the room link (four), an Area's keyword words (four), a find's tone (two), the breadcrumb (four), the Copy action (two) and the new/next-room dialog (two); five internal-only functions un-exported; the no-room screen uses the shared empty state. Linkage (A-54): the finish summary offers "Print this room". H-15: the Sock Drawer doubles check sampled 400 pairs, a 1.8% false-failure rate; now 2,000 | Owner asked for a redundancy and linkage check | `npm test` 87 · `scan` clean · `smoke` 303 · `interact` 324 · `pwa` 13 | `rc-v12` |
