@@ -157,7 +157,7 @@ rules; `gm.js` — no second seat (A15); `power-automation.js` — no powers.
 | `lifecycle.js` | Room boundaries (the once-per flag clearer), crawl boundaries, encounter check, confirmation summaries + undo |
 | `screens.js` | Home/crawl list, rules library, settings, roll log + distribution view |
 | `print.js` | Print records: one room (`#/print/room/:id`) or a whole crawl (`#/print/crawl/:id`, one room per page) — the read-aloud export's facts and wording, laid out for paper with the plan, and an appendix of the room's rolls from the log in the order they were made; no frame, no controls on paper |
-| `tutorial.js` | First-session walkthrough + neutral demo rooms |
+| `tutorial.js` | First-session walkthrough (each step links to where it is done) + neutral demo rooms |
 | `router.js` | Bottom-nav routing + section nav + live-state badges; measures the frame into `--head-h` / `--bar-live`; keeps page and column scroll on refresh |
 | `main.js` | Entry point / boot; opens every fold for printing and closes them after |
 
@@ -189,7 +189,7 @@ T1–T10 come from the Room Crafter article; T11–T14 from One-Page Mythic.
 | T5 | Keyword budgets + derived Area ranges | 2 | `data.js` | `wizard.js` · `derived.areaCount` | ☑ | ☑ |
 | T6 | Rules-library entries (paraphrased, cited) | 14 (real count) | `data.js` | `screens.rules` | ☑ | ☑ |
 | T7 | `explain()` copy, one per screen | 9 | `data.js` | every screen module | ☑ | ☑ |
-| T8 | Tutorial steps | 10 | `data.js` | `tutorial.js` | ☑ | ☑ |
+| T8 | Tutorial steps (each with `go`: where the step is done — a screen, the open crawl/room, or `rule:<id>`) | 10 | `data.js` | `tutorial.js` | ☑ | ☑ |
 | T9 | Room-type starter list (**house aid**) | 38 (real count) | `data-house-roomtypes.js` | `wizard.newRoomForm` · `roller.rollRoomType` | n/a | ☑ |
 | T10 | Neutral demo rooms (**house content**, A13) | 2 | `data-house-roomtypes.js` | `tutorial.loadDemos` | n/a | ☑ |
 | T11 | Ask The Game Master chart | 9 odds × 4 answers | `data-mythic.js` | `mythic.answerFor` · `sheet.oddsAsker` | ☑ | ☑ |
@@ -386,7 +386,7 @@ table** — that is the one part of this milestone still owed.
 - ☑ Dead fields removed; wizard trail and header humanised; one label for finishing a room
 
 **Phase 8 — Hardening** ◐
-- ☑ Harness A (`npm test`, 87 checks), B (`npm run smoke`, 303), C (`npm run interact`, 324), D (fixtures fresh/mid-crawl/stress + both probes)
+- ☑ Harness A (`npm test`, 87 checks), B (`npm run smoke`, 307), C (`npm run interact`, 327), D (fixtures fresh/mid-crawl/stress + both probes)
 - ☑ Dead-data scan (`npm run scan`), clean
 - ☑ Accessibility: focus trap, `aria-live`, `aria-current`, labelled controls, 16px inputs, 40px+ targets, reduced motion, skip link
 - ☑ The §6.7 measurement contract, asserted on every route at every seed
@@ -453,6 +453,7 @@ Template §10 applies in full. The ones this project will actually be tested by:
 | 2026-09-11 | Audit cycle 2: A-13…A-16 and three harness faults | Template §11 | Three more guards watched go red | `rc-v2` |
 | 2026-09-11 | A-13: moved the default odds into the data layer | `"fifty"` was hardcoded in two `src/` modules (§10.2) | `R31` covers the row; `DEFAULT_ODDS` is the only source | `rc-v2` |
 | 2026-09-11 | H-10: the interaction audit now compares markup, not its length | A radiogroup changing selection is a net-zero length change, so nine live controls read as dead — and the same fault would hide any swap-shaped change | 294 controls, 0 findings | — |
+| 2026-10-10 | Linkage (A-55, A-56): every tutorial step links to where it is done — the open crawl or room when there is one, Crawls otherwise, the Multi-Element rule, Settings (new `go` field on T8; step text unchanged). Settings gains "Read-aloud text" for the open room: tutorial step 10 and `EXPLAIN.settings` both said it was there, and it was not | Owner approved the recommendation. A-56 is copy describing a control that did not exist (process rule 9); fixed by adding the control, not by changing the copy | `smoke` 307 (four new link checks; the tutorial pair watched go red with the links removed) · `interact` 327 · all harnesses green | `rc-v13` |
 | 2026-10-10 | Recorded the owner's standing instructions as process rule 12 (rules faithfulness, linkage check, content unchanged, progress format, merge to `main`) | Owner asked for them to be remembered for this project | Docs only | — |
 | 2026-10-03 | Redundancy pass (A-53): one definition each for the walk-done predicate (was five), the room link (four), an Area's keyword words (four), a find's tone (two), the breadcrumb (four), the Copy action (two) and the new/next-room dialog (two); five internal-only functions un-exported; the no-room screen uses the shared empty state. Linkage (A-54): the finish summary offers "Print this room". H-15: the Sock Drawer doubles check sampled 400 pairs, a 1.8% false-failure rate; now 2,000 | Owner asked for a redundancy and linkage check | `npm test` 87 · `scan` clean · `smoke` 303 · `interact` 324 · `pwa` 13 | `rc-v12` |
 | 2026-10-03 | Print appendix: each room's print record ends with its rolls from the log, oldest first, with provenance badges and the log-cap note | Owner asked for it (Q3). The log is the fairness record; the page now carries its own evidence | `smoke` 302 (appendix check watched go red with the filter broken) · all harnesses green · A4 PDF read | `rc-v11` |

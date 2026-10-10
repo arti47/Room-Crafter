@@ -1,8 +1,9 @@
 // tutorial.js — a first room, step by step. A screen, not a modal sequence: you
 // come back to it mid-session.
 import { el, add } from "./core.js";
-import { explain, sectionNav, showToast } from "./ui.js";
-import { EXPLAIN, TUTORIAL } from "../data.js";
+import { explain, sectionNav, showToast, icon } from "./ui.js";
+import { EXPLAIN, TUTORIAL, RULES_LIBRARY } from "../data.js";
+import { roomHref } from "./derived.js";
 import { DEMO_ROOMS, HOUSE_AID } from "../data-house-roomtypes.js";
 import * as store from "./store.js";
 import { uid } from "./core.js";
@@ -25,7 +26,7 @@ export function render() {
   TUTORIAL.forEach(step => {
     const d = el("details", { class: "fold tut-step" });
     add(d, el("summary", {}, el("span", { class: "tut-num" }), el("span", { text: step.title })),
-      el("p", { class: "prose", text: step.body }));
+      el("p", { class: "prose", text: step.body }), stepLink(step.go));
     add(steps, d);
   });
   add(content, steps);
@@ -40,6 +41,25 @@ export function render() {
 
   add(content, el("p", { class: "hint" }, "Ready? ", el("a", { class: "rule-link", href: "#/crawls" }, "Start a crawl"), "."), fleuron());
   return { title: "Tutorial", content };
+}
+
+// Each step links to where it is done: your open crawl or room when there is
+// one, otherwise the crawl list where both begin. Labels are the names of the
+// places, never new instructions.
+function stepLink(go) {
+  if (!go) return null;
+  const cur = store.current();
+  const crawl = cur.crawlId ? store.crawl(cur.crawlId) : null;
+  const room = cur.roomId ? store.room(cur.roomId) : null;
+  let href = "#/crawls", label = "Crawls";
+  if (go === "crawl" && crawl) { href = "#/crawl/" + crawl.id; label = crawl.name; }
+  else if (go === "room" && room) { href = roomHref(room); label = room.context.label || "Untitled room"; }
+  else if (go === "settings") { href = "#/settings"; label = "Settings"; }
+  else if (go.startsWith("rule:")) {
+    const r = RULES_LIBRARY.find(x => x.id === go.slice(5));
+    if (r) { href = "#/rules/" + r.id; label = r.title; }
+  }
+  return el("a", { class: "tut-go", href }, el("span", { text: label }), icon("chev-r"));
 }
 
 function loadDemos() {

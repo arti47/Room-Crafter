@@ -596,3 +596,13 @@ rows and Back), room ⇄ neighbours (pager), room → print → room, crawl → 
 (section nav), log → room, rules ⇄ tutorial (section nav), surface → rule →
 Back, refusal toast → rule, Settings → tutorial / rules, tutorial → crawls /
 examples crawl, no-room → crawl. No dead ends found.
+
+**A-55 · Tutorial steps described screens without linking to them.** *Fix:* a
+`go` field on each T8 step; the step links to your open crawl or room (Crawls
+when none), the Multi-Element rule, or Settings. Step text unchanged. *Guard:*
+`link: every tutorial step links to where it is done` — watched go red.
+
+**A-56 · Copy promised a control that did not exist.** Tutorial step 10 and the
+Settings explain note both put the read-aloud export in Settings; it lived only
+on the room sheet. *Fix:* "Read-aloud text" in Settings → Your data, for the
+open room (disabled when none). The copy is unchanged; the app now matches it.

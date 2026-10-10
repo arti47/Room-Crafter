@@ -7,6 +7,7 @@ import { MYTHIC_RULES, MYTHIC } from "../data-mythic.js";
 import * as store from "./store.js";
 import * as settings from "./settings.js";
 import { openNewRoom } from "./wizard.js";
+import { readAloud } from "./sheet.js";
 import { searchState, STATE_LABEL, areaCount, searchedAreas, searchedTotal, totalExplorable, isWalkDone, roomHref } from "./derived.js";
 import { crawlSummary } from "./lifecycle.js";
 
@@ -354,6 +355,9 @@ export function settingsScreen() {
     el("div", { class: "stack" },
       el("button", { class: "btn btn-secondary btn-wide", type: "button", onclick: exportFlow }, "Export JSON"),
       el("button", { class: "btn btn-quiet btn-wide", type: "button", onclick: importFlow }, "Import JSON"),
+      // The tutorial and the Settings note promise the read-aloud export here
+      // too; it reads the room you have open.
+      readAloudButton(),
       el("button", { class: "btn btn-quiet btn-wide", type: "button", onclick: () => {
         const repairs = store.checkData();
         modal({
@@ -403,6 +407,14 @@ export function settingsScreen() {
   ));
 
   return { title: "Settings", content };
+}
+
+function readAloudButton() {
+  const cur = store.current();
+  const rm = cur.roomId ? store.room(cur.roomId) : null;
+  return el("button", { class: "btn btn-quiet btn-wide", type: "button", disabled: rm ? null : true,
+    title: rm ? (rm.context.label || "Untitled room") : null,
+    onclick: () => { if (rm) readAloud(rm); } }, "Read-aloud text");
 }
 
 function choiceRow(label, options, currentId, onPick, cls = "") {

@@ -145,15 +145,17 @@ export const EXPLAIN = {
 };
 
 // ── T8 · Tutorial ────────────────────────────────────────────────────────────
+// `go` names where each step is done, so the step can link there: a screen, the
+// current crawl or room, or a rules entry ("rule:<id>").
 export const TUTORIAL = [
-  { title: "Start a crawl", body: "Everything lives in a crawl. Make one and name it after wherever you are exploring. One room is a perfectly good crawl." },
-  { title: "Name the room and pick a budget", body: "Six keywords is the default and gives three to six Areas. Choose three if you are making a lot of rooms in a row — you get two or three Areas, which is enough to know what stands out." },
-  { title: "Walk the keywords", body: "Take them one at a time and do not dwell. If a word suggests something in this room, make it an Area and name it. If it does not, carry it forward — the next word will usually rescue it." },
-  { title: "Say what the room looks like", body: "The Areas are the room's main features, so write the description from them. Add whatever else obviously belongs. Those extras are scenery, not Areas, and you cannot search them." },
-  { title: "Ask whether anything is here", body: "Before you touch anything, ask 'Is there an encounter?' on your Mythic tables and record the answer. It is the difference between an empty room and a room with a sleeping troll in it." },
-  { title: "Search an Area", body: "One roll, and one roll only. Read the Element against the thing at face value: a shelf of bottles holds bottles. Wanting something else is what Fortunate is for." },
-  { title: "Handle a Multi-Element", body: "Two Elements at once. The app rolls both and converts a repeat into Expected, so the chain always ends after two. Interpret them as one find with two aspects." },
-  { title: "Search the General Area", body: "One last roll for the room itself — the loose floorboard, the thing in the bin. It is where the article's own example finally found the grimoire." },
-  { title: "Finish the room", body: "There is no conclusion roll. When the Areas and the General Area are done, the room is done. Leave some unsearched if your character was only passing through." },
-  { title: "Take it with you", body: "Read-aloud export writes the room as plain text for the table. JSON export writes everything, and imports back. Both are in Settings." }
+  { go: "crawls", title: "Start a crawl", body: "Everything lives in a crawl. Make one and name it after wherever you are exploring. One room is a perfectly good crawl." },
+  { go: "crawl", title: "Name the room and pick a budget", body: "Six keywords is the default and gives three to six Areas. Choose three if you are making a lot of rooms in a row — you get two or three Areas, which is enough to know what stands out." },
+  { go: "room", title: "Walk the keywords", body: "Take them one at a time and do not dwell. If a word suggests something in this room, make it an Area and name it. If it does not, carry it forward — the next word will usually rescue it." },
+  { go: "room", title: "Say what the room looks like", body: "The Areas are the room's main features, so write the description from them. Add whatever else obviously belongs. Those extras are scenery, not Areas, and you cannot search them." },
+  { go: "room", title: "Ask whether anything is here", body: "Before you touch anything, ask 'Is there an encounter?' on your Mythic tables and record the answer. It is the difference between an empty room and a room with a sleeping troll in it." },
+  { go: "room", title: "Search an Area", body: "One roll, and one roll only. Read the Element against the thing at face value: a shelf of bottles holds bottles. Wanting something else is what Fortunate is for." },
+  { go: "rule:multi", title: "Handle a Multi-Element", body: "Two Elements at once. The app rolls both and converts a repeat into Expected, so the chain always ends after two. Interpret them as one find with two aspects." },
+  { go: "room", title: "Search the General Area", body: "One last roll for the room itself — the loose floorboard, the thing in the bin. It is where the article's own example finally found the grimoire." },
+  { go: "room", title: "Finish the room", body: "There is no conclusion roll. When the Areas and the General Area are done, the room is done. Leave some unsearched if your character was only passing through." },
+  { go: "settings", title: "Take it with you", body: "Read-aloud export writes the room as plain text for the table. JSON export writes everything, and imports back. Both are in Settings." }
 ];

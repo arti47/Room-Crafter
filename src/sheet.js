@@ -726,7 +726,7 @@ function nextRoomFlow(fromRoom) {
   import("./wizard.js").then(w => w.openNewRoom(fromRoom.crawlId, fromRoom));
 }
 
-function readAloud(room) {
+export function readAloud(room) {
   const text = store.roomAsText(room);
   const ta = el("textarea", { class: "field mono", rows: 12, readonly: true, "aria-label": "Read-aloud text" });
   ta.value = text;

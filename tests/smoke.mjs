@@ -236,6 +236,21 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await goto(page, site, "#/settings");
   r.check("link: Settings links to the tutorial", !!(await page.$('#screen a[href="#/learn/tutorial"]')));
   r.check("link: Settings links to the rules", !!(await page.$('#screen a[href="#/rules"]')));
+  // The tutorial and the Settings note both say the read-aloud export is here.
+  const ra = await page.evaluateHandle(() => Array.from(document.querySelectorAll("#screen button")).find(b => b.textContent.trim() === "Read-aloud text"));
+  r.check("link: Settings offers the read-aloud export it describes", !!(await ra.evaluate(b => b && !b.disabled)));
+  if (await ra.evaluate(b => !!b)) {
+    await ra.evaluate(b => b.click());
+    r.check("link: Settings' read-aloud opens the open room's text",
+      await until(page, () => /Read-aloud text/.test((document.querySelector(".modal-card") || {}).textContent || "") && !!document.querySelector(".modal-card textarea").value));
+    await page.keyboard.press("Escape");
+    await until(page, () => !document.querySelector(".modal-backdrop"));
+  }
+  // Every tutorial step links to where it is done.
+  await goto(page, site, "#/learn/tutorial");
+  const goes = await page.$$eval("#screen .tut-go", ns => ns.map(n => n.getAttribute("href")));
+  r.check("link: every tutorial step links to where it is done", goes.length === 10 && goes.every(h => /^#\/(crawls|crawl\/|room\/|wizard\/|rules\/|settings)/.test(h)), goes.join(" "));
+  r.check("link: the room steps lead to the open room", goes.filter(h => /^#\/(room|wizard)\//.test(h)).length === 6, goes.join(" "));
   await goto(page, site, "#/room");
   r.check("link: the room sheet leads back to its crawl", !!(await page.$('#screen a.crumb[href^="#/crawl/"]')));
   r.check("link: the room sheet leads to its neighbours in the crawl", (await page.$$("#screen .pager a")).length >= 1);
