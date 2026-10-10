@@ -429,6 +429,12 @@ Template §10 applies in full. The ones this project will actually be tested by:
 9. **Two sources, one app.** Room Crafter content and One-Page Mythic content live in separate data files, and every Mythic surface — including its rules-library entries — is gated by `Settings.useMythic`. Describing a rule the app is not applying is the same defect as applying one it does not describe. Rolls from each source are badged in the log.
 10. **Scope guard.** Supplied content only. Nothing invented is presented as official; the room-type list is a labelled house aid, and the demo rooms are labelled house content.
 11. **Reversibility is inventoried.** Every destructive action either undoes or confirms while naming the loss.
+12. **Owner's standing instructions (2026-10-10) — apply to every session on this project:**
+    - **Faithful to the rules, always.** No change may alter a rule, ruling (A1–A16) or table; check every change against §5 before it ships.
+    - **Linkage, always.** Every change re-checks that the tabs and parts that belong together are linked both ways (the map in `docs/AUDIT.md`, "Redundancy and linkage check") and adds a guard for any new link.
+    - **Content unchanged** unless the owner asks: layout, styling and controls may change; rules text, tables and copy may not.
+    - **Progress reporting:** report only as 5%, 10% … 100% while working, then a short technical summary. Questions one at a time, technical, terse.
+    - **Merge finished work to `main`** (fast-forward) after the harnesses pass.
 
 ---
 
@@ -447,6 +453,7 @@ Template §10 applies in full. The ones this project will actually be tested by:
 | 2026-09-11 | Audit cycle 2: A-13…A-16 and three harness faults | Template §11 | Three more guards watched go red | `rc-v2` |
 | 2026-09-11 | A-13: moved the default odds into the data layer | `"fifty"` was hardcoded in two `src/` modules (§10.2) | `R31` covers the row; `DEFAULT_ODDS` is the only source | `rc-v2` |
 | 2026-09-11 | H-10: the interaction audit now compares markup, not its length | A radiogroup changing selection is a net-zero length change, so nine live controls read as dead — and the same fault would hide any swap-shaped change | 294 controls, 0 findings | — |
+| 2026-10-10 | Recorded the owner's standing instructions as process rule 12 (rules faithfulness, linkage check, content unchanged, progress format, merge to `main`) | Owner asked for them to be remembered for this project | Docs only | — |
 | 2026-10-03 | Redundancy pass (A-53): one definition each for the walk-done predicate (was five), the room link (four), an Area's keyword words (four), a find's tone (two), the breadcrumb (four), the Copy action (two) and the new/next-room dialog (two); five internal-only functions un-exported; the no-room screen uses the shared empty state. Linkage (A-54): the finish summary offers "Print this room". H-15: the Sock Drawer doubles check sampled 400 pairs, a 1.8% false-failure rate; now 2,000 | Owner asked for a redundancy and linkage check | `npm test` 87 · `scan` clean · `smoke` 303 · `interact` 324 · `pwa` 13 | `rc-v12` |
 | 2026-10-03 | Print appendix: each room's print record ends with its rolls from the log, oldest first, with provenance badges and the log-cap note | Owner asked for it (Q3). The log is the fairness record; the page now carries its own evidence | `smoke` 302 (appendix check watched go red with the filter broken) · all harnesses green · A4 PDF read | `rc-v11` |
 | 2026-10-03 | A-51: the several-spaces question (R25) is a switch, off by default, revealing its field; switched off, no note is saved. A-52: a sheet's title, handle and ✕ stay pinned while its body scrolls | Owner report (screenshot): an always-open text box read as a required answer for a permission most rooms never use; the same screenshot showed the sheet's title scrolled off | `smoke` 301 (four R25 checks) · all harnesses green · screenshots 390×560 dark, scrolled | `rc-v10` |
