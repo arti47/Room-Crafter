@@ -644,3 +644,29 @@ under the card so the field clears the pinned bar at 390×780 — measured 525 v
 at the owner's choice; fewer boxes. The interaction audit fell from 402 to 270
 controls: the nine-plus-three odds chips on every picker are gone, which is the
 point.
+
+## Cycle 8 — game and journal (2026-10-12, P16)
+
+Owner report: the app does not feel like a game, and play and journaling are
+weakly linked. Diagnosis: the source is an oracle with a journaling procedure —
+no character, goal or consequence (Stage A §1) — and the app recorded dice
+without ever asking for the story; the only place the story assembled was the
+read-aloud export at the end.
+
+**A-61 · Rolls never asked what they meant.** *Fix:* every find and answer
+dialog ends with "What is it?"; the sentence is stored on the record beside the
+roll (`note`), shown on the sheet as a tap-to-write line, and carried into the
+journal, read-aloud and print. The field never takes focus on open, so the
+result is what you see first. *Guard:* the line pair — watched go red with the
+save removed.
+
+**A-62 · No single story of a crawl.** *Fix:* `#/journal/:crawlId` — rooms as
+chapters, every roll a line in the order made; linked from the crawl, the room
+menu and Done, and back to the crawl and to each room.
+
+**A-63 · Chapter-plan links under 40px.** Caught by the contract on the new
+`#/journal` route; the plan is now decoration and the chapter title is the link.
+
+**House rule, labelled:** explorer, goal and per-room progress. They roll
+nothing and gate nothing; every surface that shows them carries the "house
+rule" badge (process rule 10).

@@ -83,7 +83,7 @@ export function modal({ title, body, actions = [], onClose, result = false }) {
   document.addEventListener("keydown", onKey);
   document.body.append(back);
   // A field if there is one, else the primary action — never the close button.
-  const focusTarget = card.querySelector(".modal-body input, .modal-body textarea, .modal-body select") ||
+  const focusTarget = card.querySelector(".modal-body input:not([data-nofocus]), .modal-body textarea:not([data-nofocus]), .modal-body select") ||
     card.querySelector(".modal-actions .btn") || closer;
   if (focusTarget) focusTarget.focus();
   if (result && navigator.vibrate) { try { navigator.vibrate(12); } catch { /* not every browser */ } }
@@ -194,8 +194,8 @@ export function actionBar(...children) {
   return [bar, spacer];
 }
 
-export function houseAidBadge() {
-  return el("span", { class: "badge badge-house", title: "Invented for this app, not from the source", text: "house aid" });
+export function houseAidBadge(label = "house aid") {
+  return el("span", { class: "badge badge-house", title: "Invented for this app, not from the source", text: label });
 }
 
 // Refusals explain the rule (§6.4). Never "Not allowed".

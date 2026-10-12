@@ -1,7 +1,7 @@
 // screens.js — home/crawls, crawl detail, roll log, distribution, rules, settings.
 import { el, add, when, plural } from "./core.js";
 import { explain, actionBar, modal, promptModal, confirmModal, showToast, emptyState, sectionNav, houseAidBadge, radioGroup, downloadText, pickFile, icon, crumb, copyText } from "./ui.js";
-import { crawlStrip, heatGrid, illustration, fleuron, roomPlan } from "./graphics.js";
+import { crawlStrip, heatGrid, illustration, fleuron, roomPlan, crawlMap } from "./graphics.js";
 import { EXPLAIN, RULES_LIBRARY, ROLL_LOG_CAP, TUTORIAL } from "../data.js";
 import { MYTHIC_RULES, MYTHIC } from "../data-mythic.js";
 import * as store from "./store.js";
@@ -10,7 +10,8 @@ import { openNewRoom } from "./wizard.js";
 import { readAloud, STAGES, naturalStage } from "./sheet.js";
 import { loadDemos } from "./tutorial.js";
 import { searchState, STATE_LABEL, areaCount, searchedAreas, searchedTotal, totalExplorable, isWalkDone, roomHref } from "./derived.js";
-import { crawlSummary } from "./lifecycle.js";
+import { crawlSummary, progressTally } from "./lifecycle.js";
+import { GOAL_PROGRESS } from "../data-house-roomtypes.js";
 
 // ── Crawls (home) ────────────────────────────────────────────────────────────
 export function crawls() {
@@ -54,6 +55,39 @@ function rowMeter(done, total) {
   const pct = total ? Math.round(done / total * 100) : 0;
   return el("span", { class: "row-meter" + (total && done >= total ? " meter-complete" : ""), "aria-hidden": "true" },
     el("span", { style: "width:" + pct + "%" }));
+}
+
+// House rule (P16): who is exploring and what they are after, with the tally
+// of rooms that brought them closer or further. Tap to set or change.
+function questBanner(c) {
+  const t = progressTally(c.id);
+  const edit = () => {
+    const ex = el("input", { class: "field", type: "text", id: "q-explorer", value: c.explorer, placeholder: "Mara, a lamplighter" });
+    const goal = el("input", { class: "field", type: "text", id: "q-goal", value: c.goal, placeholder: "find the grimoire" });
+    modal({
+      title: "Explorer and goal",
+      body: el("div", {},
+        el("label", { class: "field-label", for: "q-explorer", text: "Who is exploring?" }), ex,
+        el("label", { class: "field-label", for: "q-goal", text: "What are they looking for?" }), goal,
+        el("p", { class: "hint" }, "Not part of the article ", houseAidBadge("house rule"), " — it changes no roll. After each room, the Done stage asks whether it brought them closer.")),
+      actions: [
+        { label: "Save", onClick: () => { store.updateCrawl(c.id, { explorer: ex.value.trim(), goal: goal.value.trim() }); rerender(); } },
+        { label: "Cancel" }
+      ]
+    });
+  };
+  if (!c.explorer && !c.goal) {
+    return el("button", { class: "quest quest-empty", type: "button", onclick: edit },
+      icon("flag"), el("span", { text: "Add an explorer and a goal" }), houseAidBadge("house rule"));
+  }
+  return el("button", { class: "quest", type: "button", onclick: edit },
+    icon("flag"),
+    el("span", { class: "quest-text" },
+      c.explorer ? el("b", { text: c.explorer }) : null,
+      c.goal ? el("span", { class: "quest-goal", text: c.goal }) : null),
+    el("span", { class: "quest-tally", "aria-label": GOAL_PROGRESS.map(g => g.name + " " + t[g.id]).join(", ") },
+      GOAL_PROGRESS.map(g => el("span", { class: "tally tally-" + g.id, title: g.name }, el("i"), String(t[g.id])))),
+    houseAidBadge("house rule"));
 }
 
 // The room you were in, first: one tap back into play.
@@ -119,17 +153,27 @@ export function crawl(params) {
     crumb("#/crawls", "Crawls"),
     el("h1", { class: "screen-title", text: c.name }),
     explain(EXPLAIN.crawl),
+    questBanner(c),
     el("p", { class: "meta", text: crawlSummary(c.id).lines.join(" · ") })
   );
-  // The crawl's own art: its rooms' plans, in order, as a frieze.
-  const drawn = rooms.filter(r => (r.areas || []).length).slice(0, 8);
-  if (drawn.length) add(content, el("div", { class: "crawl-art", "aria-hidden": "true" }, drawn.map(r => roomPlan(r))));
+
+  // The crawl is a map (P16): its rooms along a winding path in the order they
+  // were made (R28), the open room lit, a ghost tile for the next one.
+  const cur = store.current();
+  add(content, crawlMap(rooms.map(r => ({
+    href: roomHref(r), label: r.context.label || "Untitled room", room: r,
+    state: isWalkDone(r) ? searchState(r) : "building", current: r.id === cur.roomId
+  })), { onNext: () => openNewRoom(c.id, rooms[rooms.length - 1] || null), nextLabel: rooms.length ? "Next room" : "First room" }));
+  if (rooms.length) add(content, el("div", { class: "crawl-links" },
+    el("a", { class: "btn btn-secondary", href: "#/journal/" + c.id }, icon("quill"), "Journal"),
+    el("a", { class: "btn btn-quiet", href: "#/print/crawl/" + c.id }, icon("print"), "Print the crawl")));
 
   if (!rooms.length) {
     add(content, emptyState("No rooms yet. Start the first one — six keywords, or three if you are making a lot of them.", null, null, illustration("plan")));
   } else {
-    // The rooms as a chain, in the order they were made (R28).
-    const ul = el("ul", { class: "list list-cards chain" });
+    // The rooms as a chain, in the order they were made (R28): the map's index.
+    add(content, el("h2", { class: "block-title", text: "Rooms" }, el("span", { class: "count", text: String(rooms.length) })));
+    const ul = el("ul", { class: "list list-cards chain chain-compact" });
     for (const r of rooms) {
       const st = searchState(r);
       const walkDone = isWalkDone(r);
@@ -152,7 +196,6 @@ export function crawl(params) {
           store.updateCrawl(c.id, { name: v || c.name }); rerender();
         } });
       } }, "Rename"),
-      rooms.length ? el("a", { class: "btn btn-quiet btn-wide", href: "#/print/crawl/" + c.id }, icon("print"), "Print the crawl") : null,
       el("button", { class: "btn btn-danger btn-wide", type: "button", onclick: () => {
         confirmModal({
           title: "Delete this crawl?",
@@ -169,7 +212,7 @@ export function crawl(params) {
   ));
 
   const [bar, spacer] = actionBar(
-    el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => openNewRoom(c.id) },
+    el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => openNewRoom(c.id, rooms[rooms.length - 1] || null) },
       rooms.length ? "Next room" : "First room")
   );
   add(content, spacer);

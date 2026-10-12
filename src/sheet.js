@@ -1,9 +1,10 @@
 // sheet.js — the room sheet and its persistent header.
-import { el, add, clear } from "./core.js";
+import { el, add, clear, buzz } from "./core.js";
 import {
   explain, actionBar, modal, closeModal, promptModal, confirmModal, showToast,
-  refuse, ruleLink, emptyState, shareText, iconTitle, icon, crumb, copyText, hint
+  refuse, ruleLink, emptyState, shareText, iconTitle, icon, crumb, copyText, hint, houseAidBadge
 } from "./ui.js";
+import { GOAL_PROGRESS } from "../data-house-roomtypes.js";
 import { roomPlan, bandStrip, elementBands, oddsBands, elementGlyph, illustration, findTone } from "./graphics.js";
 import { EXPLAIN, MEANING_TABLES, ENCOUNTER_ANSWERS, ROOM_ELEMENTS } from "../data.js";
 import * as store from "./store.js";
@@ -186,6 +187,7 @@ function roomMenu(room) {
   modal({
     title: room.context.label || "Untitled room",
     body: el("div", { class: "menu-list" },
+      row("quill", "Journal", () => { location.hash = "#/journal/" + room.crawlId; }),
       row("ask", "Read-aloud text", () => readAloud(room)),
       row("print", "Print this room", () => { location.hash = "#/print/room/" + room.id; }),
       row("door", "Next room in this crawl", () => nextRoomFlow(room)),
@@ -249,11 +251,31 @@ function doneBlock(room) {
     el("ul", { class: "summary done-summary" }, lines.map(l => el("li", { text: l }))),
     !isComplete(room) ? el("p", { class: "hint", text: "Areas are still unsearched. That is a real state — the room is described rather than searched, and you can come back to it." }) : null,
     el("p", { class: "hint" }, "Searching is optional — a room you only looked at is a finished room. ", ruleLink("complete", "The rule"), "."),
+    progressPicker(room),
     el("div", { class: "done-actions" },
+      el("a", { class: "btn btn-secondary", href: "#/journal/" + room.crawlId }, icon("quill"), "Journal"),
       el("button", { class: "btn btn-quiet", type: "button", onclick: () => readAloud(room) }, icon("ask"), "Read-aloud text"),
       el("a", { class: "btn btn-quiet", href: "#/print/room/" + room.id }, icon("print"), "Print this room"),
       el("a", { class: "btn btn-quiet", href: "#/crawl/" + room.crawlId }, icon("crawls"), "Back to the crawl")),
     pager(room));
+  return box;
+}
+
+// House rule (P16): the crawl has a goal, so the end of a room asks whether it
+// brought the explorer closer. Three answers, tap again to clear, no roll.
+function progressPicker(room) {
+  const crawl = store.crawl(room.crawlId);
+  if (!crawl || !crawl.goal) return null;
+  const box = el("div", { class: "progress-pick" });
+  add(box, el("p", { class: "progress-q" },
+    el("span", { text: (crawl.explorer || "The explorer") + " · " + crawl.goal }), houseAidBadge("house rule")));
+  const row = el("div", { class: "choice-row" });
+  for (const g of GOAL_PROGRESS) {
+    add(row, el("button", { class: "choice progress-" + g.id + (room.progress === g.id ? " choice-on" : ""), type: "button",
+      "aria-pressed": room.progress === g.id ? "true" : "false",
+      onclick: () => { lifecycle.setProgress(room, g.id); buzz([6, 40, 12]); rerender(); } }, el("span", { class: "choice-main", text: g.name })));
+  }
+  add(box, row);
   return box;
 }
 
@@ -391,7 +413,7 @@ function askEncounter(room, odds) {
   const res = mythic.ask(room, odds, "Is there an encounter?");
   lifecycle.recordEncounter(room, res.answer, "", res);
   toNatural(room);
-  showAnswer(res, "Is there an encounter?");
+  showAnswer(res, "Is there an encounter?", room.encounter, room);
 }
 
 // The odds dial (P15, superseding P13's chips): all nine rows of the chart on
@@ -454,12 +476,24 @@ function answerCard(rec, { working = false } = {}) {
   return box;
 }
 
-function showAnswer(res, question) {
+// A result asks for its journal line before it goes (P16): one sentence for
+// what the roll means, kept on the record beside it. Never required, never
+// focused on its own — the result is what you look at first.
+function lineField(value) {
+  const f = el("input", { class: "field line-field", type: "text", id: "line-field", value: value || "",
+    placeholder: "What is it?", "data-nofocus": "", autocomplete: "off" });
+  return [el("label", { class: "field-label line-label", for: "line-field" }, icon("quill"), "What is it?"), f];
+}
+
+function showAnswer(res, question, rec = null, room = null) {
+  const [lab, f] = lineField(rec && rec.note);
+  const save = () => { if (rec && room && f.value.trim() !== (rec.note || "")) lifecycle.setLine(room, rec, f.value); rerender(); };
+  f.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); save(); closeModal(); } });
   modal({
     title: question || "Ask The Game Master",
-    body: answerCard(res, { working: true }),
+    body: el("div", {}, answerCard(res, { working: true }), rec && room ? el("div", { class: "line-box" }, lab, f) : null),
     result: true,
-    actions: [{ label: "Good", onClick: () => rerender() }]
+    actions: [{ label: "Good", onClick: save }]
   });
 }
 
@@ -499,7 +533,7 @@ function askBody(room, redraw = rerender) {
     const res = mythic.ask(room, odds, text);
     lifecycle.recordQuestion(room, res, "");
     redraw();
-    showAnswer(res, text);
+    showAnswer(res, text, room.questions[room.questions.length - 1], room);
   }));
   return d;
 }
@@ -614,7 +648,7 @@ function hiddenBody(room, redraw = rerender) {
       const res = mythic.ask(room, odds, "Is something hidden found?");
       lifecycle.recordHidden(room, "Is something hidden found?", res.answer, "", res);
       redraw();
-      showAnswer(res, "Is something hidden found?");
+      showAnswer(res, "Is something hidden found?", room.hidden[room.hidden.length - 1], room);
     }));
   } else {
     add(d, el("span", { class: "badge badge-guidance", text: "not automated" }));
@@ -681,6 +715,8 @@ function findBlock(room, find, { areaId, redraw = rerender, working = false }) {
     el("b", { text: find.elementName })));
   // In the result dialog, the working: where the die fell on Room Elements.
   if (working) add(box, workingStrip(ROOM_ELEMENTS, elementBands, find.roll, find.elementName));
+  // On the sheet, the journal line: what you said it was (P16).
+  if (!working) add(box, journalLine(room, find, find.elementName));
   add(box, el("p", { class: "prose", text: elementBlurb(find.elementId) }));
   if (["expected", "enhanced", "minimized"].includes(find.elementId)) {
     add(box, el("p", { class: "hint" },
@@ -779,6 +815,16 @@ function workingStrip(table, toBands, roll, name) {
   return wrap;
 }
 
+// The sentence a roll carries, as a tap-to-write line. Shared by finds and
+// answers wherever they sit on the sheet; the journal shows the same text.
+function journalLine(room, rec, title) {
+  const text = rec.note || "";
+  return el("button", { class: "jl-line" + (text ? "" : " jl-empty"), type: "button", onclick: () => {
+    promptModal({ title, label: "What is it?", value: text, multiline: true, confirmLabel: "Save",
+      onConfirm: v => { lifecycle.setLine(room, rec, v); rerender(); } });
+  } }, text ? el("span", { class: "jl-said", text }) : el("span", { text: "What is it?" }));
+}
+
 function elementBlurb(id) {
   const band = ROOM_ELEMENTS.find(x => x.id === id);
   return band ? band.blurb : "";
@@ -843,11 +889,14 @@ function showFind(room, find, label, areaId) {
     rerender();
   };
   add(host, findBlock(room, find, { areaId, redraw, working: true }));
+  const [lab, f] = lineField(find.note);
+  const save = () => { if (f.value.trim() !== (find.note || "")) lifecycle.setLine(room, find, f.value); rerender(); };
+  f.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); save(); closeModal(); } });
   modal({
     title: label,
-    body: host,
+    body: el("div", {}, host, el("div", { class: "line-box" }, lab, f)),
     result: true,
-    actions: [{ label: "Good", onClick: () => { rerender(); } }]
+    actions: [{ label: "Good", onClick: save }]
   });
 }
 

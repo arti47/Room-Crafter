@@ -98,6 +98,30 @@ export function recordHidden(room, question, answer, note, mythicResult = null) 
   return room.hidden[room.hidden.length - 1];
 }
 
+// ── House rule: progress toward the crawl's goal (P16) ──────────────────────
+// Setter, reader and clearer in one: choosing the same answer again clears it.
+// It changes no roll and no flag; it is a line in the journal.
+export function setProgress(room, id) {
+  store.snapshot("Mark progress toward the goal");
+  room.progress = room.progress === id ? null : id;
+  store.saveRoom(room);
+  return room.progress;
+}
+
+// The journal line a roll carries: what you said it was (find.note on a
+// search, note on an answer). Writing it never touches the roll.
+export function setLine(room, rec, text) {
+  if (!rec) return;
+  rec.note = (text || "").trim();
+  store.saveRoom(room);
+}
+
+export function progressTally(crawlId) {
+  const t = { closer: 0, same: 0, further: 0 };
+  for (const r of store.rooms(crawlId)) if (r.progress) t[r.progress]++;
+  return t;
+}
+
 // ── Room boundary ────────────────────────────────────────────────────────────
 // This is the clearer for both once-per-X flags (R12): a new room record starts
 // with search: null on every Area and no General Area. Nothing else clears them,

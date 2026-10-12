@@ -426,6 +426,64 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await fresh.context().close();
 }
 
+// P16 — the game and the journal: a line after every roll, one journal per
+// crawl, the crawl as a map, the explorer's goal (house rule).
+{
+  const page = await newPage(browser, site, { seed: "mid-crawl" });
+  await goto(page, site, "#/room");
+  const id = await page.evaluate(() => location.hash.split("/")[2]);
+  const crawlId = await page.evaluate(i => JSON.parse(localStorage.getItem("rc.rooms")).find(r => r.id === i).crawlId, id);
+  // A roll asks for its line; Good keeps it beside the roll.
+  await goto(page, site, "#/room/" + id + "/search");
+  await page.click("#sec-areas .plan-area:not(.done)");
+  await until(page, () => !!document.querySelector(".modal-card #line-field"));
+  r.check("journal: a find asks 'What is it?' before it goes", !!(await page.$(".modal-card #line-field")));
+  r.check("journal: the line field does not grab focus from the result",
+    await page.evaluate(() => document.activeElement && document.activeElement.id !== "line-field"));
+  await page.fill(".modal-card #line-field", "a tin of brass buttons");
+  await page.click(".modal-actions .btn-primary");
+  await until(page, () => !document.querySelector(".modal-backdrop"));
+  const kept = await page.evaluate(i => JSON.parse(localStorage.getItem("rc.rooms")).find(r => r.id === i).areas.find(a => a.search && a.search.note === "a tin of brass buttons"), id);
+  r.check("journal: the line is kept beside the roll", !!kept && typeof kept.search.roll === "number");
+  // The crawl is a map, with its journal one tap away.
+  await goto(page, site, "#/crawl/" + crawlId);
+  const map = await page.evaluate(() => ({
+    tiles: document.querySelectorAll("#screen .crawl-map a.map-tile").length,
+    next: !!document.querySelector("#screen .crawl-map .map-next"),
+    current: !!document.querySelector("#screen .crawl-map .map-tile.current"),
+    rooms: document.querySelectorAll("#screen .chain > li").length
+  }));
+  r.check("map: one tile per room, the open one lit, and a tile for the next", map.tiles === map.rooms && map.tiles > 0 && map.next && map.current, JSON.stringify(map));
+  r.check("link: the crawl leads to its journal", !!(await page.$('#screen a[href="#/journal/' + crawlId + '"]')));
+  await goto(page, site, "#/journal/" + crawlId);
+  const j = await page.evaluate(() => ({ chapters: document.querySelectorAll(".chapter").length, text: document.querySelector("#screen").textContent }));
+  r.check("journal: one chapter per room", j.chapters === map.rooms, JSON.stringify({ chapters: j.chapters, rooms: map.rooms }));
+  r.check("journal: the line written at the roll is in the journal", /a tin of brass buttons/.test(j.text));
+  r.check("link: the journal leads back to its crawl", !!(await page.$('#screen a.crumb[href="#/crawl/' + crawlId + '"]')));
+  r.check("link: a journal chapter leads to its room", !!(await page.$('#screen .chapter-title a[href^="#/room/"]')));
+  // Explorer and goal (house rule), and progress at Done.
+  await goto(page, site, "#/crawl/" + crawlId);
+  await page.click("#screen .quest");
+  await until(page, () => !!document.querySelector("#q-goal"));
+  await page.fill("#q-explorer", "Mara");
+  await page.fill("#q-goal", "find the grimoire");
+  await page.click(".modal-actions .btn-primary");
+  r.check("quest: the explorer and goal show on the crawl", await until(page, () => /Mara/.test(document.querySelector("#screen .quest").textContent) && /grimoire/.test(document.querySelector("#screen .quest").textContent)));
+  r.check("quest: it says it is a house rule", /house rule/.test(await page.$eval("#screen .quest", n => n.textContent)));
+  await goto(page, site, "#/room/" + id + "/done");
+  r.check("link: Done leads to the journal", !!(await page.$('#sec-done a[href="#/journal/' + crawlId + '"]')));
+  r.check("quest: Done asks whether the room brought the explorer closer", !!(await page.$("#sec-done .progress-pick")));
+  await page.click("#sec-done .progress-pick .progress-closer");
+  r.check("quest: the answer is kept on the room", await until(page, i => JSON.parse(localStorage.getItem("rc.rooms")).find(r => r.id === i).progress === "closer", 1500, id));
+  await page.click("#sec-done .progress-pick .progress-closer");
+  r.check("quest: tapping it again clears it", await until(page, i => JSON.parse(localStorage.getItem("rc.rooms")).find(r => r.id === i).progress === null, 1500, id));
+  await page.click("#screen .room-menu-btn");
+  await until(page, () => !!document.querySelector(".modal-card .menu-list"));
+  r.check("link: the room menu leads to the journal", (await page.$$eval(".modal-card .menu-row", ns => ns.map(n => n.textContent.trim()))).includes("Journal"));
+  r.check("journal: no console errors", page.__errors.length === 0, page.__errors[0]);
+  await page.context().close();
+}
+
 // Tablet width adds density: two real columns on the room sheet and the wizard.
 {
   const page = await newPage(browser, site, { seed: "mid-crawl", width: 900, height: 1000 });

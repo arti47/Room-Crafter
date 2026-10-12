@@ -1,5 +1,6 @@
 // derived.js — everything computed from a room record. Pure; no storage, no DOM.
 import { budget } from "./rules.js";
+import { GOAL_PROGRESS } from "../data-house-roomtypes.js";
 
 export function areaCount(room) {
   return room.areas ? room.areas.length : 0;
@@ -140,6 +141,8 @@ export function normalizeRoom(room) {
   r.encounterSkipped = !!r.encounterSkipped;
   r.description = r.description || "";
   r.notes = r.notes || "";
+  // House rule (P16): did this room bring the explorer closer to the goal?
+  r.progress = GOAL_PROGRESS.some(g => g.id === r.progress) ? r.progress : null;
   // Derived-but-stored, for list rendering. Always recomputed, never trusted.
   r.state = { complete: isComplete(r) };
   return r;
@@ -151,6 +154,9 @@ export function normalizeCrawl(crawl) {
     name: crawl.name || "Untitled crawl",
     createdAt: crawl.createdAt || Date.now(),
     lastOpenedAt: crawl.lastOpenedAt || crawl.createdAt || Date.now(),
-    rooms: Array.isArray(crawl.rooms) ? crawl.rooms.filter(Boolean) : []
+    rooms: Array.isArray(crawl.rooms) ? crawl.rooms.filter(Boolean) : [],
+    // House rule (P16): who is exploring, and what they are looking for.
+    explorer: typeof crawl.explorer === "string" ? crawl.explorer : "",
+    goal: typeof crawl.goal === "string" ? crawl.goal : ""
   };
 }

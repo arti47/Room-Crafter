@@ -43,5 +43,6 @@ export const ROUTES = [
   { hash: "#/learn/tutorial", name: "Tutorial" },
   { hash: "#/settings", name: "Settings" },
   { hash: "#/room", name: "Room (contextual)" },
-  { hash: "#/record", name: "Room record (contextual)" }
+  { hash: "#/record", name: "Room record (contextual)" },
+  { hash: "#/journal", name: "Journal (contextual)" }
 ];

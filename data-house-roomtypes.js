@@ -54,3 +54,13 @@ export const DEMO_ROOMS = [
     ]
   }
 ];
+
+// ── House rule: the crawl's goal (P16) ───────────────────────────────────────
+// The Room Crafter has no character, goal or consequence; these are invented
+// for this app, badged "house rule" wherever they show, and change no roll.
+// After a room you say whether it brought your explorer closer to the goal.
+export const GOAL_PROGRESS = [
+  { id: "closer", name: "Closer" },
+  { id: "same", name: "No change" },
+  { id: "further", name: "Further" }
+];

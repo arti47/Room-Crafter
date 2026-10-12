@@ -69,4 +69,10 @@ export function plural(n, one, many) {
   return n + " " + (n === 1 ? one : (many || one + "s"));
 }
 
-export const CACHE_VERSION = "rc-v15";
+// A short tick under the thumb, where the phone can (game feel, P16). Never
+// carries information on its own: everything it marks is on screen too.
+export function buzz(pattern = 10) {
+  try { if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(pattern); } catch { /* unsupported */ }
+}
+
+export const CACHE_VERSION = "rc-v16";

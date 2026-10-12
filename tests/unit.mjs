@@ -629,6 +629,33 @@ check("normalization back-fills an old-shape record without crashing", () => {
   eq(r.areas[0].search, null);
   eq(r.context.roomType, "");
   eq(derived.searchState(r), "described");
+  eq(r.progress, null);                       // P16 field back-filled
+});
+check("P16 an old crawl back-fills explorer and goal as empty", () => {
+  const c = derived.normalizeCrawl({ id: "c1", name: "Old" });
+  eq(c.explorer, ""); eq(c.goal, "");
+});
+check("P16 progress has a setter, a reader and a clearer — and touches no roll", () => {
+  const room = walk(freshRoom(3), () => "area");
+  roller.searchArea(room, room.areas[0].id);
+  const before = JSON.stringify(room.areas.map(a => a.search));
+  eq(lifecycle.setProgress(room, "closer"), "closer");
+  eq(store.room(room.id).progress, "closer");
+  eq(lifecycle.setProgress(room, "further"), "further");
+  eq(lifecycle.setProgress(room, "further"), null);   // the same answer again clears it
+  eq(JSON.stringify(room.areas.map(a => a.search)), before);
+  const t = lifecycle.progressTally(room.crawlId);
+  eq(t.closer + t.same + t.further, 0);
+});
+check("P16 a journal line is written beside the roll, never over it", () => {
+  const room = walk(freshRoom(3), () => "area");
+  const r = roller.searchArea(room, room.areas[0].id);
+  const roll = r.find.roll, el = r.find.elementId;
+  lifecycle.setLine(room, room.areas[0].search, "  a box of wet matches  ");
+  const saved = store.room(room.id).areas[0].search;
+  eq(saved.note, "a box of wet matches");
+  eq(saved.roll, roll); eq(saved.elementId, el);
+  ok(store.roomAsText(store.room(room.id)).includes("a box of wet matches"), "the line reaches the read-aloud text");
 });
 check("export round-trips through import", () => {
   const room = walk(freshRoom(6), () => "area");

@@ -4,7 +4,7 @@
 // (An earlier cache-first version handed a reload stale modules while it
 // revalidated behind — the "museum of last month's rules" failure, audit A-32.)
 // Bump CACHE_VERSION on any shipped file; that is what raises the update toast.
-const CACHE_VERSION = "rc-v15";
+const CACHE_VERSION = "rc-v16";
 const SHELL = [
   "./",
   "./index.html",
@@ -19,6 +19,7 @@ const SHELL = [
   "./src/ui.js",
   "./src/graphics.js",
   "./src/print.js",
+  "./src/journal.js",
   "./src/rules.js",
   "./src/derived.js",
   "./src/settings.js",

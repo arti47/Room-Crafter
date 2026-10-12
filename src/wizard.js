@@ -1,7 +1,7 @@
 // wizard.js — room generation: the sequential keyword walk.
 // The app enforces the order, the cap and the count. The interpretation is yours
 // — that is the one thing this tool exists to leave alone.
-import { el, add, clear, uid } from "./core.js";
+import { el, add, clear, uid, buzz } from "./core.js";
 import { explain, actionBar, showToast, refuse, ruleLink, houseAidBadge, radioGroup, crumb, modal, closeModal } from "./ui.js";
 import { MAX_COMBINE, BUDGETS, EXPLAIN } from "../data.js";
 import { ROOM_TYPES, HOUSE_AID } from "../data-house-roomtypes.js";
@@ -147,6 +147,7 @@ export function render(params) {
       el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => {
         const r = rollNext(room);
         if (!r.ok) return refuse(r.reason, r.ruleId);
+        buzz(8);
         rerender();
       } }, "Roll keyword " + n)
     );

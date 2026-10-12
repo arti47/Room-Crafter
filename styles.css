@@ -1191,3 +1191,116 @@ body.print-view main#screen { padding-top: 12px; padding-bottom: 32px; max-width
 .chart, .heat { box-shadow: none; border-color: transparent; }
 .card { box-shadow: none; }
 .block-title::after { opacity: .6; }
+
+/* ══ Cycle 8 — journal, map, quest, motion (P16) ══════════════════════════ */
+
+/* A screen arrives like a page turn */
+.screen-enter { animation: page-in .24s cubic-bezier(.2, .8, .2, 1); }
+@keyframes page-in { from { opacity: 0; transform: translateY(8px); } }
+
+/* Quest banner: explorer and goal (house rule) */
+.quest {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; margin: 8px 0 6px;
+  padding: 10px 12px; border-radius: var(--r-lg); border: 1px solid var(--accent); cursor: pointer; text-align: left;
+  background: radial-gradient(120% 120% at 0% 0%, var(--accent-soft), transparent 70%), var(--card);
+  color: var(--ink); font: inherit;
+}
+.quest > .ico { width: 22px; height: 22px; color: var(--accent); flex: 0 0 auto; }
+.quest-empty { border-style: dashed; color: var(--ink-2); background: transparent; }
+.quest-text { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; }
+.quest-text b { font-size: 1.02em; }
+.quest-goal { color: var(--ink-2); font-size: .92em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quest .badge { margin-left: auto; }
+.quest-tally { display: flex; gap: 8px; font-variant-numeric: tabular-nums; font-weight: 700; font-size: .85em; }
+.tally { display: inline-flex; align-items: center; gap: 3px; }
+.tally i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.tally-closer i { background: var(--good); }
+.tally-same i { background: var(--line-strong); }
+.tally-further i { background: var(--danger); }
+
+/* The crawl map: rooms along a winding corridor */
+.crawl-map { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px 18px; margin: 12px 0 16px; }
+.map-tile {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  min-height: 104px; padding: 8px 6px 8px; border-radius: var(--r); text-decoration: none; color: var(--ink);
+  background: var(--card); border: 1.5px solid var(--line-strong); font: inherit; cursor: pointer;
+}
+.map-tile .room-plan { width: 100%; margin: 0; }
+.map-blank { display: block; width: 100%; aspect-ratio: 120 / 44; border: 1.5px dashed var(--line-strong); border-radius: 4px; }
+.map-name { font-size: .78em; font-weight: 650; line-height: 1.2; text-align: center; max-width: 100%;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.map-num {
+  position: absolute; top: -10px; left: -8px; width: 24px; height: 24px; border-radius: 50%; z-index: 2;
+  display: grid; place-items: center; font-size: .75em; font-weight: 800;
+  background: var(--paper); border: 1.5px solid var(--line-strong); color: var(--ink-2);
+}
+.map-tile.state-complete { border-color: var(--good); }
+.map-tile.state-complete .map-num { background: var(--good); border-color: var(--good); color: var(--accent-ink); }
+.map-tile.state-searching { border-color: var(--accent); }
+.map-tile.state-searching .map-num { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.map-tile.state-building { border-style: dashed; }
+.map-tile.current { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); animation: tile-glow 2.4s ease-in-out infinite; }
+@keyframes tile-glow { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--accent) 12%, transparent); } }
+/* The corridor between one room and the next */
+.map-tile.link-r::after, .map-tile.link-l::after, .map-tile.link-d::after {
+  content: ""; position: absolute; background: var(--line-strong); border-radius: 2px; z-index: 0;
+}
+.map-tile.link-r::after { left: 100%; top: 50%; width: 20px; height: 3px; margin-left: 0; }
+.map-tile.link-l::after { right: 100%; top: 50%; width: 20px; height: 3px; }
+.map-tile.link-d::after { top: 100%; left: 50%; width: 3px; height: 24px; }
+.map-next { border-style: dashed; background: transparent; color: var(--accent); justify-content: center; }
+.map-plus { font-size: 2em; line-height: 1; font-weight: 300; }
+.crawl-links { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 8px; }
+.chain-compact .row-card { padding: 10px 12px; }
+.chain-compact .row-meter { display: none; }
+@media (min-width: 760px) { .crawl-map { grid-template-columns: repeat(3, minmax(0, 200px)); justify-content: start; } }
+
+/* The journal line under a roll */
+.line-box { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line-strong); }
+.line-label { display: flex; align-items: center; gap: 6px; margin-top: 0; }
+.line-label .ico { width: 18px; height: 18px; color: var(--accent); }
+.line-field { font-style: italic; }
+.jl-line {
+  display: block; width: 100%; text-align: left; min-height: 40px; margin: 6px 0 2px; padding: 8px 12px;
+  border-radius: var(--r-sm); border: 0; border-left: 3px solid var(--accent); background: var(--accent-soft);
+  color: var(--ink); font: inherit; font-style: italic; cursor: pointer;
+}
+.jl-said::before { content: "“"; } .jl-said::after { content: "”"; }
+.jl-line.jl-empty { background: transparent; border: 1px dashed var(--line-strong); border-left-width: 3px; color: var(--ink-3); }
+
+/* The journal page */
+.journal-quest { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px; color: var(--ink-2); margin: 0 0 6px; }
+.chapter { margin: 22px 0 8px; padding-top: 14px; border-top: 2px solid var(--ink); }
+.chapter-head { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center; }
+.chapter-head:not(:has(.chapter-plan)) { grid-template-columns: minmax(0, 1fr); }
+.chapter-plan .room-plan { margin: 0; }
+.chapter-title { margin: 2px 0 4px; font-size: 1.3em; line-height: 1.2; }
+.chapter-title a { color: inherit; text-decoration: none; display: inline-flex; align-items: center; min-height: 40px; }
+.chapter-desc { font-style: italic; color: var(--ink-2); margin: 10px 0 0; }
+.journal-lines { list-style: none; margin: 10px 0 0; padding: 0 0 0 4px; }
+.jl { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; padding: 8px 0; border-left: 2px solid var(--line); margin-left: 12px; padding-left: 0; }
+.jl-mark { width: 26px; height: 26px; margin-left: -14px; border-radius: 50%; display: grid; place-items: center; background: var(--paper); border: 1.5px solid var(--line-strong); }
+.jl-mark .ico { width: 14px; height: 14px; color: var(--ink-3); }
+.jl-find .jl-mark { border-color: var(--accent); } .jl-find .jl-mark .ico { color: var(--accent); }
+.jl.tone-unfortunate .jl-mark { border-color: var(--danger); } .jl.tone-unfortunate .jl-mark .ico { color: var(--danger); }
+.jl.tone-fortunate .jl-mark { border-color: var(--good); } .jl.tone-fortunate .jl-mark .ico { color: var(--good); }
+.jl-title { margin: 2px 0 0; font-weight: 650; font-size: .95em; }
+.jl-result { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 0; }
+.jl-result .glyph .ico { width: 18px; height: 18px; }
+.jl-words { color: var(--accent); font-weight: 650; }
+.chapter-notes { color: var(--ink-2); border-left: 3px solid var(--line-strong); padding-left: 10px; margin: 10px 0 0; }
+.chapter-progress { display: flex; align-items: center; gap: 6px; font-weight: 700; margin: 10px 0 0; }
+.chapter-progress .ico { width: 18px; height: 18px; }
+.progress-closer { color: var(--good); } .progress-further { color: var(--danger); } .progress-same { color: var(--ink-2); }
+
+/* Done: toward the goal */
+.progress-pick { max-width: 480px; margin: 14px auto 0; text-align: left; padding: 12px; border-radius: var(--r); background: color-mix(in srgb, var(--card) 70%, transparent); }
+.progress-q { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; margin: 0 0 6px; font-weight: 650; }
+.progress-pick .choice-on.progress-closer { border-color: var(--good); color: var(--good); background: var(--good-soft); box-shadow: inset 0 0 0 1px var(--good); }
+.progress-pick .choice-on.progress-further { border-color: var(--danger); color: var(--danger); background: var(--danger-soft); box-shadow: inset 0 0 0 1px var(--danger); }
+.done-actions .btn-secondary { order: -1; }
+@media (min-width: 560px) { .done-actions { grid-template-columns: repeat(2, 1fr); } }
+
+/* The keyword card flips over when it is drawn */
+.deck-card { animation: card-draw .32s cubic-bezier(.2, .9, .3, 1.1); transform-origin: 50% 100%; }
+@keyframes card-draw { from { transform: rotateX(70deg) translateY(10px); opacity: .2; } }

@@ -3,6 +3,7 @@
 import { uid } from "./core.js";
 import { normalizeRoom, normalizeCrawl, isComplete, areaWords } from "./derived.js";
 import { ROLL_LOG_CAP, UNDO_CAP } from "../data.js";
+import { GOAL_PROGRESS } from "../data-house-roomtypes.js";
 import { all as allSettings, replaceAll as replaceSettings } from "./settings.js";
 
 const K = {
@@ -292,6 +293,7 @@ export function roomAsText(rm) {
     }
   }
   if (rm.notes) L.push("", "Notes:", rm.notes);
+  if (rm.progress) L.push("", "Toward the goal (house rule): " + (GOAL_PROGRESS.find(g => g.id === rm.progress) || {}).name);
   return L.join("\n");
 }
 

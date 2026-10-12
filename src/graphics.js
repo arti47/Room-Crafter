@@ -168,3 +168,39 @@ export function illustration(name) {
 export function fleuron() {
   return svgWrap("fleuron", '<svg class="ico" viewBox="0 0 48 12"><use href="#i-fleuron"/></svg>');
 }
+
+// ── The crawl as a map (P16) ─────────────────────────────────────────────────
+// Rooms in crawl order (R28) along a winding path, three to a row, turning at
+// each end like a corridor. The layout is a picture of the order and nothing
+// else: the source has no geography. A ghost tile at the end starts the next
+// room. `tiles` are { href, label, state, room, current }.
+export function crawlMap(tiles, { onNext, nextLabel } = {}) {
+  const COLS = 3;
+  const map = el("div", { class: "crawl-map" });
+  const place = i => {
+    const row = Math.floor(i / COLS), pos = i % COLS;
+    return { row: row + 1, col: (row % 2 === 0 ? pos : COLS - 1 - pos) + 1, pos, even: row % 2 === 0 };
+  };
+  const total = tiles.length + (onNext ? 1 : 0);
+  tiles.forEach((t, i) => {
+    const p = place(i);
+    const link = i < total - 1 ? (p.pos < COLS - 1 ? (p.even ? "link-r" : "link-l") : "link-d") : "";
+    const a = el("a", {
+      class: "map-tile state-" + t.state + (t.current ? " current" : "") + (link ? " " + link : ""),
+      href: t.href, style: "grid-row:" + p.row + ";grid-column:" + p.col,
+      "aria-label": (i + 1) + ". " + t.label + (t.current ? " (open)" : "")
+    },
+      el("span", { class: "map-num", text: String(i + 1) }),
+      (t.room.areas || []).length ? roomPlan(t.room) : el("span", { class: "map-blank" }),
+      el("span", { class: "map-name", text: t.label }));
+    map.append(a);
+  });
+  if (onNext) {
+    const p = place(tiles.length);
+    map.append(el("button", { class: "map-tile map-next", type: "button", onclick: onNext,
+      style: "grid-row:" + p.row + ";grid-column:" + p.col },
+      el("span", { class: "map-plus", "aria-hidden": "true", text: "+" }),
+      el("span", { class: "map-name", text: nextLabel || "Next room" })));
+  }
+  return map;
+}

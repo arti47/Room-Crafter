@@ -141,6 +141,7 @@ export const EXPLAIN = {
   distribution: "How often each face has come up across every roll. It is here so you can check the dice rather than argue about them.",
   rules: "The Room Crafter's procedure in the app's own words, in the order you use it. Every automated surface links back into this list.",
   tutorial: "A first room, start to finish. Work down it with the app open; each step says what to tap and why the procedure asks for it.",
+  journal: "The crawl as a story. Every roll you made is a line here, room by room, in the order you made it, with the sentence you wrote for it. Tap a line to write what it means — the roll itself never changes.",
   settings: "Theme, text size, and your data. Export writes a JSON file you can read and re-import; the read-aloud export writes the room as plain text you can hand to someone."
 };
 

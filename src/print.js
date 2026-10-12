@@ -117,6 +117,7 @@ export function render(params) {
     if (c) {
       rooms = store.rooms(c.id); title = c.name; back = "#/crawl/" + c.id;
       heading = el("header", { class: "pr-crawl" }, el("h1", { class: "screen-title", text: c.name }),
+        (c.explorer || c.goal) ? el("p", { class: "prose" }, el("b", { text: c.explorer }), c.explorer && c.goal ? " — " : "", c.goal, " ", houseAidBadge("house rule")) : null,
         el("p", { class: "meta", text: rooms.length + " room(s)" }));
     }
   }
