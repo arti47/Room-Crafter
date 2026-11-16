@@ -1,6 +1,6 @@
 // router.js — hash routing, the fixed frame, section nav and live-state badges.
 import { el, add, clear, $ } from "./core.js";
-import { icon, emptyState } from "./ui.js";
+import { icon, emptyState, closeModal } from "./ui.js";
 import { illustration } from "./graphics.js";
 import * as store from "./store.js";
 import * as screens from "./screens.js";
@@ -201,6 +201,13 @@ function oneCoach(app) {
     add(d, el("summary", { "aria-label": "How this works" }), p);
     c.replaceWith(d);
   });
+  // The one left reads as a strip at the top of its section (P18), not a box
+  // between the controls it explains.
+  const first = seen[0];
+  const sec = first && first.closest("section.block");
+  const head = sec && sec.querySelector(":scope > .block-title");
+  if (head && head.nextElementSibling !== first) head.after(first);
+  if (first) first.classList.add("coach-strip");
 }
 
 // A tutorial step can ask the screen it opens to point at the control it
@@ -268,12 +275,25 @@ function navigate() {
   else render();
 }
 
+function placeOf(route) {
+  const kind = route.name === "wizard" ? "room" : route.name;
+  return { kind, id: route.params.roomId || route.params.crawlId || null };
+}
+
 export function start() {
   wizard.setRerender(refresh);
   sheet.setRerender(refresh);
   journal.setRerender(refresh);
   screens.setRerender(refresh);
-  window.addEventListener("hashchange", () => navigate());
+  // A sheet belongs to the screen it was opened on: leaving closes it (P18).
+  // A stage step inside the same room is not leaving it.
+  let place = placeOf(parse(location.hash));
+  window.addEventListener("hashchange", () => {
+    const now = placeOf(parse(location.hash));
+    if (now.kind !== place.kind || (now.id && place.id && now.id !== place.id)) closeModal();
+    place = now;
+    navigate();
+  });
   store.subscribe(() => renderTabs(parse(location.hash)));
   if (!location.hash) location.replace("#/crawls");
   lastRoute = parse(location.hash).name;

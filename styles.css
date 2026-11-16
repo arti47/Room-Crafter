@@ -738,7 +738,7 @@ body { background: transparent; }
 .band-strip .seg-ans2 { fill: var(--paper-2); }
 .band-strip .seg-ans3 { fill: color-mix(in srgb, var(--paper-2) 40%, var(--card)); stroke-dasharray: 2 1.5; }
 .band-strip .seg-hit { stroke: var(--accent); stroke-width: 1.6; }
-.band-strip .seg-num { font: 600 7px var(--font); fill: var(--ink-3); }
+.band-strip .seg-num { font: 700 10px var(--font); fill: var(--ink-2); }
 .band-strip .mark { fill: var(--accent); }
 .band-strip .mark-line { stroke: var(--accent); stroke-width: 1.6; }
 .working-cap { margin: 2px 0 0; font-size: .82em; color: var(--ink-3); font-variant-numeric: tabular-nums; }
@@ -1067,8 +1067,8 @@ body.print-view main#screen { padding-top: 12px; padding-bottom: 32px; max-width
   .stage-search .sheet-cols.one-stage { display: block; }
   .stage-search #sec-areas { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 0 28px; align-items: start; }
   .stage-search #sec-areas > .block-title { grid-column: 1 / -1; }
-  .stage-search #sec-areas > .room-plan { grid-column: 1; grid-row: 2 / span 20; position: sticky; top: calc(var(--head-h) + 12px); }
-  .stage-search #sec-areas > :not(.block-title):not(.room-plan) { grid-column: 2; }
+  .stage-search #sec-areas > .plan-hero { grid-column: 1; grid-row: 2 / span 20; position: sticky; top: calc(var(--head-h) + 12px); }
+  .stage-search #sec-areas > :not(.block-title):not(.plan-hero) { grid-column: 2; }
   .stage-search #sec-general { margin-left: calc(45% + 14px); }
 }
 
@@ -1266,7 +1266,10 @@ body.print-view main#screen { padding-top: 12px; padding-bottom: 32px; max-width
   color: var(--ink); font: inherit; font-style: italic; cursor: pointer;
 }
 .jl-said::before { content: "“"; } .jl-said::after { content: "”"; }
-.jl-line.jl-empty { background: transparent; border: 1px dashed var(--line-strong); border-left-width: 3px; color: var(--ink-3); }
+.jl-line.jl-empty { /* an unwritten line: a quiet + until you tap it (P18) */
+  width: auto; display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 0; padding: 8px 4px;
+  color: var(--accent); font-style: normal; font-size: .9em; font-weight: 650; }
+.jl-line.jl-empty::before { content: "+"; font-size: 1.25em; line-height: 1; font-weight: 500; }
 
 /* The journal page */
 .journal-quest { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px; color: var(--ink-2); margin: 0 0 6px; }
@@ -1318,7 +1321,7 @@ body.in-room #room-header-host { top: 0; }
 }
 .room-back .ico { width: 22px; height: 22px; }
 .res-title { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; line-height: 1.2; }
-.res-crawl { font-size: .72em; color: var(--ink-3); font-variant: all-small-caps; letter-spacing: .06em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.res-crawl { font-size: .8em; color: var(--ink-3); letter-spacing: .01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .room-bar .res-name { font-size: 1.12em; font-weight: 750; }
 .room-bar .room-menu-btn { flex: 0 0 auto; border: 0; }
 .room-bar .res-chip { flex: 0 0 auto; font-size: .72em; }
@@ -1392,3 +1395,89 @@ body.in-room #room-header-host { top: 0; }
   /* One stage at a time: one readable column, not half of two */
   body.in-room .sheet-cols.one-stage { display: block; max-width: 680px; }
 }
+
+/* ══ Cycle 10 — the plan is the play surface (P18) ═══════════════════════ */
+.plan-hero {
+  position: relative; margin: 6px 0 18px; padding: 12px 12px 0;
+  border: 4px solid var(--ink-2, var(--ink)); border-radius: 6px;
+  background: color-mix(in srgb, var(--card) 70%, var(--paper));
+  background-image: repeating-linear-gradient(0deg, transparent 0 23px, color-mix(in srgb, var(--line) 45%, transparent) 23px 24px),
+                    repeating-linear-gradient(90deg, transparent 0 23px, color-mix(in srgb, var(--line) 45%, transparent) 23px 24px);
+}
+.plan-hero::after { /* the doorway: a gap in the bottom wall */
+  content: ""; position: absolute; bottom: -4px; left: var(--door); width: 44px; height: 4px; background: var(--paper);
+}
+.plan-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.plan-tile {
+  font: inherit; color: var(--ink); text-align: left; cursor: pointer;
+  display: flex; flex-direction: column; gap: 4px; justify-content: flex-start;
+  min-height: 84px; padding: 10px 10px 8px; border-radius: 4px;
+  background: var(--paper); border: 1.5px dashed var(--line-strong);
+  transition: transform .12s ease, background .2s ease;
+}
+.plan-grid .plan-tile { flex: 1 1 40%; min-width: 0; }
+.plan-n1 .plan-tile, .plan-n2 .plan-tile { flex-basis: 45%; }
+.plan-tile:active { transform: scale(.97); }
+.plan-tile:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.tile-num { font-weight: 700; font-size: .78em; color: var(--ink-3); letter-spacing: .04em; }
+.tile-name { font-weight: 700; font-size: .92em; line-height: 1.25; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.tile-find { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; min-width: 0; margin-top: auto; font-size: .82em; font-weight: 700; }
+.tile-find .glyph { width: 18px; height: 18px; flex: none; }
+.plan-tile.done { border-style: solid; border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.plan-tile.done .tile-num { color: inherit; opacity: .75; }
+.plan-tile.done.tone-unfortunate { background: var(--danger); border-color: var(--danger); }
+.plan-tile.done.tone-fortunate { background: var(--good); border-color: var(--good); }
+.plan-general {
+  width: calc(100% + 24px); margin: 10px -12px 0; min-height: 0; flex-direction: row; align-items: center; gap: 10px;
+  border: 0; border-top: 1.5px dashed var(--line-strong); border-radius: 0; background: transparent; padding: 12px 14px 14px;
+}
+.plan-general .tile-find { margin: 0 0 0 auto; }
+.plan-general.done, .plan-general.done.tone-unfortunate, .plan-general.done.tone-fortunate {
+  border-top: 2px solid var(--accent); color: var(--ink); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.plan-general.done.tone-unfortunate { border-top-color: var(--danger); background: color-mix(in srgb, var(--danger) 14%, transparent); }
+.plan-general.done.tone-fortunate { border-top-color: var(--good); background: color-mix(in srgb, var(--good) 14%, transparent); }
+@media (prefers-reduced-motion: reduce) { .plan-tile { transition: none; } .plan-tile:active { transform: none; } }
+
+/* Under the plan, an unsearched Area is a row, not a card: the tile searches it */
+.stage-search .area-card.card-open { display: flex; align-items: center; gap: 10px; padding: 8px 0; border: 0; background: none; box-shadow: none; }
+.stage-search .area-card.card-open .card-head { flex: 1; margin: 0; }
+.stage-search .area-card.card-open > .btn { width: auto; flex: none; padding: 8px 14px; min-height: 40px; font-size: .9em; }
+
+.room-bar .res-type { font-style: italic; }
+.screen-foot { display: flex; justify-content: center; margin: 18px 0 4px; }
+
+/* Done: the summary as tiles */
+.done-tiles { list-style: none; padding: 0; margin: 4px 0 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sum-tile { display: flex; flex-direction: column; gap: 2px; padding: 12px 12px 10px; border-radius: var(--r-sm, 8px);
+  background: color-mix(in srgb, var(--card) 80%, var(--paper)); line-height: 1.25; color: var(--ink-2); font-size: .9em; }
+.sum-tile b { font-size: 1.7em; font-weight: 750; color: var(--ink); line-height: 1.1; font-variant-numeric: lining-nums tabular-nums; }
+.sum-tile.sum-word b { font-size: 1.15em; }
+.done-tiles .sum-tile { margin: 0; }
+.done-block .done-tiles { max-width: 560px; }
+@media (min-width: 560px) { .done-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* Describe: the description as a page */
+.prose-page { font-size: 1.18em; line-height: 1.6; cursor: text; padding: 18px 18px 20px; margin: 6px 0 0;
+  background: color-mix(in srgb, var(--card) 75%, var(--paper)); border-radius: 4px;
+  box-shadow: 0 1px 0 var(--line), 0 10px 24px -18px color-mix(in srgb, var(--ink) 40%, transparent); }
+.prose-page::first-letter { float: left; font-size: 3.1em; line-height: .9; font-weight: 750; color: var(--accent); margin: 4px 8px 0 0; }
+.stage-record .prose-page { font-size: 1em; padding: 12px 14px; }
+.stage-record .prose-page::first-letter { font-size: inherit; float: none; margin: 0; color: inherit; font-weight: inherit; }
+.btn-edit-desc { margin-left: auto; border: 0; }
+
+/* Crawl: the map is the index; Journal and Print beside the name */
+.crawl-title-row { align-items: center; gap: 8px; flex-wrap: wrap; }
+.crawl-title-row .screen-title { flex: 1 1 auto; min-width: 0; }
+.crawl-title-row .crawl-links { display: flex; gap: 6px; margin: 0; }
+.icon-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 12px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--ink); text-decoration: none; font-size: .88em; font-weight: 650; }
+.icon-chip .ico { width: 18px; height: 18px; color: var(--accent); }
+.map-sub { font-size: .72em; line-height: 1.25; color: var(--ink-3); text-align: center; padding: 0 4px; }
+
+/* The one coach mark on a screen: a slim strip under its section's heading */
+.coach.coach-strip { padding: 6px 6px 6px 12px; margin: 2px 0 10px; align-items: center; border-radius: 6px; }
+.coach.coach-strip .hint { font-size: .88em; line-height: 1.4; }
+.coach.coach-strip .coach-ok { min-height: 40px; padding: 6px 12px; font-size: .85em; }
+.tile-find .glyph .ico { width: 18px; height: 18px; color: currentColor; }
+.plan-tile.done .tile-find { color: inherit; }

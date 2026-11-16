@@ -5,7 +5,7 @@ import {
   refuse, ruleLink, emptyState, shareText, iconTitle, icon, crumb, copyText, hint, houseAidBadge
 } from "./ui.js";
 import { GOAL_PROGRESS } from "../data-house-roomtypes.js";
-import { roomPlan, bandStrip, elementBands, oddsBands, elementGlyph, illustration, findTone } from "./graphics.js";
+import { roomPlan, planHero, bandStrip, elementBands, oddsBands, elementGlyph, illustration, findTone } from "./graphics.js";
 import { EXPLAIN, MEANING_TABLES, ENCOUNTER_ANSWERS, ROOM_ELEMENTS } from "../data.js";
 import * as store from "./store.js";
 import * as roller from "./roller.js";
@@ -33,7 +33,9 @@ export function header(room, stage = null) {
   add(bar, el("div", { class: "room-bar-top" },
     crawl ? el("a", { class: "room-back", href: "#/crawl/" + crawl.id, "aria-label": "Back to " + crawl.name }, icon("chev-l")) : null,
     el("div", { class: "res-title" },
-      crawl ? el("span", { class: "res-crawl", text: crawl.name }) : null,
+      (crawl || room.context.roomType) ? el("span", { class: "res-crawl" },
+        crawl ? crawl.name : "",
+        room.context.roomType ? el("span", { class: "res-type", text: (crawl ? " · " : "") + room.context.roomType }) : null) : null,
       el("span", { class: "res-name", text: room.context.label || "Untitled room" })),
     el("span", { class: "res-chip res-" + state, text: STATE_LABEL[state] }),
     isWalkDone(room) ? el("button", { class: "icon-btn room-menu-btn", type: "button", "aria-label": "Room actions",
@@ -120,15 +122,13 @@ export function render(params) {
   const stage = STAGES.some(x => x.id === params.stage && x.id !== "keywords") ? params.stage : naturalStage(room);
 
   const content = el("div", { class: "room-screen stage-" + stage });
-  // The bar above names the room; the heading stays for screen readers, and
-  // the line under it carries the room type and the ⓘ.
+  // The bar above names the room and its type (P18); the heading stays for
+  // screen readers. The several-spaces note (R25) keeps its own line when set;
+  // the ⓘ sits at the foot of the screen.
   add(content,
-    el("div", { class: "title-row room-meta-row" },
-      el("h1", { class: "screen-title sr-only", text: room.context.label || "Untitled room" }),
-      el("p", { class: "meta room-meta" },
-        room.context.roomType || "",
-        room.context.multiRoomNote ? el("span", { class: "room-multi", text: "Covers several spaces: " + room.context.multiRoomNote }) : null),
-      explain(EXPLAIN.room)),
+    el("h1", { class: "screen-title sr-only", text: room.context.label || "Untitled room" }),
+    room.context.multiRoomNote ? el("p", { class: "meta room-meta" },
+      el("span", { class: "room-multi", text: "Covers several spaces: " + room.context.multiRoomNote })) : null,
     stage === "record" ? jumpRow() : null
   );
 
@@ -144,6 +144,7 @@ export function render(params) {
   add(content, el("div", { class: "two-col sheet-cols" + (stage === "record" ? "" : " one-stage") }, left, right, more));
   if (stage === "done") add(content, doneBlock(room));
   if (stage === "record") add(content, pager(room));
+  add(content, el("div", { class: "screen-foot" }, explain(EXPLAIN.room)));
 
   // The pinned bar: on a play stage, the + beside that stage's own action.
   const playing = stage !== "done" && stage !== "record";
@@ -221,6 +222,16 @@ function foldSheet(room, title, build) {
   modal({ title, body: host, actions: [{ label: "Done", onClick: () => rerender() }] });
 }
 
+// A summary line as a tile: its count (or its answer) large, the rest as the
+// caption. The words are the summary's own, split, never rewritten (P18).
+function summaryTile(line) {
+  let m = line.match(/^(\d+(?: of \d+)?) (.+)$/);
+  if (m) return el("li", { class: "sum-tile" }, el("b", { text: m[1] }), " ", el("span", { text: m[2] }));
+  m = line.match(/^([^:]+): (.+)$/);
+  if (m) return el("li", { class: "sum-tile sum-word" }, el("span", { text: m[1] + ":" }), " ", el("b", { text: m[2] }));
+  return el("li", { class: "sum-tile", text: line });
+}
+
 // The end of the procedure: no conclusion roll (R22), a summary, the stamp
 // when the room is fully explored, and every onward route (§6.3.6).
 function doneBlock(room) {
@@ -229,7 +240,7 @@ function doneBlock(room) {
   add(box,
     isComplete(room) ? el("p", { class: "stamp stamp-lg", "aria-hidden": "true", text: STATE_LABEL.complete }) : null,
     roomPlan(room),
-    el("ul", { class: "summary done-summary" }, lines.map(l => el("li", { text: l }))),
+    el("ul", { class: "summary done-summary done-tiles" }, lines.map(summaryTile)),
     !isComplete(room) ? el("p", { class: "hint", text: "Areas are still unsearched. That is a real state — the room is described rather than searched, and you can come back to it." }) : null,
     el("p", { class: "hint" }, "Searching is optional — a room you only looked at is a finished room. ", ruleLink("complete", "The rule"), "."),
     progressPicker(room),
@@ -352,14 +363,16 @@ function jumpRow() {
 // ── Blocks ───────────────────────────────────────────────────────────────────
 function descriptionBlock(room) {
   const box = el("section", { class: "block", id: "sec-room" });
-  add(box, iconTitle("h2", "block-title", "door", "The room"));
+  // Described, the room reads as a page: tap it, or the quill, to edit (P18).
+  add(box, iconTitle("h2", "block-title", "door", "The room",
+    room.description ? el("button", { class: "icon-btn btn-edit-desc", type: "button", "aria-label": "Edit description",
+      title: "Edit description", onclick: () => describeRoom(room) }, icon("quill")) : null));
   if (room.description) {
-    add(box, el("p", { class: "prose prose-read", text: room.description }));
+    add(box, el("p", { class: "prose prose-read prose-page", onclick: () => describeRoom(room) , text: room.description }));
   } else {
     add(box, hint("describe", "Not described yet. The Areas are its main features — write the room from them, and add whatever else obviously belongs."));
+    add(box, el("button", { class: "btn btn-quiet", type: "button", onclick: () => describeRoom(room) }, "Describe it"));
   }
-  add(box, el("button", { class: "btn btn-quiet", type: "button", onclick: () => describeRoom(room) },
-    room.description ? "Edit description" : "Describe it"));
   return box;
 }
 
@@ -508,7 +521,7 @@ function answerCard(rec, { working = false } = {}) {
 // focused on its own — the result is what you look at first.
 function lineField(value) {
   const f = el("input", { class: "field line-field", type: "text", id: "line-field", value: value || "",
-    placeholder: "What is it?", "data-nofocus": "", autocomplete: "off" });
+    "data-nofocus": "", autocomplete: "off" });
   return [el("label", { class: "field-label line-label", for: "line-field" }, icon("quill"), "What is it?"), f];
 }
 
@@ -584,7 +597,7 @@ function areasBlock(room) {
   // The plan is the search surface: tap an unsearched block to search it, the
   // outline for the General Area. A searched block opens its card instead —
   // one roll per Area (R11) and one for the General Area (R19), never two.
-  add(box, roomPlan(room, { onPick: id => {
+  add(box, planHero(room, { onPick: id => {
     if (id === "__general") {
       if (canSearchGeneral(room)) return doGeneral(room);
     } else {

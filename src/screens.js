@@ -9,7 +9,7 @@ import * as settings from "./settings.js";
 import { openNewRoom } from "./wizard.js";
 import { readAloud, STAGES, naturalStage } from "./sheet.js";
 import { loadDemos } from "./tutorial.js";
-import { searchState, STATE_LABEL, areaCount, searchedAreas, searchedTotal, totalExplorable, isWalkDone, roomHref } from "./derived.js";
+import { searchState, STATE_LABEL, areaCount, searchedAreas, isWalkDone, roomHref } from "./derived.js";
 import { crawlSummary, progressTally } from "./lifecycle.js";
 import { GOAL_PROGRESS } from "../data-house-roomtypes.js";
 
@@ -151,8 +151,13 @@ export function crawl(params) {
   const content = el("div", {});
   add(content,
     crumb("#/crawls", "Crawls"),
-    el("h1", { class: "screen-title", text: c.name }),
-    explain(EXPLAIN.crawl),
+    // Journal and Print sit beside the name as icon chips (P18).
+    el("div", { class: "title-row crawl-title-row" },
+      el("h1", { class: "screen-title", text: c.name }),
+      rooms.length ? el("div", { class: "crawl-links" },
+        el("a", { class: "icon-chip", href: "#/journal/" + c.id, "aria-label": "Journal", title: "Journal" }, icon("quill"), el("span", { text: "Journal" })),
+        el("a", { class: "icon-chip", href: "#/print/crawl/" + c.id, "aria-label": "Print the crawl", title: "Print the crawl" }, icon("print"), el("span", { text: "Print" }))) : null,
+      explain(EXPLAIN.crawl)),
     questBanner(c),
     el("p", { class: "meta", text: crawlSummary(c.id).lines.join(" · ") })
   );
@@ -162,30 +167,13 @@ export function crawl(params) {
   const cur = store.current();
   add(content, crawlMap(rooms.map(r => ({
     href: roomHref(r), label: r.context.label || "Untitled room", room: r,
+    sub: (r.context.roomType ? r.context.roomType + " · " : "") + searchedAreas(r) + "/" + areaCount(r) + " Areas · " + STATE_LABEL[isWalkDone(r) ? searchState(r) : "building"],
     state: isWalkDone(r) ? searchState(r) : "building", current: r.id === cur.roomId
   })), { onNext: () => openNewRoom(c.id, rooms[rooms.length - 1] || null), nextLabel: rooms.length ? "Next room" : "First room" }));
-  if (rooms.length) add(content, el("div", { class: "crawl-links" },
-    el("a", { class: "btn btn-secondary", href: "#/journal/" + c.id }, icon("quill"), "Journal"),
-    el("a", { class: "btn btn-quiet", href: "#/print/crawl/" + c.id }, icon("print"), "Print the crawl")));
 
+  // The map is the index (P18): each tile carries what the list row did.
   if (!rooms.length) {
     add(content, emptyState("No rooms yet. Start the first one — six keywords, or three if you are making a lot of them.", null, null, illustration("plan")));
-  } else {
-    // The rooms as a chain, in the order they were made (R28): the map's index.
-    add(content, el("h2", { class: "block-title", text: "Rooms" }, el("span", { class: "count", text: String(rooms.length) })));
-    const ul = el("ul", { class: "list list-cards chain chain-compact" });
-    for (const r of rooms) {
-      const st = searchState(r);
-      const walkDone = isWalkDone(r);
-      add(ul, el("li", {}, el("a", { class: "row-card", href: roomHref(r) },
-        el("span", { class: "row-main", text: r.context.label || "Untitled room" }),
-        el("span", { class: "row-sub", text: (r.context.roomType ? r.context.roomType + " · " : "") +
-          searchedAreas(r) + "/" + areaCount(r) + " Areas · " + STATE_LABEL[st] }),
-        el("span", { class: "row-chip res-" + st, text: st === "complete" ? "done" : st === "building" ? "unfinished" : "open" }),
-        walkDone ? rowMeter(searchedTotal(r), totalExplorable(r)) : rowMeter((r.keywords || []).length, r.budget)
-      )));
-    }
-    add(content, ul);
   }
 
   add(content, el("section", { class: "block block-end" },
@@ -227,12 +215,12 @@ let logFilter = "all";
 export function log() {
   const content = el("div", {});
   add(content,
+    el("h1", { class: "screen-title", text: "Roll log" }),
+    explain(EXPLAIN.log),
     sectionNav([
       { id: "log", label: "Rolls", href: "#/log" },
       { id: "dist", label: "Distribution", href: "#/log/distribution" }
-    ], "log"),
-    el("h1", { class: "screen-title", text: "Roll log" }),
-    explain(EXPLAIN.log)
+    ], "log")
   );
 
   const all = store.rollLog();
@@ -327,12 +315,12 @@ export function log() {
 export function distribution() {
   const content = el("div", {});
   add(content,
+    el("h1", { class: "screen-title", text: "Distribution" }),
+    explain(EXPLAIN.distribution),
     sectionNav([
       { id: "log", label: "Rolls", href: "#/log" },
       { id: "dist", label: "Distribution", href: "#/log/distribution" }
-    ], "dist"),
-    el("h1", { class: "screen-title", text: "Distribution" }),
-    explain(EXPLAIN.distribution)
+    ], "dist")
   );
   const { counts, total } = store.distribution();
   if (!total) {
@@ -371,12 +359,12 @@ export function distribution() {
 export function rules(params) {
   const content = el("div", {});
   add(content,
+    el("h1", { class: "screen-title", text: "The rules" }),
+    explain(EXPLAIN.rules),
     sectionNav([
       { id: "rules", label: "Rules", href: "#/rules" },
       { id: "tutorial", label: "Tutorial", href: "#/learn/tutorial" }
-    ], "rules"),
-    el("h1", { class: "screen-title", text: "The rules" }),
-    explain(EXPLAIN.rules)
+    ], "rules")
   );
 
   // Arrived from a rule link: offer the way back to where you were (§6.3.9).

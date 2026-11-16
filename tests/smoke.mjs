@@ -457,7 +457,7 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
     tiles: document.querySelectorAll("#screen .crawl-map a.map-tile").length,
     next: !!document.querySelector("#screen .crawl-map .map-next"),
     current: !!document.querySelector("#screen .crawl-map .map-tile.current"),
-    rooms: document.querySelectorAll("#screen .chain > li").length
+    rooms: JSON.parse(localStorage.getItem("rc.rooms")).filter(r => r.crawlId === location.hash.split("/")[2]).length
   }));
   r.check("map: one tile per room, the open one lit, and a tile for the next", map.tiles === map.rooms && map.tiles > 0 && map.next && map.current, JSON.stringify(map));
   r.check("link: the crawl leads to its journal", !!(await page.$('#screen a[href="#/journal/' + crawlId + '"]')));
@@ -477,6 +477,8 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   r.check("quest: the explorer and goal show on the crawl", await until(page, () => /Mara/.test(document.querySelector("#screen .quest").textContent) && /grimoire/.test(document.querySelector("#screen .quest").textContent)));
   r.check("quest: it says it is a house rule", /house rule/.test(await page.$eval("#screen .quest", n => n.textContent)));
   await goto(page, site, "#/room/" + id + "/done");
+  // From the crawl, the room arrives inside a view transition (P17): poll for it.
+  await until(page, () => !!document.querySelector("#sec-done"));
   r.check("link: Done leads to the journal", !!(await page.$('#sec-done a[href="#/journal/' + crawlId + '"]')));
   r.check("quest: Done asks whether the room brought the explorer closer", !!(await page.$("#sec-done .progress-pick")));
   await page.click("#sec-done .progress-pick .progress-closer");
@@ -510,6 +512,42 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await goto(page, site, "#/crawls");
   r.check("room bar: the app header is back off the room", (await page.evaluate(() => getComputedStyle(document.querySelector(".app-header")).display)) !== "none");
   r.check("room bar: no console errors", page.__errors.length === 0, page.__errors[0]);
+  await page.context().close();
+}
+
+// P18 — the plan is the play surface, and a quieter frame.
+{
+  const page = await newPage(browser, site, { seed: "mid-crawl" });
+  await goto(page, site, "#/room");
+  const id = await page.evaluate(() => location.hash.split("/")[2]);
+  const rm = await page.evaluate(i => JSON.parse(localStorage.getItem("rc.rooms")).find(r => r.id === i), id);
+  await goto(page, site, "#/room/" + id + "/search");
+  const hero = await page.evaluate(() => Array.from(document.querySelectorAll("#sec-areas .plan-hero .plan-area")).map(t => ({ text: t.textContent, done: t.classList.contains("done") })));
+  const names = [...rm.areas].sort((a, b) => a.order - b.order);
+  r.check("plan hero: every tile is named for its Area", hero.length === names.length && hero.every((t, i) => t.text.includes(names[i].name)), JSON.stringify(hero).slice(0, 120));
+  r.check("plan hero: a searched tile shows its find", names.every((a, i) => !a.search || hero[i].text.includes(a.search.elementName)));
+  r.check("plan hero: the General Area is on the plan", !!(await page.$("#sec-areas .plan-hero [data-area='__general']")));
+  const bar = await page.$eval("#room-header-host .room-bar", n => n.textContent);
+  r.check("room bar: carries the room type", !rm.context.roomType || bar.includes(rm.context.roomType), bar.slice(0, 80));
+  r.check("room: the ⓘ is still on the screen", !!(await page.$("#screen details.explain")));
+  await goto(page, site, "#/room/" + id + "/done");
+  const tiles = await page.$$eval("#sec-done .done-tiles .sum-tile", ns => ns.map(n => n.textContent));
+  r.check("done: the summary reads as tiles, one per line", tiles.length >= 4 && tiles.some(t => /Areas searched/.test(t)), JSON.stringify(tiles));
+  // A sheet left open does not follow you to another screen.
+  await goto(page, site, "#/room/" + id + "/search");
+  await page.click("#action-bar-host .fab");
+  await until(page, () => !!document.querySelector(".modal-backdrop"));
+  await page.evaluate(() => { location.hash = "#/log"; });
+  r.check("sheet: leaving the screen closes it", await until(page, () => !document.querySelector(".modal-backdrop")));
+  await goto(page, site, "#/crawl/" + rm.crawlId);
+  r.check("crawl: Journal and Print sit beside the name", !!(await page.$(".crawl-title-row a[href^='#/journal/']")) && !!(await page.$(".crawl-title-row a[href^='#/print/crawl/']")));
+  r.check("crawl: the map carries each room's state", (await page.$$eval("#screen .map-tile .map-sub", ns => ns.length)) > 0);
+  await goto(page, site, "#/log");
+  r.check("log: the heading comes before the Rolls/Distribution switch", await page.evaluate(() => {
+    const h = document.querySelector("#screen h1"), nav = document.querySelector("#screen .section-nav, #screen nav");
+    return !!h && !!nav && (h.compareDocumentPosition(nav) & Node.DOCUMENT_POSITION_FOLLOWING) > 0;
+  }));
+  r.check("P18: no console errors", page.__errors.length === 0, page.__errors[0]);
   await page.context().close();
 }
 

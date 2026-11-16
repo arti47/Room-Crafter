@@ -13,12 +13,12 @@ import { illustration, fleuron } from "./graphics.js";
 export function render() {
   const content = el("div", {});
   add(content,
+    el("h1", { class: "screen-title", text: "Your first room" }),
+    explain(EXPLAIN.tutorial),
     sectionNav([
       { id: "rules", label: "Rules", href: "#/rules" },
       { id: "tutorial", label: "Tutorial", href: "#/learn/tutorial" }
-    ], "tutorial"),
-    el("h1", { class: "screen-title", text: "Your first room" }),
-    explain(EXPLAIN.tutorial)
+    ], "tutorial")
   );
 
   // Numbered stations on one line, top to bottom: the order is the lesson.

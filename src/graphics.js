@@ -31,7 +31,7 @@ export function elementGlyph(id) {
 // `bands` are { id, min, max, name, tone? }. This is the working a result
 // dialog owes (§6.4): which band the die fell in, out of all of them.
 export function bandStrip(bands, roll, { label, compact = false } = {}) {
-  const W = 300, H = compact ? 16 : 22, top = 14;
+  const W = 300, H = compact ? 16 : 30, top = 14;
   let segs = "";
   for (const b of bands) {
     const x = (b.min - 1) / 100 * W, w = (b.max - b.min + 1) / 100 * W;
@@ -39,7 +39,7 @@ export function bandStrip(bands, roll, { label, compact = false } = {}) {
     segs += '<rect class="seg seg-' + esc(b.tone || "plain") + (hit ? " seg-hit" : "") + '" x="' + x.toFixed(2) +
       '" y="' + top + '" width="' + Math.max(w - 1.5, 1).toFixed(2) + '" height="' + H + '" rx="3"/>';
     if (w >= 34 && !compact) {
-      segs += '<text class="seg-num" x="' + (x + 4).toFixed(2) + '" y="' + (top + H - 6) + '">' + b.min + "</text>";
+      segs += '<text class="seg-num" x="' + (x + 4).toFixed(2) + '" y="' + (top + H / 2 + 4) + '">' + b.min + "</text>";
     }
   }
   let mark = "";
@@ -122,6 +122,50 @@ export function roomPlan(room, { onPick } = {}) {
   return wrap;
 }
 
+// ── The plan as the play surface (P18) ─────────────────────────────────────
+// The same plan as roomPlan, drawn large in HTML so each Area can carry its
+// name and, once searched, its find. Walls round the outside are the General
+// Area — the room itself — and its tile sits along the bottom wall. Tiles keep
+// roomPlan's class names and data-area, so one pick handler serves both.
+export function planHero(room, { onPick } = {}) {
+  const areas = [...(room.areas || [])].sort((a, b) => a.order - b.order);
+  const n = areas.length;
+  let h = hash(room.id);
+  const tile = (id, cls, label, kids) => {
+    const b = el("button", { class: cls, type: "button", "data-area": id, "aria-label": label });
+    for (const k of kids) if (k) b.appendChild(typeof k === "string" ? document.createTextNode(k) : k);
+    return b;
+  };
+  const findLine = f => f ? el("span", { class: "tile-find" }, elementGlyph(f.elementId),
+    el("span", { text: f.elementName + (f.sub && f.sub.length ? " +" + f.sub.length : "") })) : null;
+  const grid = el("div", { class: "plan-grid plan-n" + Math.min(n, 6) });
+  areas.forEach((a, i) => {
+    h = (h * 1103515245 + 12345) >>> 0;
+    const done = !!a.search;
+    const t = tile(a.id, "plan-area plan-tile" + (done ? " done " + findTone(a.search) : ""),
+      "Area " + (i + 1) + ": " + a.name + (done ? ", searched" : ", not searched"),
+      [el("span", { class: "tile-num", "aria-hidden": "true", text: String(i + 1) }),
+       el("span", { class: "tile-name", text: a.name }), findLine(a.search)]);
+    t.style.flexGrow = String(1 + (h % 100) / 120);
+    grid.appendChild(t);
+  });
+  const gen = room.generalArea;
+  const general = tile("__general", "plan-room plan-tile plan-general" + (gen ? " done " + findTone(gen) : ""),
+    "The General Area" + (gen ? ", searched" : ", not searched"),
+    [el("span", { class: "tile-name", text: "The General Area" }), findLine(gen)]);
+  const wrap = el("div", { class: "plan-hero", role: "group",
+    "aria-label": "Plan of the room: " + areas.filter(a => a.search).length + " of " + n +
+      " Areas searched, General Area " + (gen ? "searched" : "not searched") });
+  wrap.style.setProperty("--door", (15 + (hash(room.id) % 55)) + "%");
+  wrap.appendChild(grid);
+  wrap.appendChild(general);
+  if (onPick) wrap.addEventListener("click", e => {
+    const g = e.target.closest("[data-area]");
+    if (g) onPick(g.getAttribute("data-area"));
+  });
+  return wrap;
+}
+
 // ── A crawl as a strip of rooms, one square per room in crawl order ──────────
 export function crawlStrip(states) {
   if (!states.length) return null;
@@ -192,7 +236,8 @@ export function crawlMap(tiles, { onNext, nextLabel } = {}) {
     },
       el("span", { class: "map-num", text: String(i + 1) }),
       (t.room.areas || []).length ? roomPlan(t.room) : el("span", { class: "map-blank" }),
-      el("span", { class: "map-name", text: t.label }));
+      el("span", { class: "map-name", text: t.label }),
+      t.sub ? el("span", { class: "map-sub", text: t.sub }) : null);
     map.append(a);
   });
   if (onNext) {

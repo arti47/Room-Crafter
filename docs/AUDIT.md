@@ -727,3 +727,21 @@ pinned "Ask … (50/50)" always asked at 50/50 whatever the dial said. *Fix:* th
 dial carries no button there; the bar's Ask reads the dial and names the odds
 live. *Guard:* "one Ask: the bar's Ask reads the dial" — watched go red with
 the dial unwired.
+
+## Cycle 10 — the plan is the play surface (2026-11-16, P18)
+
+Walk at 390/390-dark/900, mid-crawl and stress seeds. Rules untouched.
+
+- **A-75** Plan was a small dashed box of numbered blocks, repeated by the cards. *Fix:* `graphics.planHero` on Search — named tiles, the find on each searched tile, the General Area along the bottom wall; unsearched Areas below are rows. *Guards:* "plan hero: every tile is named…", "…a searched tile shows its find", "…the General Area is on the plan".
+- **A-76** Find sheet said "What is it?" twice; band numbers ~8px. One label; strip 30px, numbers 10px.
+- **A-77** Done summary was a bullet list. Tiles, the summary's own words split at the count or the colon. *Guard:* "done: the summary reads as tiles".
+- **A-78** A room-type row with an ⓘ took a row on every stage. Type in the bar's kicker, ⓘ at the foot. *Guards:* "room bar: carries the room type", "room: the ⓘ is still on the screen".
+- **A-79** Describe stage was mostly empty. The description as a page with a drop cap; the quill edits.
+- **A-80** Empty dashed "What is it?" boxes filled the journal and the sheet. A quiet "+ What is it?".
+- **A-81** The crawl showed its rooms twice. The map is the index (type, Areas searched and state on each tile); Journal and Print as chips beside the name. *Guards:* "crawl: Journal and Print sit beside the name", "crawl: the map carries each room's state".
+- **A-82** Room-bar kicker was ~9px small caps. 0.8em plain.
+- **A-83** Log, Distribution, Rules and Tutorial put their section switch above the heading. Heading first. *Guard:* "log: the heading comes before…".
+- **A-84** A coach mark sat between the controls it explains. The one left on a screen moves under its section's heading as a slim strip.
+- **A-85** A sheet stayed on screen after navigating away. Closes on leaving its screen; a stage step inside the same room is not leaving (a roll's result sheet survives the stage move that follows it). *Guard:* "sheet: leaving the screen closes it" — watched go red with the close removed.
+
+**H-18** "link: Done leads to the journal" read `#sec-done` straight after a hash change from the crawl, where the room renders inside a view transition (asynchronously). It now polls (D-15).
