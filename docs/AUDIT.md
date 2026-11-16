@@ -675,3 +675,49 @@ rule" badge (process rule 10).
 container moved to `chromium-1243` and every browser harness failed to launch.
 *Fix:* `harness-lib.findChromium()` — `PW_CHROMIUM`, else the stable alias,
 else the newest installed `chromium-*` build.
+
+## Cycle 9 — the room bar and a quieter frame (2026-11-16, P17)
+
+Measured walk at 390×780 and 900×1100, mid-crawl seed. Rules untouched: no
+table, roll, once-per flag or gate changed; the room still opens on the
+procedure's stage (R9).
+
+**A-64 · Four stacked bars before the room.** App header, breadcrumb, room
+header and stepper put the first play content at y=331 of 780. *Fix:* one
+sticky room bar (back · crawl/room · state · ⋯, the stepper under it) replaces
+the app header on room and keyword-walk screens. Now y=205. *Guard:* "room
+bar: the play area starts above 220px (was 331)" and "the app header is back
+off the room".
+
+**A-65 · The pinned primary ignored the stage you were on.** On Search it said
+"Ask: is there an encounter?". *Fix:* `sheet.stagePrimary` — the stage's own
+action plus a quiet next-stage link; Record keeps the procedure walk
+(`primaryAction`). *Guard:* four "stage primary" checks — watched go red (two)
+with the bar wired back to `primaryAction`.
+
+**A-66 · Several coach marks open at once.** *Fix:* `router.oneCoach` — the
+first visible stays, the rest wait as ⓘ. *Guard:* "coach: never more than one
+in full on a screen".
+
+**A-67 · The + menu floated apart from the bar.** Now the bar's first button.
+
+**A-68 · Find card ended on its notes.** The "What is it?" line now closes the
+card, after the working.
+
+**A-69 · Roll log repeated a keyword walk as up to six rows.** Consecutive
+keyword rolls collapse into one row of dice; the date moves to the room head.
+
+**A-70 · Continue was a list row.** Now a hero card with the room plan, and
+the plan carries into the room (view transition, reduced motion respected).
+
+**A-71 · Settings opened on everything.** Your data and Undo/erase fold;
+About moves to a foot.
+
+**A-72 · Tablet stepper spent a row.** At ≥760px it is a rail on the left; a
+single stage reads in one 680px column, not half of two.
+
+**A-73 · Welcome sat in a card.** Full-bleed.
+
+**Deviation recorded:** the template's LOCKED app header (§6.2) is hidden on
+room and keyword-walk screens; theme stays in Settings and on every other
+screen. CLAUDE.md §1.0.

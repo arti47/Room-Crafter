@@ -99,6 +99,7 @@ export function render(opts = {}) {
   clear(app);
   add(app, view.content);
   titleRows(app);
+  oneCoach(app);
   // A new screen arrives like a page turn; a refresh in place never moves.
   if (!keep && view.content && view.content.classList) view.content.classList.add("screen-enter");
 
@@ -108,7 +109,9 @@ export function render(opts = {}) {
   clear(headerHost);
   const rm = contextRoom(route);
   const inPlay = route.name === "room" || route.name === "wizard";
-  if (inPlay && rm) add(headerHost, sheet.header(rm));
+  // On room screens the room bar is the header (P17): the app header steps aside.
+  document.body.classList.toggle("in-room", inPlay && !!rm);
+  if (inPlay && rm) add(headerHost, sheet.header(rm, route.name === "wizard" ? "keywords" : (route.params.stage || sheet.naturalStage(rm))));
 
   renderTabs(route);
   document.title = view.title ? view.title + " · Room Crafter" : "Room Crafter";
@@ -188,6 +191,18 @@ function titleRows(app) {
   }
 }
 
+// One coach mark at a time (P17): the first one you can see is shown in full;
+// the rest wait as ⓘ until it is dismissed. The words are all still there.
+function oneCoach(app) {
+  const seen = Array.from(app.querySelectorAll(".coach")).filter(c => !c.closest("[hidden]") && !c.closest("details:not([open])"));
+  seen.slice(1).forEach(c => {
+    const d = el("details", { class: "hint-i hint-waiting" });
+    const p = c.querySelector(".hint");
+    add(d, el("summary", { "aria-label": "How this works" }), p);
+    c.replaceWith(d);
+  });
+}
+
 // A tutorial step can ask the screen it opens to point at the control it
 // means: the control pulses once, then the page is ordinary again.
 function spotlight() {
@@ -196,6 +211,7 @@ function spotlight() {
   if (!sel) return;
   const t = document.querySelector(sel);
   if (!t) return;
+  for (let d = t.closest("details"); d; d = d.parentElement && d.parentElement.closest("details")) d.open = true;
   t.classList.add("spot");
   if (t.scrollIntoView) t.scrollIntoView({ block: "center" });
   setTimeout(() => t.classList.remove("spot"), 2600);
@@ -238,13 +254,28 @@ function renderTabs(route) {
   }
 }
 
+// Entering a room from the home or crawl screen, the plan you tapped grows
+// into the room's plan (P17) — where the browser can, and never under reduced
+// motion. Everything else is an ordinary page turn.
+let lastRoute = null;
+function navigate() {
+  const next = parse(location.hash);
+  const from = lastRoute;
+  lastRoute = next.name;
+  const vt = typeof document.startViewTransition === "function" &&
+    !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  if (vt && (from === "crawls" || from === "crawl") && next.name === "room") document.startViewTransition(() => render());
+  else render();
+}
+
 export function start() {
   wizard.setRerender(refresh);
   sheet.setRerender(refresh);
   journal.setRerender(refresh);
   screens.setRerender(refresh);
-  window.addEventListener("hashchange", () => render());
+  window.addEventListener("hashchange", () => navigate());
   store.subscribe(() => renderTabs(parse(location.hash)));
   if (!location.hash) location.replace("#/crawls");
+  lastRoute = parse(location.hash).name;
   render();
 }

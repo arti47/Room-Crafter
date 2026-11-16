@@ -269,15 +269,32 @@ export function log() {
     const target = rid ? store.room(rid) : null;
     add(wrap, el("h2", { class: "log-group" },
       target ? el("a", { class: "log-room", href: roomHref(target) }, run.name, icon("chev-r")) : run.name,
-      el("span", { class: "count", text: String(run.rows.length) })));
+      el("span", { class: "count", text: String(run.rows.length) }),
+      el("span", { class: "log-when", text: when(run.rows[0].ts) })));
     const ul = el("ul", { class: "list" });
-    for (const r of run.rows) {
+    // A room's keyword rolls read as one line of dice and words (P17): every
+    // roll is still there, in the order rolled, each with its own die.
+    const isKw = r => /^keyword \d+$/.test(r.context || "");
+    for (let i = 0; i < run.rows.length; i++) {
+      const r = run.rows[i];
+      if (isKw(r)) {
+        const chunk = [r];
+        while (i + 1 < run.rows.length && isKw(run.rows[i + 1]) && run.rows[i + 1].table === r.table) chunk.push(run.rows[++i]);
+        if (chunk.length > 1) {
+          const asc = chunk.slice().reverse();
+          add(ul, el("li", { class: "list-row log-row log-keywords" },
+            el("span", { class: "log-dice" }, asc.map(k => el("span", { class: "die die-sm", text: String(k.roll) }))),
+            el("span", { class: "list-main", text: asc.map(k => k.result).join(" · ") }),
+            el("span", { class: "list-sub", text: r.table + " · " + asc[0].context + "–" + asc[asc.length - 1].context.replace(/^keyword /, "") })));
+          continue;
+        }
+      }
       add(ul, el("li", { class: "list-row log-row" },
         el("span", { class: "die die-sm", text: String(r.roll) }),
         el("span", { class: "list-main", text: r.result },
           r.houseAid ? houseAidBadge() : null,
           r.mythic && MYTHIC ? el("span", { class: "badge", title: "From One-Page Mythic, not the Room Crafter article", text: "Mythic" }) : null),
-        el("span", { class: "list-sub", text: r.table + (r.context ? " · " + r.context : "") + " · " + when(r.ts) })
+        el("span", { class: "list-sub", text: r.table + (r.context ? " · " + r.context : "") })
       ));
     }
     add(wrap, ul);
@@ -439,13 +456,14 @@ export function settingsScreen() {
     el("h2", { class: "block-title", text: "Content" }),
     toggleRow("Show house-aid suggestions", "The room-type list is invented for this app — the article has no such table. Turn it off to type your own only.",
       settings.get("showHouseAids"), v => { settings.set("showHouseAids", v); rerender(); }),
-    hintsRow(),
     toggleRow("Use One-Page Mythic", "Answers the encounter and hidden-search questions on the Ask The Game Master chart, rolls Random Events on a double, and adds Discover Meaning to the Random element. Turn it off and those go back to recording an answer you rolled yourself.",
-      settings.get("useMythic"), v => { settings.set("useMythic", v); rerender(); })
+      settings.get("useMythic"), v => { settings.set("useMythic", v); rerender(); }),
+    hintsRow()
   ));
 
-  add(right, el("section", { class: "block panel" },
-    el("h2", { class: "block-title", text: "Your data" }),
+  // Rarely touched: folded, one tap away (P17).
+  add(right, el("details", { class: "block panel panel-fold" },
+    el("summary", { class: "block-title" }, icon("quill"), el("span", { text: "Your data" })),
     el("p", { class: "prose", text: "Everything lives in this browser and nowhere else. Export writes plain JSON you can read, keep and re-import." }),
     el("div", { class: "stack" },
       el("button", { class: "btn btn-secondary btn-wide", type: "button", onclick: exportFlow }, "Export JSON"),
@@ -468,8 +486,8 @@ export function settingsScreen() {
   ));
 
   const last = store.lastUndo();
-  add(right, el("section", { class: "block panel" },
-    el("h2", { class: "block-title", text: "Undo and erase" }),
+  add(right, el("details", { class: "block panel panel-fold" },
+    el("summary", { class: "block-title" }, icon("flag"), el("span", { text: "Undo and erase" })),
     el("div", { class: "stack" },
       el("button", { class: "btn btn-quiet btn-wide", type: "button", disabled: !last, onclick: () => {
         const label = store.undo();
@@ -491,7 +509,7 @@ export function settingsScreen() {
     )
   ));
 
-  add(content, el("section", { class: "block block-end panel" },
+  add(content, el("section", { class: "block block-end about-foot" },
     el("h2", { class: "block-title", text: "About" }),
     el("p", { class: "prose", text: "A personal play aid for The Room Crafter, the room-exploration variation from Mythic Magazine Vol. 69, with One-Page Mythic underneath it for the questions the article defers to an emulator. Rules paraphrased; the tables belong to their publisher. Built for one person's own use from their own copies." }),
     el("p", { class: "hint" }, "The room-type list is an invented convenience ", houseAidBadge(), ", not part of the article."),

@@ -2,7 +2,7 @@
 // The app enforces the order, the cap and the count. The interpretation is yours
 // — that is the one thing this tool exists to leave alone.
 import { el, add, clear, uid, buzz } from "./core.js";
-import { explain, actionBar, showToast, refuse, ruleLink, houseAidBadge, radioGroup, crumb, modal, closeModal } from "./ui.js";
+import { explain, actionBar, showToast, refuse, ruleLink, houseAidBadge, radioGroup, modal, closeModal } from "./ui.js";
 import { MAX_COMBINE, BUDGETS, EXPLAIN } from "../data.js";
 import { ROOM_TYPES, HOUSE_AID } from "../data-house-roomtypes.js";
 import * as store from "./store.js";
@@ -10,7 +10,6 @@ import * as lifecycle from "./lifecycle.js";
 import * as roller from "./roller.js";
 import { Settings } from "./settings.js";
 import { budgetInfo, isWalkDone as walkDone, areaWords } from "./derived.js";
-import { stepper } from "./sheet.js";
 
 export function pending(room) {
   return (room.keywords || []).filter(k => k.use === "pending");
@@ -91,11 +90,9 @@ export function render(params) {
   const info = budgetInfo(room);
   const pend = pending(room);
 
-  const crawl = store.crawl(room.crawlId);
   add(content,
-    crawl ? crumb("#/crawl/" + crawl.id, crawl.name) : null,
-    stepper(room, "keywords"),
-    el("h1", { class: "screen-title", text: room.context.label || "New room" }),
+    // The room bar above carries the way back, the name and the stepper (P17).
+    el("h1", { class: "screen-title sr-only", text: room.context.label || "New room" }),
     explain(EXPLAIN.wizard),
     el("p", { class: "meta" },
       info.label + " · " + rolledCount(room) + " of " + room.budget + " rolled · " +

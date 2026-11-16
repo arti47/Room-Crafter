@@ -1304,3 +1304,91 @@ body.print-view main#screen { padding-top: 12px; padding-bottom: 32px; max-width
 /* The keyword card flips over when it is drawn */
 .deck-card { animation: card-draw .32s cubic-bezier(.2, .9, .3, 1.1); transform-origin: 50% 100%; }
 @keyframes card-draw { from { transform: rotateX(70deg) translateY(10px); opacity: .2; } }
+
+/* ══ Cycle 9 — the room bar and a quieter frame (P17) ═════════════════════ */
+
+/* On room screens the room bar is the header */
+body.in-room .app-header { display: none; }
+body.in-room #room-header-host { top: 0; }
+.room-bar { display: block; padding: calc(6px + var(--safe-top)) 8px 4px; }
+.room-bar-top { display: flex; align-items: center; gap: 6px; min-height: 48px; }
+.room-back {
+  flex: 0 0 auto; width: 40px; height: 44px; display: grid; place-items: center; border-radius: var(--r-sm);
+  color: var(--ink-2); text-decoration: none;
+}
+.room-back .ico { width: 22px; height: 22px; }
+.res-title { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; line-height: 1.2; }
+.res-crawl { font-size: .72em; color: var(--ink-3); font-variant: all-small-caps; letter-spacing: .06em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.room-bar .res-name { font-size: 1.12em; font-weight: 750; }
+.room-bar .room-menu-btn { flex: 0 0 auto; border: 0; }
+.room-bar .res-chip { flex: 0 0 auto; font-size: .72em; }
+.room-bar .stepper { margin: 2px 0 0; }
+.room-bar .step-link { min-height: 48px; }
+.room-bar .step-ico { width: 32px; height: 32px; }
+.room-bar .stepper::before { top: 16px; }
+.room-bar .step-count { font-size: 1.05em; }
+.room-meta-row { min-height: 40px; margin-top: -6px; }
+.room-meta-row .room-meta { flex: 1 1 auto; margin: 0; display: flex; flex-direction: column; }
+.room-multi { font-size: .95em; }
+@media (max-width: 359px) { .room-bar .res-chip { display: none; } }
+
+/* The + lives in the pinned bar, beside the stage's action */
+.bar-row { display: flex; align-items: flex-start; gap: 8px; }
+.bar-row > .bar-stack, .bar-row > .btn-primary { flex: 1 1 auto; min-width: 0; }
+.fab.fab-bar {
+  position: static; flex: 0 0 48px; width: 48px; height: 48px; box-shadow: none;
+  border-radius: var(--r); background: var(--paper-2); color: var(--ink); border: 1px solid var(--line-strong);
+}
+.fab.fab-bar .ico { width: 24px; height: 24px; }
+
+/* Roll log: a room's keywords on one line; the date on the room's heading */
+.log-when { margin-left: auto; font-size: .8em; color: var(--ink-3); font-weight: 500; }
+.log-keywords { grid-template-columns: minmax(0, 1fr); }
+.log-keywords .log-dice { display: flex; flex-wrap: wrap; gap: 4px; }
+.log-keywords .list-main, .log-keywords .list-sub { grid-column: 1; }
+.log-keywords .list-main { font-weight: 600; }
+
+/* Continue: a hero, not a row */
+.continue-card { grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; padding: 16px; gap: 12px 10px; }
+.continue-card > .room-plan, .continue-card > .illo { grid-column: 1 / -1; width: 100%; max-width: 420px; justify-self: center; }
+.continue-card > .room-plan { view-transition-name: room-plan; }
+.continue-card .continue-text { grid-column: 1; }
+.continue-card > .ico { grid-column: 2; grid-row: 2; align-self: center; }
+.continue-card .eyebrow { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.continue-name { font-size: 1.5em; }
+.stage-search #sec-areas > .room-plan { view-transition-name: room-plan; }
+::view-transition-old(room-plan), ::view-transition-new(room-plan) { animation-duration: .32s; }
+
+/* Settings: what you change often in view, the rest folded */
+.panel-fold > summary.block-title { cursor: pointer; list-style: none; min-height: 48px; margin: 6px 0; }
+.panel-fold > summary.block-title .ico { width: 20px; height: 20px; color: var(--accent); }
+.panel-fold > summary.block-title::after { display: none; }
+.panel-fold > summary.block-title::before {
+  content: ""; order: 9; margin-left: auto; width: 8px; height: 8px;
+  border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(45deg);
+}
+.panel-fold[open] > summary.block-title::before { transform: rotate(-135deg); }
+.about-foot { border-top: 1px solid var(--line); padding-top: 8px; color: var(--ink-2); font-size: .92em; }
+.about-foot .block-title { font-size: 1em; }
+
+/* First run: the welcome is the whole screen */
+.welcome {
+  margin: 0 -16px 16px; border-radius: 0; border: 0; box-shadow: none; min-height: 62vh;
+  display: flex; flex-direction: column; justify-content: center; padding: 28px 24px;
+  background: radial-gradient(120% 80% at 50% 0%, var(--accent-soft), transparent 70%);
+}
+.welcome .illo { width: 190px; }
+.welcome-title { font-size: 1.6em; }
+
+/* Tablet: the stepper becomes a rail down the left */
+@media (min-width: 760px) {
+  body.in-room .room-bar .stepper {
+    position: fixed; left: 0; top: calc(var(--head-h) + 8px); bottom: auto;
+    width: 92px; display: flex; flex-direction: column; justify-content: flex-start; gap: 10px; margin: 0; padding: 8px 0;
+  }
+  body.in-room .room-bar .stepper::before { left: 45px; right: auto; top: 24px; bottom: 24px; width: 2px; height: auto; }
+  body.in-room main#screen, body.in-room .action-bar { padding-left: 116px; }
+  .room-bar-top { max-width: 1080px; margin: 0 auto; }
+  /* One stage at a time: one readable column, not half of two */
+  body.in-room .sheet-cols.one-stage { display: block; max-width: 680px; }
+}

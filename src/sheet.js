@@ -18,49 +18,28 @@ import {
   isWalkDone, roomHref, areaWords
 } from "./derived.js";
 
-// ── Persistent room header (sticky, under the app header) ────────────────────
-// The two or three numbers that decide every choice stay visible while you read
-// anything else (§6.2). While the room is being made, the number that matters
-// is keyword progress, not search progress.
-export function header(room) {
+// ── The room bar (sticky, replaces the app header on room screens) ──────────
+// One bar holds what used to be four rows (P17, approved deviation from §6.2):
+// the way back to the crawl, the room's name and state, the ⋯ menu, and the
+// stepper — whose Keywords and Search stations carry the numbers that decide
+// the next move (keywords rolled; Areas plus the General Area explored).
+export function header(room, stage = null) {
   if (!room) return null;
   // A room whose keyword walk is unfinished is still being made, whatever
   // Areas it already has.
   const state = isWalkDone(room) ? searchState(room) : "building";
-  const bar = el("div", { class: "res-header", "aria-label": "Room status" });
-  add(bar,
-    el("span", { class: "res-name", text: room.context.label || "Untitled room" }),
-    el("span", { class: "res-chip res-" + state, text: STATE_LABEL[state] }));
-  if (state === "building") {
-    const rolled = (room.keywords || []).length;
-    add(bar, el("div", { class: "res-row" },
-      el("span", { class: "res-stats" },
-        el("span", { class: "res-stat", title: "Keywords rolled" },
-          el("b", { text: rolled + "/" + room.budget }), el("small", { text: "Keywords" })),
-        el("span", { class: "res-stat", title: "Areas so far" },
-          el("b", { text: String(areaCount(room)) }), el("small", { text: "Areas" }))),
-      meter(Array.from({ length: room.budget }, (_, i) => ({ on: i < rolled })))));
-    return bar;
-  }
-  // One segment per Area in play order, then the General Area, outlined.
-  const segs = [...room.areas].sort((a, b) => a.order - b.order).map(a => ({ on: !!a.search }));
-  segs.push({ on: generalDone(room), gen: true });
-  add(bar, el("div", { class: "res-row" },
-    el("span", { class: "res-stats" },
-      el("span", { class: "res-stat", title: "Areas plus the General Area, searched" },
-        el("b", { text: searchedTotal(room) + "/" + totalExplorable(room) }),
-        el("small", { text: "Explored" })),
-      el("span", { class: "res-stat", title: "The General Area — the room itself" },
-        el("b", { text: generalDone(room) ? "done" : "open" }),
-        el("small", { text: "General" }))),
-    meter(segs, state === "complete")));
+  const crawl = store.crawl(room.crawlId);
+  const bar = el("div", { class: "res-header room-bar", "aria-label": "Room status" });
+  add(bar, el("div", { class: "room-bar-top" },
+    crawl ? el("a", { class: "room-back", href: "#/crawl/" + crawl.id, "aria-label": "Back to " + crawl.name }, icon("chev-l")) : null,
+    el("div", { class: "res-title" },
+      crawl ? el("span", { class: "res-crawl", text: crawl.name }) : null,
+      el("span", { class: "res-name", text: room.context.label || "Untitled room" })),
+    el("span", { class: "res-chip res-" + state, text: STATE_LABEL[state] }),
+    isWalkDone(room) ? el("button", { class: "icon-btn room-menu-btn", type: "button", "aria-label": "Room actions",
+      onclick: () => roomMenu(room) }, icon("more")) : null));
+  add(bar, stepper(room, stage || naturalStage(room)));
   return bar;
-}
-
-function meter(segs, complete = false) {
-  const m = el("span", { class: "meter-seg" + (complete ? " meter-complete" : ""), "aria-hidden": "true" });
-  for (const sg of segs) add(m, el("i", { class: (sg.on ? "on" : "") + (sg.gen ? " gen" : "") }));
-  return m;
 }
 
 // ── Screen ───────────────────────────────────────────────────────────────────
@@ -111,10 +90,14 @@ export function stepper(room, current) {
   const nav = el("nav", { class: "stepper", "aria-label": "Stages of the room" });
   for (const st of STAGES) {
     const on = st.id === current;
-    const extra = st.id === "search" && isWalkDone(room) ? searchedTotal(room) + "/" + totalExplorable(room) : null;
+    const extra = st.id === "search" && isWalkDone(room) ? searchedTotal(room) + "/" + totalExplorable(room)
+      : st.id === "keywords" && !isWalkDone(room) ? (room.keywords || []).length + "/" + room.budget : null;
+    const label = st.id === "search" && isWalkDone(room)
+      ? st.label + ": " + searchedTotal(room) + " of " + totalExplorable(room) + " explored, General Area " + (generalDone(room) ? "done" : "open")
+      : extra ? st.label + ": " + extra : st.label;
     add(nav, el("a", {
       class: "step-link" + (on ? " on" : "") + (done[st.id] ? " ok" : ""),
-      href: stageHref(room, st.id), "aria-current": on ? "step" : null
+      href: stageHref(room, st.id), "aria-current": on ? "step" : null, "aria-label": label
     }, el("span", { class: "step-ico" }, icon(st.icon)),
        el("span", { class: "step-label", text: st.label }),
        extra ? el("span", { class: "step-count", text: extra }) : null));
@@ -137,19 +120,15 @@ export function render(params) {
   const stage = STAGES.some(x => x.id === params.stage && x.id !== "keywords") ? params.stage : naturalStage(room);
 
   const content = el("div", { class: "room-screen stage-" + stage });
-  const crawl = store.crawl(room.crawlId);
+  // The bar above names the room; the heading stays for screen readers, and
+  // the line under it carries the room type and the ⓘ.
   add(content,
-    crawl ? crumb("#/crawl/" + crawl.id, crawl.name) : null,
-    stepper(room, stage),
-    el("div", { class: "title-row" },
-      el("h1", { class: "screen-title", text: room.context.label || "Untitled room" }),
-      el("button", { class: "icon-btn room-menu-btn", type: "button", "aria-label": "Room actions",
-        onclick: () => roomMenu(room) }, icon("more")),
+    el("div", { class: "title-row room-meta-row" },
+      el("h1", { class: "screen-title sr-only", text: room.context.label || "Untitled room" }),
+      el("p", { class: "meta room-meta" },
+        room.context.roomType || "",
+        room.context.multiRoomNote ? el("span", { class: "room-multi", text: "Covers several spaces: " + room.context.multiRoomNote }) : null),
       explain(EXPLAIN.room)),
-    room.context.roomType ? el("p", { class: "meta", text: room.context.roomType }) : null,
-    room.context.multiRoomNote
-      ? el("p", { class: "meta", text: "Covers several spaces: " + room.context.multiRoomNote })
-      : null,
     stage === "record" ? jumpRow() : null
   );
 
@@ -166,8 +145,10 @@ export function render(params) {
   if (stage === "done") add(content, doneBlock(room));
   if (stage === "record") add(content, pager(room));
 
-  if (stage !== "done" && stage !== "record") add(content, fab(room));
-  const [bar, spacer] = actionBar(stage === "done" ? doneAction(room) : primaryAction(room));
+  // The pinned bar: on a play stage, the + beside that stage's own action.
+  const playing = stage !== "done" && stage !== "record";
+  const main = stage === "done" ? doneAction(room) : stage === "record" ? primaryAction(room) : stagePrimary(room, stage);
+  const [bar, spacer] = actionBar(playing ? el("div", { class: "bar-row" }, fab(room), main) : main);
   add(content, spacer);
   return { title: "Room", content, bar };
 }
@@ -216,7 +197,7 @@ function deleteRoom(room) {
 // question (R38), look for something hidden (R24), keep a note.
 function fab(room) {
   const counts = { ask: (room.questions || []).length, hidden: (room.hidden || []).length };
-  return el("button", { class: "fab", type: "button", "aria-label": "Ask, search for hidden things, or add a note",
+  return el("button", { class: "fab fab-bar", type: "button", "aria-label": "Ask, search for hidden things, or add a note",
     onclick: () => {
       const row = (iconName, label, n, build) =>
         el("button", { class: "menu-row", type: "button", onclick: () => foldSheet(room, label, build) },
@@ -288,7 +269,23 @@ function doneAction(room) {
 // it follows the article's own order: ask → search → General Area → finish.
 function primaryAction(room) {
   const next = nextStep(room);
-  if (next.step === "ask") {
+  if (next.step === "ask") return askPrimary(room);
+  if (next.step === "search") {
+    return el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => doSearch(room, next.areaId) },
+      "Search: " + trim(next.areaName, 28));
+  }
+  if (next.step === "general") {
+    return el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => doGeneral(room) },
+      "Search the General Area");
+  }
+  return el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => finishRoom(room) },
+    "Finish this room");
+}
+
+// The encounter question as the pinned action: ask it (or go and record it,
+// with Mythic off), or pass it over — a permission, recorded (R9).
+function askPrimary(room) {
+  {
     if (Settings.useMythic()) {
       return el("div", { class: "bar-stack" },
         el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => askEncounter(room, mythic.DEFAULT_ODDS) },
@@ -304,16 +301,29 @@ function primaryAction(room) {
       el("button", { class: "btn-link", type: "button", onclick: () => { lifecycle.skipEncounter(room); toNatural(room); } },
         "Skip the question"));
   }
-  if (next.step === "search") {
-    return el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => doSearch(room, next.areaId) },
-      "Search: " + trim(next.areaName, 28));
+}
+
+// The primary on a play stage is that stage's own action (P17, superseding
+// P13's single procedure-walker; Record keeps it). The room still opens on the
+// procedure's stage (R9), so an unasked room lands on Encounter first.
+function stagePrimary(room, stage) {
+  const btn = (label, fn) => el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: fn }, label);
+  const go = id => () => { location.hash = stageHref(room, id); };
+  const nextLink = (id, label) => el("button", { class: "btn-link", type: "button", onclick: go(id) }, label + " ›");
+  if (stage === "describe") {
+    if (!room.description) return el("div", { class: "bar-stack" }, btn("Describe it", () => describeRoom(room)), nextLink("encounter", "Encounter"));
+    return btn("Next: Encounter", go("encounter"));
   }
-  if (next.step === "general") {
-    return el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => doGeneral(room) },
-      "Search the General Area");
+  if (stage === "encounter") {
+    if (!room.encounter && !room.encounterSkipped) return askPrimary(room);
+    return btn("Next: Search", go("search"));
   }
-  return el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => finishRoom(room) },
-    "Finish this room");
+  // Search: the next unsearched Area in play order, then the General Area,
+  // then the way to Done. One roll each, as ever (R11, R19).
+  const area = [...room.areas].sort((a, b) => a.order - b.order).find(a => !a.search);
+  if (area) return btn("Search: " + trim(area.name, 28), () => doSearch(room, area.id));
+  if (canSearchGeneral(room)) return btn("Search the General Area", () => doGeneral(room));
+  return btn("Finish this room", () => finishRoom(room));
 }
 
 function trim(s, n) { return s.length > n ? s.slice(0, n - 1) + "…" : s; }
@@ -344,17 +354,22 @@ function descriptionBlock(room) {
   } else {
     add(box, hint("describe", "Not described yet. The Areas are its main features — write the room from them, and add whatever else obviously belongs."));
   }
-  add(box, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
-    promptModal({
-      title: "Describe the room",
-      label: "What does it look like?",
-      value: room.description,
-      multiline: true,
-      hint: "Extras you add here are scenery, not Areas — they cannot be searched.",
-      onConfirm: v => { room.description = v; store.saveRoom(room); rerender(); }
-    });
-  } }, room.description ? "Edit description" : "Describe it"));
+  add(box, el("button", { class: "btn btn-quiet", type: "button", onclick: () => describeRoom(room) },
+    room.description ? "Edit description" : "Describe it"));
   return box;
+}
+
+// One prompt for the description, from the block or from the pinned bar.
+// Embellishments are scenery, not Areas (R8).
+function describeRoom(room) {
+  promptModal({
+    title: "Describe the room",
+    label: "What does it look like?",
+    value: room.description,
+    multiline: true,
+    hint: "Extras you add here are scenery, not Areas — they cannot be searched.",
+    onConfirm: v => { room.description = v; store.saveRoom(room); rerender(); }
+  });
 }
 
 function encounterBlock(room) {
@@ -715,8 +730,6 @@ function findBlock(room, find, { areaId, redraw = rerender, working = false }) {
     el("b", { text: find.elementName })));
   // In the result dialog, the working: where the die fell on Room Elements.
   if (working) add(box, workingStrip(ROOM_ELEMENTS, elementBands, find.roll, find.elementName));
-  // On the sheet, the journal line: what you said it was (P16).
-  if (!working) add(box, journalLine(room, find, find.elementName));
   add(box, el("p", { class: "prose", text: elementBlurb(find.elementId) }));
   if (["expected", "enhanced", "minimized"].includes(find.elementId)) {
     add(box, el("p", { class: "hint" },
@@ -769,6 +782,8 @@ function findBlock(room, find, { areaId, redraw = rerender, working = false }) {
       add(box, el("p", { class: "hint", text: "No idea? Ask a Fate Question or Discover Meaning on your own tables." }));
     }
   }
+  // Last, the payoff: what you said it was (P16) — under the thing it answers.
+  if (!working) add(box, journalLine(room, find, find.elementName));
   return box;
 }
 

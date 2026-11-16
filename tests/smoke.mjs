@@ -190,7 +190,7 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
 
   const logRows = await (async () => {
     await goto(page, site, "#/log");
-    return page.$$eval("#screen .list-row", ns => ns.length);
+    return page.$$eval("#screen .log-row .die", ns => ns.length);         // every die, keyword lines included
   })();
   r.check("e2e: every roll reached the log", logRows >= 7, "rows: " + logRows);
   r.check("e2e: no console errors across the whole walk", page.__errors.length === 0, page.__errors[0]);
@@ -253,16 +253,16 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   r.check("link: every tutorial step links to where it is done", goes.length === 10 && goes.every(h => /^#\/(crawls|crawl\/|room\/|wizard\/|rules\/|settings)/.test(h)), goes.join(" "));
   r.check("link: the room steps lead to the open room", goes.filter(h => /^#\/(room|wizard)\//.test(h)).length === 6, goes.join(" "));
   await goto(page, site, "#/record");
-  r.check("link: the room sheet leads back to its crawl", !!(await page.$('#screen a.crumb[href^="#/crawl/"]')));
+  r.check("link: the room sheet leads back to its crawl", !!(await page.$('#room-header-host a.room-back[href^="#/crawl/"]')));
   r.check("link: the room sheet leads to its neighbours in the crawl", (await page.$$("#screen .pager a")).length >= 1);
-  const crawlHref = await page.$eval("#screen a.crumb", n => n.getAttribute("href"));
+  const crawlHref = await page.$eval("#room-header-host a.room-back", n => n.getAttribute("href"));
   await goto(page, site, crawlHref);
   r.check("link: the crawl leads back to the crawl list", !!(await page.$('#screen a.crumb[href="#/crawls"]')));
   await goto(page, site, "#/log");
   r.check("link: a roll-log room heading leads to its room", (await page.$$('#screen .log-group a[href^="#/room/"], #screen .log-group a[href^="#/wizard/"]')).length >= 1);
   const wiz = await page.evaluate(() => JSON.parse(localStorage.getItem("rc.rooms")).find(r => r.keywords.length < r.budget || r.keywords.some(k => k.use === "pending")).id);
   await goto(page, site, "#/wizard/" + wiz);
-  r.check("link: the keyword walk leads back to its crawl", !!(await page.$('#screen a.crumb[href^="#/crawl/"]')));
+  r.check("link: the keyword walk leads back to its crawl", !!(await page.$('#room-header-host a.room-back[href^="#/crawl/"]')));
 
   // A result dialog shows its working: the table as a strip, the roll marked.
   await goto(page, site, "#/room");
@@ -288,7 +288,7 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   const page = await newPage(browser, site, { seed: "mid-crawl" });
   await goto(page, site, "#/room");
   // The ⋯ menu carries the print; so does the Done stage, where a record is wanted.
-  await page.click("#screen .room-menu-btn");
+  await page.click("#room-header-host .room-menu-btn");
   await until(page, () => !!document.querySelector(".modal-card .menu-list"));
   const menu = await page.$$eval(".modal-card .menu-row", ns => ns.map(n => n.textContent.trim()));
   r.check("link: the room menu offers the print record", menu.includes("Print this room"), menu.join(" | "));
@@ -366,7 +366,7 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   const page = await newPage(browser, site, { seed: "mid-crawl" });
   await goto(page, site, "#/room");
   r.check("stage: four tabs, Play first", (await page.$$eval(".tab", ns => ns.map(n => n.textContent.trim()))).join("|").startsWith("Play"));
-  const steps = await page.$$eval("#screen .stepper a", ns => ns.map(n => n.getAttribute("href")));
+  const steps = await page.$$eval("#room-header-host .stepper a", ns => ns.map(n => n.getAttribute("href")));
   r.check("stage: the stepper links all six stages", steps.length === 6 && /^#\/wizard\//.test(steps[0]) && steps.slice(1).every(h => /^#\/room\/[^/]+\/(describe|encounter|search|done|record)$/.test(h)), steps.join(" "));
   const vis = id => page.evaluate(i => { const n = document.getElementById(i); return !!n && !n.hidden && n.getBoundingClientRect().height > 0; }, id);
   r.check("stage: an unasked room opens on its Encounter stage", await vis("sec-encounter") && !(await vis("sec-areas")));
@@ -390,7 +390,7 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   const n2 = await page.evaluate(() => JSON.parse(localStorage.getItem("rc.rollLog")).length);
   r.check("plan: tapping a searched Area never rolls again (R11)", n1 === n2 && !(await page.$(".modal-backdrop")), n1 + " → " + n2);
   // The + menu.
-  await page.click("#screen .fab");
+  await page.click("#action-bar-host .fab");
   await until(page, () => !!document.querySelector(".modal-card .menu-list"));
   const fabRows = await page.$$eval(".modal-card .menu-row", ns => ns.map(n => n.textContent.trim().replace(/\d+$/, "")));
   r.check("fab: the + menu holds Ask the GM, Hidden things and Notes", fabRows.join("|") === "Ask the GM|Hidden things|Notes", fabRows.join("|"));
@@ -408,8 +408,11 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
     await page.click("#sec-encounter .coach .coach-ok");
     r.check("coach: Got it folds it to an ⓘ", await until(page, n => document.querySelectorAll("#sec-encounter .coach").length === n - 1 && !!document.querySelector("#sec-encounter .hint-i"), 1500, c0));
     await goto(page, site, "#/room/" + id + "/encounter");
-    r.check("coach: and it stays folded, words intact", (await count()) === c0 - 1 && /Ask it once/.test(await page.$eval("#sec-encounter", n => n.textContent)));
+    r.check("coach: and it stays folded, words intact",
+      await page.evaluate(() => !Array.from(document.querySelectorAll("#sec-encounter .coach")).some(c => /Ask it once/.test(c.textContent)) && /Ask it once/.test(document.querySelector("#sec-encounter").textContent)));
   }
+  r.check("coach: never more than one in full on a screen",
+    (await page.$$eval("#screen .coach", ns => ns.filter(n => !n.closest("[hidden]")).length)) <= 1);
   // Home continues the open room.
   await goto(page, site, "#/crawls");
   r.check("home: Continue leads back into the open room", !!(await page.$('#screen a.continue-card[href^="#/room/"]')));
@@ -477,10 +480,33 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   r.check("quest: the answer is kept on the room", await until(page, i => JSON.parse(localStorage.getItem("rc.rooms")).find(r => r.id === i).progress === "closer", 1500, id));
   await page.click("#sec-done .progress-pick .progress-closer");
   r.check("quest: tapping it again clears it", await until(page, i => JSON.parse(localStorage.getItem("rc.rooms")).find(r => r.id === i).progress === null, 1500, id));
-  await page.click("#screen .room-menu-btn");
+  await page.click("#room-header-host .room-menu-btn");
   await until(page, () => !!document.querySelector(".modal-card .menu-list"));
   r.check("link: the room menu leads to the journal", (await page.$$eval(".modal-card .menu-row", ns => ns.map(n => n.textContent.trim()))).includes("Journal"));
   r.check("journal: no console errors", page.__errors.length === 0, page.__errors[0]);
+  await page.context().close();
+}
+
+// P17 — the room bar, and a primary that follows the stage.
+{
+  const page = await newPage(browser, site, { seed: "mid-crawl" });
+  await goto(page, site, "#/room");
+  const id = await page.evaluate(() => location.hash.split("/")[2]);
+  const frame = await page.evaluate(() => ({
+    appHeader: getComputedStyle(document.querySelector(".app-header")).display,
+    firstTop: Math.round(document.querySelector("#sec-encounter").getBoundingClientRect().top)
+  }));
+  r.check("room bar: replaces the app header on a room", frame.appHeader === "none", JSON.stringify(frame));
+  r.check("room bar: the play area starts above 220px (was 331)", frame.firstTop < 220, JSON.stringify(frame));
+  const primary = async st => { await goto(page, site, "#/room/" + id + "/" + st); return page.$eval("#action-bar-host .btn-primary", n => n.textContent.trim()); };
+  r.check("stage primary: Encounter asks", /encounter/i.test(await primary("encounter")));
+  r.check("stage primary: Search searches, even before the question is asked", /^Search/.test(await primary("search")));
+  const desc = await primary("describe");
+  r.check("stage primary: Describe moves on once described", /Encounter/.test(desc), desc);
+  r.check("stage primary: Record still walks the procedure", /encounter/i.test(await primary("record")));
+  await goto(page, site, "#/crawls");
+  r.check("room bar: the app header is back off the room", (await page.evaluate(() => getComputedStyle(document.querySelector(".app-header")).display)) !== "none");
+  r.check("room bar: no console errors", page.__errors.length === 0, page.__errors[0]);
   await page.context().close();
 }
 
@@ -568,7 +594,13 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
     }
     await page.click("#action-bar-host .btn-primary");
     await until(page, () => location.hash.startsWith("#/room/"));
-    await page.click("#action-bar-host .btn-link");          // skip the encounter question
+    // An undescribed room opens on Describe: "Encounter ›" to move on, then
+    // Skip the question there (P17: the bar follows the stage).
+    for (let hop = 0; hop < 3; hop++) {
+      if (/^Search:/.test(await page.$eval("#action-bar-host .btn-primary", n => n.textContent))) break;
+      await page.click("#action-bar-host .btn-link");
+      await page.waitForTimeout(80);
+    }
     await until(page, () => /^Search:/.test(document.querySelector("#action-bar-host .btn-primary").textContent));
   }
 
