@@ -128,7 +128,10 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
     n.value = String(5);                                                   // Impossible … Likely is the sixth stop
     n.dispatchEvent(new Event("input", { bubbles: true }));
   });
-  await page.click("#sec-encounter .btn-secondary");                    // Ask
+  r.check("one Ask: the encounter dial has no button of its own", !(await page.$("#sec-encounter .asker button")));
+  const barLabel = await page.$eval("#ask-encounter", n => n.textContent);
+  r.check("one Ask: the bar's Ask reads the dial", /\(Likely\)/.test(barLabel), barLabel);
+  await page.click("#ask-encounter");                                     // Ask, from the bar
   r.check("e2e: Ask The GM produced an answer",
     await until(page, () => !!document.querySelector(".modal-backdrop")));
   const answerText = await page.$eval(".modal-card", n => n.textContent);

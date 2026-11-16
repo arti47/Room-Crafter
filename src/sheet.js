@@ -284,12 +284,16 @@ function primaryAction(room) {
 
 // The encounter question as the pinned action: ask it (or go and record it,
 // with Mythic off), or pass it over — a permission, recorded (R9).
+// The encounter dial sets the odds; this button reads them (one Ask, not two).
+const encounterOdds = new Map();
+const shortOdds = id => mythic.oddsById(id).name.split(" or ")[0];
 function askPrimary(room) {
   {
     if (Settings.useMythic()) {
+      const odds = () => encounterOdds.get(room.id) || mythic.DEFAULT_ODDS;
       return el("div", { class: "bar-stack" },
-        el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: () => askEncounter(room, mythic.DEFAULT_ODDS) },
-          "Ask: is there an encounter? (50/50)"),
+        el("button", { class: "btn btn-primary btn-wide", type: "button", id: "ask-encounter", onclick: () => askEncounter(room, odds()) },
+          "Ask: is there an encounter? (", el("span", { id: "ask-encounter-odds", text: shortOdds(odds()) }), ")"),
         el("button", { class: "btn-link", type: "button", onclick: () => { lifecycle.skipEncounter(room); toNatural(room); } },
           "Skip the question"));
     }
@@ -405,7 +409,15 @@ function encounterBlock(room) {
   }
 
   if (Settings.useMythic()) {
-    add(box, oddsAsker(room, "Is there an encounter?", odds => askEncounter(room, odds)));
+    // The pinned bar asks whenever this dial shows (both read nextStep "ask"),
+    // so the dial carries no button of its own.
+    add(box, oddsAsker(room, "Is there an encounter?", null, {
+      initial: encounterOdds.get(room.id),
+      onChange: o => {
+        encounterOdds.set(room.id, o);
+        const l = document.getElementById("ask-encounter-odds");
+        if (l) l.textContent = shortOdds(o);
+      } }));
   } else {
     add(box, el("p", { class: "prose", text: "Mythic is switched off, so roll the question on your own tables and record what you got." }),
       el("span", { class: "badge badge-guidance", text: "not automated" }));
@@ -436,10 +448,10 @@ function askEncounter(room, odds) {
 // drawn below it. Every row is one drag away (R31); 50/50 is where it rests
 // (DEFAULT_ODDS). Shared by every question the app asks.
 let dialSeq = 0;
-function oddsAsker(room, question, onAsk, { buttonLabel = "Ask" } = {}) {
+function oddsAsker(room, question, onAsk, { buttonLabel = "Ask", initial = null, onChange = null } = {}) {
   // The chart lists Certain first; the dial reads left to right, low to high.
   const rows = [...mythic.ODDS].reverse();
-  let odds = mythic.DEFAULT_ODDS;
+  let odds = initial || mythic.DEFAULT_ODDS;
   const id = "odds-" + (++dialSeq);
   const wrap = el("div", { class: "asker" });
   const name = el("output", { class: "dial-name", for: id, text: mythic.oddsById(odds).name });
@@ -452,7 +464,7 @@ function oddsAsker(room, question, onAsk, { buttonLabel = "Ask" } = {}) {
   };
   const range = el("input", { class: "dial", type: "range", id, min: "0", max: String(rows.length - 1), step: "1",
     value: String(rows.findIndex(r => r.id === odds)), "aria-labelledby": id + "-l",
-    oninput: e => { odds = rows[Number(e.target.value)].id; draw(); } });
+    oninput: e => { odds = rows[Number(e.target.value)].id; draw(); if (onChange) onChange(odds); } });
   const ticks = el("div", { class: "dial-ticks", "aria-hidden": "true" }, rows.map(() => el("i")));
   draw();
   add(wrap,
@@ -461,7 +473,7 @@ function oddsAsker(room, question, onAsk, { buttonLabel = "Ask" } = {}) {
       el("div", { class: "dial-ends", "aria-hidden": "true" },
         el("span", { text: rows[0].name }), el("span", { text: rows[rows.length - 1].name }))),
     gauge,
-    el("button", { class: "btn btn-secondary btn-wide", type: "button", onclick: () => onAsk(odds) }, buttonLabel),
+    onAsk ? el("button", { class: "btn btn-secondary btn-wide", type: "button", onclick: () => onAsk(odds) }, buttonLabel) : null,
     hint("odds", mythic.MYTHIC_EXPLAIN.ask)
   );
   return wrap;

@@ -721,3 +721,9 @@ single stage reads in one 680px column, not half of two.
 **Deviation recorded:** the template's LOCKED app header (§6.2) is hidden on
 room and keyword-walk screens; theme stays in Settings and on every other
 screen. CLAUDE.md §1.0.
+
+**A-74 · Two Asks on the Encounter stage; the bar's ignored the dial.** The
+pinned "Ask … (50/50)" always asked at 50/50 whatever the dial said. *Fix:* the
+dial carries no button there; the bar's Ask reads the dial and names the odds
+live. *Guard:* "one Ask: the bar's Ask reads the dial" — watched go red with
+the dial unwired.
