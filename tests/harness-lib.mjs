@@ -1,11 +1,24 @@
 // Shared browser plumbing for harnesses B and C and both probes.
 import { chromium } from "playwright-core";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import { serve, ROUTES } from "./serve.mjs";
 
 export { ROUTES };
 
-export const EXEC = process.env.PW_CHROMIUM || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
+// The container's Chromium moves between versions (H-17): take PW_CHROMIUM,
+// else the stable alias, else whichever chromium-* build is installed.
+function findChromium() {
+  if (process.env.PW_CHROMIUM) return process.env.PW_CHROMIUM;
+  const root = "/opt/pw-browsers";
+  const candidates = [root + "/chromium"];
+  try {
+    for (const d of readdirSync(root).filter(n => /^chromium-\d+$/.test(n)).sort().reverse()) {
+      candidates.push(root + "/" + d + "/chrome-linux64/chrome", root + "/" + d + "/chrome-linux/chrome");
+    }
+  } catch { /* no browsers dir */ }
+  return candidates.find(p => { try { return statSync(p).isFile(); } catch { return false; } }) || candidates[0];
+}
+export const EXEC = findChromium();
 
 export async function launch() {
   const site = await serve();

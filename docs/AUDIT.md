@@ -670,3 +670,8 @@ menu and Done, and back to the crawl and to each room.
 **House rule, labelled:** explorer, goal and per-room progress. They roll
 nothing and gate nothing; every surface that shows them carries the "house
 rule" badge (process rule 10).
+
+**H-17 · The harnesses hard-coded a Chromium build path** (`chromium-1194`); the
+container moved to `chromium-1243` and every browser harness failed to launch.
+*Fix:* `harness-lib.findChromium()` — `PW_CHROMIUM`, else the stable alias,
+else the newest installed `chromium-*` build.
