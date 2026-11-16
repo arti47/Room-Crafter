@@ -5,7 +5,7 @@ import {
   refuse, ruleLink, emptyState, shareText, iconTitle, icon, crumb, copyText, hint, houseAidBadge
 } from "./ui.js";
 import { GOAL_PROGRESS } from "../data-house-roomtypes.js";
-import { roomPlan, planHero, bandStrip, elementBands, oddsBands, elementGlyph, illustration, findTone } from "./graphics.js";
+import { planHero, bandStrip, elementBands, oddsBands, elementGlyph, illustration, findTone } from "./graphics.js";
 import { EXPLAIN, MEANING_TABLES, ENCOUNTER_ANSWERS, ROOM_ELEMENTS } from "../data.js";
 import * as store from "./store.js";
 import * as roller from "./roller.js";
@@ -239,7 +239,7 @@ function doneBlock(room) {
   const lines = lifecycle.roomSummary(room);
   add(box,
     isComplete(room) ? el("p", { class: "stamp stamp-lg", "aria-hidden": "true", text: STATE_LABEL.complete }) : null,
-    roomPlan(room),
+    planHero(room),
     el("ul", { class: "summary done-summary done-tiles" }, lines.map(summaryTile)),
     !isComplete(room) ? el("p", { class: "hint", text: "Areas are still unsearched. That is a real state — the room is described rather than searched, and you can come back to it." }) : null,
     el("p", { class: "hint" }, "Searching is optional — a room you only looked at is a finished room. ", ruleLink("complete", "The rule"), "."),

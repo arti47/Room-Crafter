@@ -94,10 +94,12 @@ export function render(params) {
   add(content,
     // The room bar above carries the way back, the name and the stepper (P17).
     el("h1", { class: "screen-title sr-only", text: room.context.label || "New room" }),
-    el("p", { class: "meta" },
-      info.label + " · " + rolledCount(room) + " of " + room.budget + " rolled · " +
-      (room.areas || []).length + " Area" + ((room.areas || []).length === 1 ? "" : "s") +
-      " so far (expect " + info.areas[0] + "–" + info.areas[1] + ")")
+    // The same facts as chips, the counts set large (P18).
+    el("p", { class: "walk-chips" },
+      el("span", { class: "chip-fact" }, info.label),
+      el("span", { class: "chip-fact" }, el("b", { text: rolledCount(room) + " of " + room.budget }), " rolled"),
+      el("span", { class: "chip-fact" }, el("b", { text: String((room.areas || []).length) }),
+        " Area" + ((room.areas || []).length === 1 ? "" : "s") + " so far (expect " + info.areas[0] + "–" + info.areas[1] + ")"))
   );
 
   // Progress: one cell per keyword in the budget, showing the word and what it
@@ -166,9 +168,11 @@ export function render(params) {
   const leftCol = el("div", { class: "col" });
   const rightCol = el("div", { class: "col" });
   add(card, el("p", { class: "eyebrow", text: pend.length > 1 ? "Combined" : "Keyword " + pend[0].n }));
-  add(card, el("p", { class: "keyword-word" }, words));
-  add(card, el("p", { class: "keyword-dice", "aria-label": "Rolled " + pend.map(k => "d100 " + k.roll).join(", ") },
-    pend.map(k => el("span", { class: "die die-sm", text: String(k.roll) }))));
+  // The word and its die on one line (P18: the compact walk).
+  add(card, el("div", { class: "keyword-line" },
+    el("p", { class: "keyword-word" }, words),
+    el("p", { class: "keyword-dice", "aria-label": "Rolled " + pend.map(k => "d100 " + k.roll).join(", ") },
+      pend.map(k => el("span", { class: "die die-sm", text: String(k.roll) })))));
   const nameField = el("input", { class: "field kw-name", type: "text", id: "kw-name", autocomplete: "off",
     placeholder: "a shelf of tonics", "aria-label": words + " — what is it?" });
   const make = () => {
@@ -183,11 +187,12 @@ export function render(params) {
       : "Does this suggest something in this room? If it does, name it. If not, carry it forward." }));
   add(leftCol, el("div", { class: "deck" + (left > 0 ? " deck-" + Math.min(left, 3) : "") }, card));
 
-  const controls = el("div", { class: "stack deck-actions" });
-  add(controls, el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: make }, "Make this an Area"));
+  // One pinned action; carrying and dropping (R3–R5) sit on the card under
+  // the field, each its own control with its own refusal.
+  const controls = el("div", { class: "card-alts" });
 
   if (canCarry(room)) {
-    add(controls, el("button", { class: "btn btn-quiet btn-wide", type: "button", onclick: () => {
+    add(controls, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
       const r = carryForward(room);
       if (!r.ok) return refuse(r.reason, r.ruleId);
       rerender();
@@ -198,7 +203,7 @@ export function render(params) {
   }
 
   if (canDrop(room)) {
-    add(controls, el("button", { class: "btn btn-quiet btn-wide", type: "button", onclick: () => {
+    add(controls, el("button", { class: "btn btn-quiet", type: "button", onclick: () => {
       const r = dropLast(room);
       if (!r.ok) return refuse(r.reason, r.ruleId);
       showToast("Dropped. Going with the Areas you have.");
@@ -206,7 +211,8 @@ export function render(params) {
     } }, "Drop it and finish"));
   }
 
-  const [b2, spacer2] = actionBar(controls);
+  if (controls.children.length) add(card, controls);
+  const [b2, spacer2] = actionBar(el("button", { class: "btn btn-primary btn-wide", type: "button", onclick: make }, "Make this an Area"));
   bar = b2;
   add(rightCol, areaList(room, words), keywordTrail(room));
   add(cols, leftCol, rightCol);

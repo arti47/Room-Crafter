@@ -30,7 +30,8 @@ export function crawls() {
     for (const c of list) {
       const s = crawlSummary(c.id);
       const rs = store.rooms(c.id);
-      const latest = rs[rs.length - 1];
+      // The most recent room that has a plan to draw (a room still being made may not).
+      const latest = [...rs].reverse().find(r => (r.areas || []).length);
       add(ul, el("li", {}, el("a", { class: "row-card", href: "#/crawl/" + c.id },
         latest && (latest.areas || []).length ? el("span", { class: "row-thumb", "aria-hidden": "true" }, roomPlan(latest)) : null,
         el("span", { class: "row-main", text: c.name }),
@@ -347,11 +348,13 @@ export function distribution() {
     ));
   }
   add(chart, el("p", { class: "chart-legend", "aria-hidden": "true" }, el("i", {}), "expected"));
-  add(content, chart);
-  add(content, el("p", { class: "meta", text: total + " rolls · expected " + (total / 10).toFixed(1) + " per band" }));
-  // Every face, 1 to 100 in rows of ten: darker means rolled more often.
-  add(content, el("div", { class: "heat" }, heatGrid(counts),
-    el("p", { class: "heat-axis", "aria-hidden": "true" }, el("span", { text: "1" }), el("span", { text: "100" }))));
+  // The bands and every face, side by side from tablet width (P18).
+  add(content, el("div", { class: "dist-pair" },
+    el("div", {}, chart,
+      el("p", { class: "meta", text: total + " rolls · expected " + (total / 10).toFixed(1) + " per band" })),
+    // Every face, 1 to 100 in rows of ten: darker means rolled more often.
+    el("div", { class: "heat" }, heatGrid(counts),
+      el("p", { class: "heat-axis", "aria-hidden": "true" }, el("span", { text: "1" }), el("span", { text: "100" })))));
   return { title: "Distribution", content };
 }
 
@@ -424,13 +427,22 @@ export function rules(params) {
 export function settingsScreen() {
   const content = el("div", {});
   add(content, el("h1", { class: "screen-title", text: "Settings" }), explain(EXPLAIN.settings));
+  // A sticky jump row over the panels (P18); a folded panel opens on arrival.
+  const jump = (id, label) => el("button", { class: "pill", type: "button", onclick: () => {
+    const t = document.getElementById(id);
+    if (!t) return;
+    if (t.tagName === "DETAILS") t.open = true;
+    t.scrollIntoView({ block: "start" });
+  } }, label);
+  add(content, el("nav", { class: "section-nav settings-jump", "aria-label": "Settings sections" },
+    jump("set-appearance", "Appearance"), jump("set-content", "Content"), jump("set-data", "Your data"), jump("set-undo", "Undo and erase")));
 
   const grid = el("div", { class: "settings-grid" });
   const left = el("div", {}), right = el("div", {});
   add(grid, left, right);
   add(content, grid);
 
-  add(left, el("section", { class: "block panel" },
+  add(left, el("section", { class: "block panel", id: "set-appearance" },
     el("h2", { class: "block-title", text: "Appearance" }),
     choiceRow("Theme", [
       { id: "system", label: "System" }, { id: "light", label: "Light" }, { id: "dark", label: "Dark" }
@@ -440,7 +452,7 @@ export function settingsScreen() {
     ], String(settings.get("textScale")), v => { settings.set("textScale", Number(v)); rerender(); }, "size-row")
   ));
 
-  add(left, el("section", { class: "block panel" },
+  add(left, el("section", { class: "block panel", id: "set-content" },
     el("h2", { class: "block-title", text: "Content" }),
     toggleRow("Show house-aid suggestions", "The room-type list is invented for this app — the article has no such table. Turn it off to type your own only.",
       settings.get("showHouseAids"), v => { settings.set("showHouseAids", v); rerender(); }),
@@ -450,7 +462,7 @@ export function settingsScreen() {
   ));
 
   // Rarely touched: folded, one tap away (P17).
-  add(right, el("details", { class: "block panel panel-fold" },
+  add(right, el("details", { class: "block panel panel-fold", id: "set-data" },
     el("summary", { class: "block-title" }, icon("quill"), el("span", { text: "Your data" })),
     el("p", { class: "prose", text: "Everything lives in this browser and nowhere else. Export writes plain JSON you can read, keep and re-import." }),
     el("div", { class: "stack" },
@@ -474,7 +486,7 @@ export function settingsScreen() {
   ));
 
   const last = store.lastUndo();
-  add(right, el("details", { class: "block panel panel-fold" },
+  add(right, el("details", { class: "block panel panel-fold", id: "set-undo" },
     el("summary", { class: "block-title" }, icon("flag"), el("span", { text: "Undo and erase" })),
     el("div", { class: "stack" },
       el("button", { class: "btn btn-quiet btn-wide", type: "button", disabled: !last, onclick: () => {

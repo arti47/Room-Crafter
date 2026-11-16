@@ -547,6 +547,11 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
     const h = document.querySelector("#screen h1"), nav = document.querySelector("#screen .section-nav, #screen nav");
     return !!h && !!nav && (h.compareDocumentPosition(nav) & Node.DOCUMENT_POSITION_FOLLOWING) > 0;
   }));
+  await goto(page, site, "#/settings");
+  await page.click(".settings-jump button:nth-child(4)");
+  r.check("settings: the jump row opens a folded panel", await until(page, () => document.getElementById("set-undo").open));
+  await goto(page, site, "#/room/" + id + "/done");
+  r.check("done: the plan names its Areas", (await page.$$eval("#sec-done .plan-hero .plan-area", ns => ns.length)) === names.length);
   r.check("P18: no console errors", page.__errors.length === 0, page.__errors[0]);
   await page.context().close();
 }
@@ -572,6 +577,21 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
     await until(page, n => document.querySelectorAll(".walk-plan .plan-area").length === n + 1 &&
       /A tin of buttons/.test(document.querySelector(".walk-plan .plan-hero").textContent), 2500, before));
   r.check("walk plan: the drawing has no controls (nothing here rolls)", (await page.$$eval(".walk-plan button", ns => ns.length)) === 0);
+  // Compact walk: one pinned action; carry and drop live on the card.
+  if (await page.$("#kw-name") === null && /Roll keyword/.test(await page.$eval("#action-bar-host .btn-primary", n => n.textContent))) {
+    await page.click("#action-bar-host .btn-primary");
+    await until(page, () => !!document.querySelector("#kw-name"));
+  }
+  if (await page.$("#kw-name")) {
+    r.check("compact walk: the pinned bar holds the one action", (await page.$$eval("#action-bar-host button", ns => ns.length)) === 1);
+    r.check("compact walk: carrying or dropping is on the card", await page.evaluate(() =>
+      Array.from(document.querySelectorAll(".deck-card .card-alts button, .deck-card .card-alts .hint")).length > 0));
+    const box = await page.evaluate(() => {
+      const p = document.querySelector(".walk-plan"), bar = document.querySelector("#action-bar-host .action-bar");
+      return p && bar ? { plan: Math.round(p.getBoundingClientRect().top), bar: Math.round(bar.getBoundingClientRect().top) } : null;
+    });
+    r.check("compact walk: the plan starts above the pinned bar at 390×780", !!box && box.plan < box.bar, JSON.stringify(box));
+  }
   r.check("walk plan: no console errors", page.__errors.length === 0, page.__errors[0]);
   await page.context().close();
 }
