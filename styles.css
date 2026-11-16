@@ -1481,3 +1481,16 @@ body.in-room #room-header-host { top: 0; }
 .coach.coach-strip .coach-ok { min-height: 40px; padding: 6px 12px; font-size: .85em; }
 .tile-find .glyph .ico { width: 18px; height: 18px; color: currentColor; }
 .plan-tile.done .tile-find { color: inherit; }
+
+/* The keyword walk draws the room as it goes (P18) */
+.plan-static { cursor: default; }
+.plan-static:active { transform: none; }
+.tile-sub { margin-top: auto; font-size: .78em; color: var(--ink-3); }
+.plan-tile.done .tile-sub { color: inherit; opacity: .8; }
+.plan-ghost { border: 2px dashed var(--accent); background: color-mix(in srgb, var(--accent-soft) 60%, transparent);
+  color: var(--accent); flex: 1 1 40%; animation: ghost-breathe 2.4s ease-in-out infinite; }
+.plan-ghost .tile-num { color: var(--accent); }
+@keyframes ghost-breathe { 50% { background: color-mix(in srgb, var(--accent-soft) 25%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .plan-ghost { animation: none; } }
+.walk-plan .plan-hero { margin-top: 2px; }
+.walk-plan .plan-general { pointer-events: none; }

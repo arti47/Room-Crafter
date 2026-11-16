@@ -745,3 +745,5 @@ Walk at 390/390-dark/900, mid-crawl and stress seeds. Rules untouched.
 - **A-85** A sheet stayed on screen after navigating away. Closes on leaving its screen; a stage step inside the same room is not leaving (a roll's result sheet survives the stage move that follows it). *Guard:* "sheet: leaving the screen closes it" — watched go red with the close removed.
 
 **H-18** "link: Done leads to the journal" read `#sec-done` straight after a hash change from the crawl, where the room renders inside a view transition (asynchronously). It now polls (D-15).
+
+**A-86 · The keyword walk listed its Areas as text; the room only took shape after the walk.** *Fix:* "Areas so far" is the plan, drawn static (`planHero` without `onPick`): named tiles captioned with their keywords, the keyword on the table as a dashed ghost tile. No controls in the drawing. *Guards:* "walk plan: …" ×4 — the ghost check watched go red with the ghost removed.

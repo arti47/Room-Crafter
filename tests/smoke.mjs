@@ -551,6 +551,31 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await page.context().close();
 }
 
+// P18 — the keyword walk draws the room as it goes.
+{
+  const page = await newPage(browser, site, { seed: "mid-crawl" });
+  await goto(page, site, "#/crawls");
+  const rid = await page.evaluate(() => JSON.parse(localStorage.getItem("rc.rooms")).find(r => (r.keywords || []).length < r.budget).id);
+  await goto(page, site, "#/wizard/" + rid);
+  if (/Roll keyword/.test(await page.$eval("#action-bar-host .btn-primary", n => n.textContent))) {
+    await page.click("#action-bar-host .btn-primary");
+    await until(page, () => !!document.querySelector("#kw-name"));
+  }
+  const word = await page.$eval(".keyword-word", n => n.textContent);
+  r.check("walk plan: the keyword on the table waits as a tile on the plan", await page.evaluate(w => {
+    const g = document.querySelector(".walk-plan .plan-ghost"); return !!g && g.textContent.includes(w);
+  }, word), word);
+  const before = await page.$$eval(".walk-plan .plan-area", ns => ns.length);
+  await page.fill("#kw-name", "A tin of buttons");
+  await page.keyboard.press("Enter");
+  r.check("walk plan: the Area made appears on the plan, named",
+    await until(page, n => document.querySelectorAll(".walk-plan .plan-area").length === n + 1 &&
+      /A tin of buttons/.test(document.querySelector(".walk-plan .plan-hero").textContent), 2500, before));
+  r.check("walk plan: the drawing has no controls (nothing here rolls)", (await page.$$eval(".walk-plan button", ns => ns.length)) === 0);
+  r.check("walk plan: no console errors", page.__errors.length === 0, page.__errors[0]);
+  await page.context().close();
+}
+
 // Tablet width adds density: two real columns on the room sheet and the wizard.
 {
   const page = await newPage(browser, site, { seed: "mid-crawl", width: 900, height: 1000 });

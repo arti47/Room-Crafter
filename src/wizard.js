@@ -10,6 +10,7 @@ import * as lifecycle from "./lifecycle.js";
 import * as roller from "./roller.js";
 import { Settings } from "./settings.js";
 import { budgetInfo, isWalkDone as walkDone, areaWords } from "./derived.js";
+import { planHero } from "./graphics.js";
 
 export function pending(room) {
   return (room.keywords || []).filter(k => k.use === "pending");
@@ -93,7 +94,6 @@ export function render(params) {
   add(content,
     // The room bar above carries the way back, the name and the stepper (P17).
     el("h1", { class: "screen-title sr-only", text: room.context.label || "New room" }),
-    explain(EXPLAIN.wizard),
     el("p", { class: "meta" },
       info.label + " · " + rolledCount(room) + " of " + room.budget + " rolled · " +
       (room.areas || []).length + " Area" + ((room.areas || []).length === 1 ? "" : "s") +
@@ -129,6 +129,7 @@ export function render(params) {
     );
     bar = b;
     add(content, areaList(room), keywordTrail(room), spacer);
+    footInfo(content);
     return { title: "Room", content, bar };
   }
 
@@ -150,6 +151,7 @@ export function render(params) {
     );
     bar = b;
     add(content, areaList(room), keywordTrail(room), spacer);
+    footInfo(content);
     return { title: "Room", content, bar };
   }
 
@@ -206,25 +208,28 @@ export function render(params) {
 
   const [b2, spacer2] = actionBar(controls);
   bar = b2;
-  add(rightCol, areaList(room), keywordTrail(room));
+  add(rightCol, areaList(room, words), keywordTrail(room));
   add(cols, leftCol, rightCol);
   // With a card on the table the card comes first; the strip moves under it.
   add(content, cols, steps, spacer2);
-  return { title: "Room", content, bar };
+  footInfo(content);
+    return { title: "Room", content, bar };
 }
 
-function areaList(room) {
-  if (!(room.areas || []).length) return null;
-  const box = el("section", { class: "block" });
+// The ⓘ at the foot, as on the room (P18), above the pinned bar's spacer.
+function footInfo(content) {
+  const spacer = content.querySelector(".action-bar-spacer");
+  content.insertBefore(el("div", { class: "screen-foot" }, explain(EXPLAIN.wizard)), spacer);
+}
+
+// The room drawn as the walk goes (P18): each Area made is a tile on the
+// plan, captioned with its keywords; the keyword on the table waits as a
+// dashed tile where the next Area would go. A drawing — nothing here rolls.
+function areaList(room, ghost = null) {
+  if (!(room.areas || []).length && !ghost) return null;
+  const box = el("section", { class: "block walk-plan" });
   add(box, el("h2", { class: "block-title", text: "Areas so far" }));
-  const ul = el("ul", { class: "list" });
-  for (const a of room.areas) {
-    add(ul, el("li", { class: "list-row" },
-      el("span", { class: "list-main", text: a.name }),
-      el("span", { class: "list-sub", text: areaWords(room, a).join(" + ") })
-    ));
-  }
-  add(box, ul);
+  add(box, planHero(room, { sub: a => areaWords(room, a).join(" + "), ghost }));
   return box;
 }
 

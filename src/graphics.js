@@ -127,12 +127,16 @@ export function roomPlan(room, { onPick } = {}) {
 // name and, once searched, its find. Walls round the outside are the General
 // Area — the room itself — and its tile sits along the bottom wall. Tiles keep
 // roomPlan's class names and data-area, so one pick handler serves both.
-export function planHero(room, { onPick } = {}) {
+// Without onPick it is a drawing, not controls (the keyword walk, P18): tiles
+// are plain boxes, `sub` captions an Area with no find, `ghost` is a dashed
+// tile for the keyword on the table, and the General Area waits as a label.
+export function planHero(room, { onPick, sub, ghost } = {}) {
   const areas = [...(room.areas || [])].sort((a, b) => a.order - b.order);
   const n = areas.length;
   let h = hash(room.id);
   const tile = (id, cls, label, kids) => {
-    const b = el("button", { class: cls, type: "button", "data-area": id, "aria-label": label });
+    const b = onPick ? el("button", { class: cls, type: "button", "data-area": id, "aria-label": label })
+      : el("div", { class: cls + " plan-static", "data-area": id, role: "img", "aria-label": label });
     for (const k of kids) if (k) b.appendChild(typeof k === "string" ? document.createTextNode(k) : k);
     return b;
   };
@@ -145,10 +149,13 @@ export function planHero(room, { onPick } = {}) {
     const t = tile(a.id, "plan-area plan-tile" + (done ? " done " + findTone(a.search) : ""),
       "Area " + (i + 1) + ": " + a.name + (done ? ", searched" : ", not searched"),
       [el("span", { class: "tile-num", "aria-hidden": "true", text: String(i + 1) }),
-       el("span", { class: "tile-name", text: a.name }), findLine(a.search)]);
+       el("span", { class: "tile-name", text: a.name }),
+       a.search ? findLine(a.search) : (sub ? el("span", { class: "tile-sub", text: sub(a) }) : null)]);
     t.style.flexGrow = String(1 + (h % 100) / 120);
     grid.appendChild(t);
   });
+  if (ghost) grid.appendChild(el("div", { class: "plan-tile plan-ghost", "aria-hidden": "true" },
+    el("span", { class: "tile-num", text: String(n + 1) }), el("span", { class: "tile-name", text: ghost })));
   const gen = room.generalArea;
   const general = tile("__general", "plan-room plan-tile plan-general" + (gen ? " done " + findTone(gen) : ""),
     "The General Area" + (gen ? ", searched" : ", not searched"),
