@@ -757,3 +757,5 @@ Walk at 390/390-dark/900, mid-crawl and stress seeds. Rules untouched.
 **Verified clean:** off, the mode adds no listeners and no DOM (`playtest: off, nothing listens and nothing is drawn`); the passcode is never stored (`playtest: the passcode itself is never stored`); typed text never enters the trail.
 
 **A-95 · The bar's encounter Ask split apart.** "Ask: is there an encounter? (", the odds, ")" were three flex items inside `.btn` and wrapped as separate pieces. Introduced by A-74; seen in the playtest panel screenshot. *Fix:* one inline span. *Guard:* "one Ask: the label reads as one line of text" — its first version counted elements, passed on the broken markup, and was corrected to count nodes; now watched go red.
+
+**A-96 · No icon on the home screen.** The manifest and the touch icon pointed only at `icon.svg`; iOS never uses an SVG touch icon and Android's installer wants 192/512 PNGs, so the installed app could show a blank or a letter. *Fix:* `icons/` generated from the same mark (`tools/gen-icons.mjs`), listed in the manifest (any + maskable), the `<head>` and the worker's shell. *Guards:* two unit checks, watched go red on the old files.

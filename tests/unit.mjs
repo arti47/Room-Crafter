@@ -699,6 +699,24 @@ check("the data check repairs a dangling room reference", () => {
 });
 
 // ── Report ───────────────────────────────────────────────────────────────────
+// ── Home-screen icons (A-96): iOS ignores an SVG touch icon; Android wants PNGs.
+check("A-96 the manifest has 192 and 512 PNG icons and a maskable one, and every file exists", () => {
+  const m = JSON.parse(readFileSync("manifest.json", "utf8"));
+  const png = m.icons.filter(i => i.type === "image/png");
+  ok(png.some(i => i.sizes === "192x192") && png.some(i => i.sizes === "512x512"), "192/512 PNG");
+  ok(png.some(i => /maskable/.test(i.purpose)), "maskable PNG");
+  for (const i of m.icons) readFileSync(i.src.replace("./", ""));
+});
+check("A-96 the page names a PNG apple-touch-icon, and the worker caches every icon", () => {
+  const html = readFileSync("index.html", "utf8");
+  const href = (html.match(/rel="apple-touch-icon"[^>]*href="([^"]+)"/) || [])[1] || "";
+  ok(/\.png$/.test(href), "apple-touch-icon is " + href);
+  readFileSync(href.replace("./", ""));
+  const sw = readFileSync("service-worker.js", "utf8");
+  for (const i of JSON.parse(readFileSync("manifest.json", "utf8")).icons) ok(sw.includes('"' + i.src + '"'), i.src + " not in SHELL");
+  ok(sw.includes('"' + href + '"'), href + " not in SHELL");
+});
+
 // ── Playtest mode (P19): a dev aid, kept honest like everything else ─────────
 {
   const pt = await import("../src/playtest.js");

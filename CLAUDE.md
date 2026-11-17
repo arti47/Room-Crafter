@@ -133,8 +133,9 @@ claims the other's copy.
 | `data-mythic.js` | One-Page Mythic: Ask The GM chart, Discover Meaning, Random Event triggers, its own rules-library entries | ☑ |
 | `data-playtest.js` | The play-through steps, **generated** from `docs/PLAYTEST.md` by `tools/gen-playtest.mjs` (`npm test` fails if they drift). Dev aid, not rules content | ☑ |
 | `tools/gen-playtest.mjs` | Regenerates `data-playtest.js`; `--check` verifies sync | ☑ |
+| `tools/gen-icons.mjs` | Rasterises `icon.svg` into `icons/*.png` with the installed Chromium; rerun after any change to the mark | ☑ |
 | `fonts/source-serif-4.woff2`, `fonts/OFL.txt` | The one typeface, bundled so it works offline; in the SW app shell | ☑ |
-| `manifest.json`, `service-worker.js`, `icon.svg` (doorway mark, matches the header) | PWA. The worker is **network-first for everything**, cache as the offline fallback (A-32); `CACHE_VERSION` bumped on any shipped-file change raises the update toast | ☑ |
+| `manifest.json`, `service-worker.js`, `icon.svg` (doorway mark, matches the header), `icons/` (PNG home-screen icons — 192, 512, maskable 512, 180 apple-touch — generated from `icon.svg` by `tools/gen-icons.mjs`, A-96) | PWA. The worker is **network-first for everything**, cache as the offline fallback (A-32); `CACHE_VERSION` bumped on any shipped-file change raises the update toast | ☑ |
 | `tests/` + `package.json` | Harnesses A–D, fixtures, probes; dev-only, gitignored `node_modules`, not in the SW app shell | ☑ |
 | `README.md` | Setup + personal-use licensing note | ☑ |
 | `docs/rules/` | Per-subsystem distilled reference the audit reads against the engine | ☑ |
@@ -409,7 +410,7 @@ table** — that is the one part of this milestone still owed.
 - ☑ Dead fields removed; wizard trail and header humanised; one label for finishing a room
 
 **Phase 8 — Hardening** ◐
-- ☑ Harness A (`npm test`, 98 checks), B (`npm run smoke`, 457), C (`npm run interact`, 321), D (fixtures fresh/mid-crawl/stress + both probes)
+- ☑ Harness A (`npm test`, 100 checks), B (`npm run smoke`, 457), C (`npm run interact`, 321), D (fixtures fresh/mid-crawl/stress + both probes)
 - ☑ Dead-data scan (`npm run scan`), clean
 - ☑ Accessibility: focus trap, `aria-live`, `aria-current`, labelled controls, 16px inputs, 40px+ targets, reduced motion, skip link
 - ☑ The §6.7 measurement contract, asserted on every route at every seed
@@ -482,6 +483,7 @@ Template §10 applies in full. The ones this project will actually be tested by:
 | 2026-09-11 | Audit cycle 2: A-13…A-16 and three harness faults | Template §11 | Three more guards watched go red | `rc-v2` |
 | 2026-09-11 | A-13: moved the default odds into the data layer | `"fifty"` was hardcoded in two `src/` modules (§10.2) | `R31` covers the row; `DEFAULT_ODDS` is the only source | `rc-v2` |
 | 2026-09-11 | H-10: the interaction audit now compares markup, not its length | A radiogroup changing selection is a net-zero length change, so nine live controls read as dead — and the same fault would hide any swap-shaped change | 294 controls, 0 findings | — |
+| 2026-11-17 | A-96: home-screen icon. The manifest and `apple-touch-icon` offered only `icon.svg`; iOS ignores SVG touch icons and Android installs want PNG. Added `icons/` (192, 512, maskable 512 inside the safe zone, 180 apple-touch, full-bleed) from `tools/gen-icons.mjs`; manifest, `<head>` and the SW shell list them | Owner: "why the room creator icon gone" | `npm test` 100 (two icon checks, watched go red on the old manifest and head) · all harnesses green. Re-add the app to the home screen to pick it up | `rc-v24` |
 | 2026-11-17 | A-95: the bar's encounter Ask label split into three flex items ("(", the odds, ")") and wrapped apart; now one inline run. Playtest panel's step text given room (min 72px) | Found in the playtest panel screenshot. Root cause: A-74 put a text–span–text sequence straight into a `.btn`, which lays children out as flex items | `smoke` 457 ("the label reads as one line of text" watched go red on the old markup, after a first version of the check that counted elements and missed it) · all harnesses green | `rc-v23` |
 | 2026-11-17 | Playtest mode (P19, A-94): `src/playtest.js`, `data-playtest.js` (generated from `docs/PLAYTEST.md` by `tools/gen-playtest.mjs`), `#/playtest`, version line in About (seven taps), passcode lock, consent switches, floating step panel, in-app capture (DOM → SVG foreignObject → PNG; checked against a real screenshot in both themes), attach, IndexedDB screenshots, store-only zip report (`report.md`, `data.json`, `screenshots/`); both new files in the SW shell | Owner asked for a hidden mode that gathers playtest data and screenshots, with permission, into one file to upload for analysis. No rule, table, roll or copy changed; off, nothing listens or draws | `npm test` 98 (sync, crc32, zip round-trip through `unzip`, consent left-out — watched go red with the trail always written) · `scan` clean · `smoke` 456 (twenty-one P19 checks: lock, refusal, no plaintext code, consent, panel, capture PNG, attach, a valid zip with marks/note/trail/snapshot, switched-off left out, end deletes, relock) | `rc-v22` |
 | 2026-11-16 | `docs/PLAYTEST.md`: a 51-step play-through script (first run, a three-room crawl through every walk permission, stage, Element and menu, Mythic off, log, settings and safety, tablet/offline), each step with its check and rule | Owner asked for a walkthrough for a thorough play-through; the Milestone's table rehearsal is still owed | Labels checked against the source | — |
