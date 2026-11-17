@@ -13,6 +13,16 @@ one appears. The build should be `rc-v21` or later. Settings → Undo and erase 
 **Erase everything** gives you a clean start; it offers Undo, so nothing is lost
 by accident.
 
+**Playtest mode (hidden).** The app can walk this script for you and build the
+report. Settings → About → tap the **version line seven times** → set a passcode
+(4–8 digits; asked once per browser session after that). Choose what may be
+recorded, then **Start the playtest**. A panel floats above the bottom bar: the
+step, its check, **Pass / Issue / Skip**, a note, **📷 Capture** (the app's
+screen) and **📎 Attach** (a phone screenshot). Fold it to a pill while you
+play. When done: open the panel → **Report** → **Build the report (.zip)**, and
+attach the zip to a message for analysis. **End session** deletes everything it
+recorded from the device.
+
 Each step has the thing to do, then **Check** — what should happen. `Rn` refers
 to the rule ledger in CLAUDE.md §5.
 

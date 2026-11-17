@@ -1,5 +1,6 @@
 // screens.js — home/crawls, crawl detail, roll log, distribution, rules, settings.
-import { el, add, when, plural } from "./core.js";
+import { el, add, when, plural, CACHE_VERSION } from "./core.js";
+import { armVersionTaps } from "./playtest.js";
 import { explain, actionBar, modal, promptModal, confirmModal, showToast, emptyState, sectionNav, houseAidBadge, radioGroup, downloadText, pickFile, icon, crumb, copyText } from "./ui.js";
 import { crawlStrip, heatGrid, illustration, fleuron, roomPlan, crawlMap } from "./graphics.js";
 import { EXPLAIN, RULES_LIBRARY, ROLL_LOG_CAP, TUTORIAL } from "../data.js";
@@ -516,7 +517,9 @@ export function settingsScreen() {
     // The tutorial is linked from Settings permanently (§6.6.3), and the rules with it.
     el("div", { class: "action-grid learn-links" },
       el("a", { class: "btn btn-quiet", href: "#/learn/tutorial" }, icon("learn"), "Tutorial"),
-      el("a", { class: "btn btn-quiet", href: "#/rules" }, icon("door"), "The rules"))
+      el("a", { class: "btn btn-quiet", href: "#/rules" }, icon("door"), "The rules")),
+    // The build, and the hidden way into playtest mode (P19).
+    armVersionTaps(el("p", { class: "version-line", text: "Version " + CACHE_VERSION }))
   ));
 
   return { title: "Settings", content };

@@ -3,9 +3,11 @@ import { applyTheme } from "./settings.js";
 import { start } from "./router.js";
 import { showToast } from "./ui.js";
 import { CACHE_VERSION } from "./core.js";
+import { start as startPlaytest } from "./playtest.js";
 
 applyTheme();
 start();
+startPlaytest();   // draws and listens only while a playtest session is on (P19)
 
 // PWA: register, and tell the player when a new version is waiting.
 if ("serviceWorker" in navigator) {

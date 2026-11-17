@@ -9,6 +9,7 @@ import * as sheet from "./sheet.js";
 import * as tutorial from "./tutorial.js";
 import * as print from "./print.js";
 import * as journal from "./journal.js";
+import * as playtest from "./playtest.js";
 import { searchState, areaCount, searchedAreas, isWalkDone } from "./derived.js";
 
 // Four tabs (§6.3.1 allows 4–6). Play holds the crawls, the open room and its
@@ -36,6 +37,7 @@ export function parse(hash) {
     case "learn": return parts[1] === "tutorial"
       ? { name: "tutorial", params: {} } : { name: "rules", params: {} };
     case "settings": return { name: "settings", params: {} };
+    case "playtest": return { name: "playtest", params: {} };
     case "journal": return { name: "journal", params: { crawlId: parts[1] || store.current().crawlId } };
     case "print": return { name: "print", params: { kind: parts[1] === "crawl" ? "crawl" : "room", id: parts[2] } };
     default: return { name: "crawls", params: {} };
@@ -44,7 +46,7 @@ export function parse(hash) {
 
 const TAB_OF = {
   crawls: "play", crawl: "play", wizard: "play", room: "play",
-  log: "log", distribution: "log", rules: "learn", tutorial: "learn", settings: "settings", print: "play", journal: "play"
+  log: "log", distribution: "log", rules: "learn", tutorial: "learn", settings: "settings", print: "play", journal: "play", playtest: "settings"
 };
 
 // The room the app is currently "in" — the header follows it (§6.2).
@@ -91,6 +93,10 @@ export function render(opts = {}) {
     case "settings": view = screens.settingsScreen(); break;
     case "print": view = print.render(route.params); break;
     case "journal": view = journal.render(route.params); break;
+    // Hidden (P19): locked, the route is simply Settings.
+    case "playtest":
+      if (!playtest.isUnlocked()) { location.replace("#/settings"); return; }
+      view = playtest.render(); break;
     default: view = screens.crawls();
   }
 
@@ -284,6 +290,7 @@ export function start() {
   wizard.setRerender(refresh);
   sheet.setRerender(refresh);
   journal.setRerender(refresh);
+  playtest.setRerender(refresh);
   screens.setRerender(refresh);
   // A sheet belongs to the screen it was opened on: leaving closes it (P18).
   // A stage step inside the same room is not leaving it.

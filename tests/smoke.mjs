@@ -596,6 +596,84 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   await page.context().close();
 }
 
+// P19 — the hidden playtest mode: locked, consented, and it builds the report.
+{
+  const { execFileSync } = await import("node:child_process");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const page = await newPage(browser, site, { seed: "mid-crawl" });
+  await goto(page, site, "#/settings");
+  r.check("playtest: off, nothing listens and nothing is drawn",
+    await page.evaluate(() => !window.__ptListening && !document.getElementById("pt-overlay")));
+  await page.evaluate(() => { location.hash = "#/playtest"; });
+  r.check("playtest: locked, the route is Settings", await until(page, () => location.hash === "#/settings"));
+  const ver = page.locator(".version-line");
+  for (let i = 0; i < 6; i++) await ver.click();
+  r.check("playtest: six taps do nothing", !(await page.$("#pt-code")));
+  await ver.click();
+  r.check("playtest: the seventh tap asks for a passcode", await until(page, () => !!document.querySelector("#pt-code")));
+  await page.fill("#pt-code", "2468"); await page.fill("#pt-code2", "1357");
+  await page.click(".modal-actions .btn-primary");
+  r.check("playtest: a mismatched passcode is refused", await until(page, () => /match/.test(document.querySelector(".modal-card [role=alert]").textContent)));
+  await page.fill("#pt-code2", "2468");
+  await page.click(".modal-actions .btn-primary");
+  r.check("playtest: the passcode opens the hidden screen", await until(page, () => location.hash === "#/playtest" && !!document.querySelector(".pt-screen")));
+  const stored = await page.evaluate(() => localStorage.getItem("rc.playtest"));
+  r.check("playtest: the passcode itself is never stored", !/2468/.test(stored));
+  r.check("playtest: the consent screen lists five switches, all on",
+    await page.evaluate(() => Array.from(document.querySelectorAll(".pt-screen input[type=checkbox]")).filter(c => c.checked).length === 5));
+  await page.click("#action-bar-host .btn-primary");   // Start
+  r.check("playtest: starting draws the panel and starts listening",
+    await until(page, () => !!document.getElementById("pt-overlay") && window.__ptListening === true));
+  await until(page, () => location.hash === "#/crawls");
+  await page.click("#pt-overlay .pt-pass");
+  r.check("playtest: Pass marks the step and moves on", await until(page, () => /Step 2 /.test(document.querySelector("#pt-overlay .pt-step").textContent)));
+  await page.click("#pt-overlay .pt-issue");
+  await page.fill("#pt-overlay .pt-note", "the welcome felt long");
+  await page.click("#pt-overlay button[aria-label='Fold the panel']");
+  r.check("playtest: the panel folds to a pill", await until(page, () => !!document.querySelector("#pt-overlay .pt-pill")));
+  await page.click("#screen .row-card");   // a tap for the trail
+  await until(page, () => /#\/crawl\//.test(location.hash));
+  await page.click("#pt-overlay .pt-pill");
+  await page.click("#pt-overlay button[aria-label='Capture this screen']");
+  r.check("playtest: 📷 keeps a PNG of the screen", await until(page, () => JSON.parse(localStorage.getItem("rc.playtest")).session.shots.some(s => /capture\.png$/.test(s.name)), 8000));
+  const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+  await page.setInputFiles("#pt-attach", { name: "phone.png", mimeType: "image/png", buffer: png });
+  r.check("playtest: 📎 keeps an attached screenshot", await until(page, () => JSON.parse(localStorage.getItem("rc.playtest")).session.shots.some(s => /attached\.png$/.test(s.name)), 5000));
+  await page.evaluate(() => { location.hash = "#/playtest"; });
+  await until(page, () => !!document.querySelector(".pt-screen"));
+  const [dl] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), page.click("#action-bar-host .btn-primary")]);
+  const dir = mkdtempSync(tmpdir() + "/pt-");
+  const zipPath = dir + "/r.zip";
+  await dl.saveAs(zipPath);
+  let listing = "";
+  try { execFileSync("unzip", ["-tq", zipPath]); listing = execFileSync("unzip", ["-Z1", zipPath]).toString(); } catch (e) { listing = "BAD " + e.message; }
+  r.check("playtest: the report is a valid zip with report.md, data.json and both screenshots",
+    /report\.md/.test(listing) && /data\.json/.test(listing) && /capture\.png/.test(listing) && /attached\.png/.test(listing), listing);
+  const data = JSON.parse(execFileSync("unzip", ["-p", zipPath, "data.json"]).toString());
+  const md = execFileSync("unzip", ["-p", zipPath, "report.md"]).toString();
+  r.check("playtest: the report carries the step marks and the note", data.steps[0].status === "pass" && data.steps[1].status === "issue" && /the welcome felt long/.test(md));
+  r.check("playtest: the trail has the tap, never typed text",
+    data.trail.some(e => e.kind === "tap") && !JSON.stringify(data.trail).includes("the welcome felt long"));
+  r.check("playtest: the snapshot is the app's own export", !!data.snapshot && Array.isArray(data.snapshot.rooms));
+  // Consent off: that part is left out of the next report.
+  await page.click("label[for=pt-c-snapshot]"); await page.click("label[for=pt-c-trail]");
+  const [dl2] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), page.click("#action-bar-host .btn-primary")]);
+  await dl2.saveAs(dir + "/r2.zip");
+  const data2 = JSON.parse(execFileSync("unzip", ["-p", dir + "/r2.zip", "data.json"]).toString());
+  r.check("playtest: switched off means left out", data2.snapshot === null && data2.trail === null);
+  // End: everything gone, listeners off.
+  await page.click("#action-bar-host .btn-danger");
+  await page.click(".modal-actions .btn-danger, .modal-actions .btn-primary");
+  r.check("playtest: ending deletes the session and stops listening",
+    await until(page, () => !JSON.parse(localStorage.getItem("rc.playtest")).session && !window.__ptListening && !document.getElementById("pt-overlay")));
+  await page.click(".pt-screen button:has-text('Lock and leave')");
+  await page.evaluate(() => { location.hash = "#/playtest"; });
+  r.check("playtest: locked again after Lock", await until(page, () => location.hash === "#/settings"));
+  r.check("playtest: no console errors", page.__errors.length === 0, page.__errors[0]);
+  await page.context().close();
+}
+
 // Tablet width adds density: two real columns on the room sheet and the wizard.
 {
   const page = await newPage(browser, site, { seed: "mid-crawl", width: 900, height: 1000 });

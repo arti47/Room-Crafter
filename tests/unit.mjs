@@ -21,7 +21,7 @@ function ok(v, msg) { if (!v) throw new Error(msg || "expected truthy"); }
 // renders and a test run that hangs. One second, every time, by filename.
 const sources = [
   ...readdirSync("src").filter(f => f.endsWith(".js")).map(f => "src/" + f),
-  "data.js", "data-house-roomtypes.js", "data-mythic.js", "service-worker.js"
+  "data.js", "data-house-roomtypes.js", "data-mythic.js", "data-playtest.js", "service-worker.js"
 ];
 for (const f of sources) {
   check("parses: " + f, () => { execFileSync("node", ["--check", f], { stdio: "pipe" }); });
@@ -699,6 +699,38 @@ check("the data check repairs a dangling room reference", () => {
 });
 
 // ── Report ───────────────────────────────────────────────────────────────────
+// ── Playtest mode (P19): a dev aid, kept honest like everything else ─────────
+{
+  const pt = await import("../src/playtest.js");
+  const { PLAYTEST_STEPS } = await import("../data-playtest.js");
+  check("P19 the playtest steps are the script: data-playtest.js is in sync with docs/PLAYTEST.md", () => {
+    execFileSync("node", ["tools/gen-playtest.mjs", "--check"], { stdio: "pipe" });
+  });
+  check("P19 the steps run 1…N with no gap, each with something to do", () => {
+    PLAYTEST_STEPS.forEach((s, i) => { eq(s.n, i + 1); ok(s.do.length > 5, "step " + s.n + " empty"); });
+  });
+  check("P19 crc32 matches the standard check value", () => {
+    eq(pt.crc32(new TextEncoder().encode("123456789")), 0xcbf43926);
+  });
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const blob = pt.zip([{ name: "a.txt", bytes: new TextEncoder().encode("hello") }, { name: "dir/b.bin", bytes: new Uint8Array([0, 1, 2, 255]) }]);
+  const zp = mkdtempSync(tmpdir() + "/ptz-") + "/t.zip";
+  writeFileSync(zp, Buffer.from(await blob.arrayBuffer()));
+  check("P19 the zip writer makes an archive unzip accepts, byte for byte", () => {
+    execFileSync("unzip", ["-tq", zp]);
+    eq(execFileSync("unzip", ["-p", zp, "a.txt"]).toString(), "hello");
+    eq(Array.from(execFileSync("unzip", ["-p", zp, "dir/b.bin"])), [0, 1, 2, 255]);
+  });
+  check("P19 the report leaves out what consent switched off", () => {
+    const ss = { id: "x", startedAt: 0, step: 1, results: { 1: { status: "pass", note: "fine", ms: 1000 } }, trail: [{ t: 1, kind: "tap", label: "Go" }], errors: [], shots: [] };
+    const all = pt.reportMarkdown(ss, { steps: true, trail: true, errors: true, snapshot: true, shots: true }, null);
+    const none = pt.reportMarkdown(ss, { steps: false, trail: false, errors: false, snapshot: false, shots: false }, null);
+    ok(/Every step/.test(all) && /Tap trail/.test(all) && /## Errors/.test(all));
+    ok(!/Every step/.test(none) && !/Tap trail/.test(none) && !/## Errors/.test(none));
+  });
+}
+
 console.log("\n" + pass + " passed, " + fail + " failed");
 if (fail) {
   for (const f of failures) console.error("  FAIL " + f);
