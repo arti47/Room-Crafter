@@ -304,7 +304,8 @@ function askPrimary(room) {
       const odds = () => encounterOdds.get(room.id) || mythic.DEFAULT_ODDS;
       return el("div", { class: "bar-stack" },
         el("button", { class: "btn btn-primary btn-wide", type: "button", id: "ask-encounter", onclick: () => askEncounter(room, odds()) },
-          "Ask: is there an encounter? (", el("span", { id: "ask-encounter-odds", text: shortOdds(odds()) }), ")"),
+          // One inline run: a .btn lays its children out as flex items (A-95).
+          el("span", {}, "Ask: is there an encounter? (", el("span", { id: "ask-encounter-odds", text: shortOdds(odds()) }), ")")),
         el("button", { class: "btn-link", type: "button", onclick: () => { lifecycle.skipEncounter(room); toNatural(room); } },
           "Skip the question"));
     }

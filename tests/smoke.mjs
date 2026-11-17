@@ -131,6 +131,7 @@ for (const seed of ["fresh", "mid-crawl", "stress"]) {
   r.check("one Ask: the encounter dial has no button of its own", !(await page.$("#sec-encounter .asker button")));
   const barLabel = await page.$eval("#ask-encounter", n => n.textContent);
   r.check("one Ask: the bar's Ask reads the dial", /\(Likely\)/.test(barLabel), barLabel);
+  r.check("one Ask: the label reads as one line of text, not three pieces", await page.$eval("#ask-encounter", n => n.childNodes.length === 1));
   await page.click("#ask-encounter");                                     // Ask, from the bar
   r.check("e2e: Ask The GM produced an answer",
     await until(page, () => !!document.querySelector(".modal-backdrop")));
